@@ -22,4 +22,4 @@ The main session typically runs Opus for orchestration and architecture decision
 
 ## Available agents
 
-- [`code-reviewer.md`](code-reviewer.md) - Read-only code review that produces a structured findings report. Sonnet.
+- [`code-reviewer.md`](code-reviewer.md) - Read-only code reviewer (Sonnet). Returns structured findings; never modifies code.

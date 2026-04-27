@@ -22,6 +22,7 @@ User scope (available in all projects):
 ```bash
 cp agents/code-reviewer.md ~/.claude/agents/
 cp commands/commit-smart.md ~/.claude/commands/
+cp commands/code-review.md ~/.claude/commands/
 ```
 
 Project scope (committed to your repo):
@@ -29,6 +30,7 @@ Project scope (committed to your repo):
 ```bash
 cp agents/code-reviewer.md .claude/agents/
 cp commands/commit-smart.md .claude/commands/
+cp commands/code-review.md .claude/commands/
 ```
 
 After copying, run `/agents` or `/commands` in a running Claude Code session to pick up changes without restarting.

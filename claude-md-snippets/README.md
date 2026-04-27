@@ -10,4 +10,4 @@ No install step. Browse the snippets, copy what you need into your `CLAUDE.md`.
 
 ## Available snippets
 
-_None yet. Drop your `.md` files here._
+- [`code-review-routing.md`](code-review-routing.md) - Routes review requests to the `code-reviewer` subagent and applies fixes in the main session. Pair with `agents/code-reviewer.md` and `commands/code-review.md`.
