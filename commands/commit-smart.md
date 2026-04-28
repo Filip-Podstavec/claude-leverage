@@ -42,3 +42,13 @@ If NON-TRIVIAL:
 - Never force push
 - Never use `--no-verify` to bypass pre-commit hooks
 - Never amend or rebase
+
+## Optional: Haiku tier for trivial commits
+
+If the commit qualifies as TRIVIAL by current criteria AND is a single-file change under 20 lines AND the user has installed `git-committer-quick`, you can optionally delegate to that subagent instead of committing in the main session. This is opt-in - default behavior is to commit in the main session for trivial scope.
+
+Trade-off: Haiku adds delegation overhead for tiny commits but uses a separate rate pool, which can matter on busy Opus sessions. Use the Haiku path when:
+- The user explicitly requested it
+- The main session's Opus pool is rate-limited
+
+Otherwise, the default (commit in main session) is faster and simpler.

@@ -20,7 +20,11 @@ After installing, run `/agents` in a running session to pick up changes without 
 
 The main session typically runs Opus for orchestration and architecture decisions. Subagents run Sonnet for execution work - code review, implementation, refactoring. Haiku handles cheap exploratory reads and searches. Each subagent declares `model:` explicitly in its frontmatter to avoid inheritance surprises.
 
+Haiku 4.5 has a separate rate pool on Max plans and is significantly faster for pure plumbing tasks (no reasoning, no writing). The `git-committer-quick` agent demonstrates when this trade-off makes sense - for trivial commits where the message can be derived directly from the diff. For commits requiring real understanding of why the code changed, Sonnet remains the right tier.
+
 ## Available agents
 
+- [`git-committer.md`](git-committer.md) - Stage, commit, push for non-trivial commits (Sonnet). Reads diff, writes Conventional Commits message matching repo style. Does not modify code.
+- [`git-committer-quick.md`](git-committer-quick.md) - Speed-optimized variant for trivial commits only (Haiku, single file, <20 lines). Opt-in via separate slash command or explicit invocation.
 - [`code-reviewer.md`](code-reviewer.md) - Read-only code reviewer (Sonnet). Returns structured findings; never modifies code.
 - [`test-runner.md`](test-runner.md) - Detects framework, runs tests, returns structured failure analysis (Sonnet, read-only). Never modifies code or test files.
