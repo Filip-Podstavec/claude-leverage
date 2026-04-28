@@ -23,3 +23,4 @@ The main session typically runs Opus for orchestration and architecture decision
 ## Available agents
 
 - [`code-reviewer.md`](code-reviewer.md) - Read-only code reviewer (Sonnet). Returns structured findings; never modifies code.
+- [`test-runner.md`](test-runner.md) - Detects framework, runs tests, returns structured failure analysis (Sonnet, read-only). Never modifies code or test files.

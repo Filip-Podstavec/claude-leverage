@@ -20,3 +20,4 @@ After installing, the command is available as `/<filename>` in any session. Run 
 
 - [`commit-smart.md`](commit-smart.md) - Smart commit routing: trivial changes committed directly, non-trivial delegated to a git-committer subagent to save Opus context.
 - [`code-review.md`](code-review.md) - Delegates review to the `code-reviewer` subagent and orchestrates user-confirmed fixes in the main session. Requires `code-reviewer` agent to be installed.
+- [`test.md`](test.md) - Delegates test execution to the `test-runner` subagent and orchestrates user-confirmed fixes in the main session. Requires `test-runner` agent to be installed.
