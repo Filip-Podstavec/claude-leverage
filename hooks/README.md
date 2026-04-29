@@ -21,6 +21,10 @@ A subagent rule like "never use `--no-verify`" only applies when that subagent i
 
 ## Install
 
+### Plugin install (automatic)
+
+If you installed claude-leverage as a plugin (`/plugin install`), hooks are registered automatically via `hooks/hooks.json`. No manual `settings.json` editing needed. The steps below are for standalone copy-paste installs only.
+
 ### Step 1: Copy scripts
 
 ```bash
@@ -86,10 +90,10 @@ Restart Claude Code or run `/hooks` in an active session to pick up changes.
 
 ```bash
 # Test secrets hook with fake AWS key
-echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test-secret.txt
-git add /tmp/test-secret.txt
+echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > test-secret.txt
+git add test-secret.txt
 # Ask Claude Code to commit. Hook should block.
-git rm --cached /tmp/test-secret.txt && rm /tmp/test-secret.txt
+git rm --cached test-secret.txt && rm test-secret.txt
 ```
 
 ## Disabling temporarily

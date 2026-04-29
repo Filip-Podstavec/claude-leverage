@@ -27,3 +27,12 @@ Place your `.md` file in the matching directory. Each file should be self-contai
 - [ ] Code examples are copy-pasteable and tested
 - [ ] No version-specific references or date stamps
 - [ ] Directory README updated to list the new item
+
+## Plugin development
+
+This repo is both a copy-pasteable component collection and a Claude Code plugin marketplace. When contributing:
+
+- New agents, commands, or hooks are automatically picked up by the plugin manifest - no need to update `plugin.json` to list each file.
+- If you change hook configuration (matchers, lifecycle events), update `hooks/hooks.json` accordingly.
+- Bump the `version` field in both `.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json` for any changes that should propagate to existing plugin installs. Use semantic versioning.
+- Test the plugin install flow locally before opening a PR: `/plugin marketplace add /path/to/local/clone`.

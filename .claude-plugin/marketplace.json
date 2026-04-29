@@ -1,0 +1,25 @@
+{
+  "name": "filip-podstavec",
+  "owner": {
+    "name": "Filip Podstavec",
+    "url": "https://github.com/Filip-Podstavec"
+  },
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "source": ".",
+      "description": "Model routing and workflow patterns for Claude Code. Subagents on Sonnet/Haiku for execution work, hooks for security, slash commands for workflow.",
+      "version": "0.1.0",
+      "category": "workflow",
+      "keywords": [
+        "subagents",
+        "model-routing",
+        "git-workflow",
+        "code-review",
+        "security-hooks",
+        "haiku",
+        "sonnet"
+      ]
+    }
+  ]
+}
