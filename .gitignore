@@ -1,6 +1,17 @@
+# OS
 .DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
 .idea/
 .vscode/
 *.swp
+*.swo
+*~
+
+# Dependencies
 node_modules/
+
+# Local project instructions
 CLAUDE.md
