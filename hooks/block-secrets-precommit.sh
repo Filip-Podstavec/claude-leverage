@@ -63,7 +63,7 @@ declare -a patterns=(
 current_file="unknown"
 
 for i in "${!patterns[@]}"; do
-  matched_line=$(echo "$added_lines" | grep -iE "${patterns[$i]}" | head -1) || true
+  matched_line=$(echo "$added_lines" | grep -iE -- "${patterns[$i]}" | head -1) || true
   if [ -n "$matched_line" ]; then
     # Try to find the file this line belongs to
     current_file=$(echo "$staged_diff" | grep -B 9999 -F "$matched_line" | grep '^+++ b/' | tail -1 | sed 's|^+++ b/||') || current_file="unknown"
