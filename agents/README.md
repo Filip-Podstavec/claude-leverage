@@ -29,3 +29,4 @@ Haiku 4.5 has a separate rate pool on Max plans and is significantly faster for 
 - [`code-reviewer.md`](code-reviewer.md) - Read-only code reviewer (Sonnet). Returns structured findings; never modifies code.
 - [`test-runner.md`](test-runner.md) - Detects framework, runs tests, returns structured failure analysis (Sonnet, read-only). Never modifies code or test files.
 - [`repo-explorer.md`](repo-explorer.md) - Read-only codebase exploration (Haiku). Finds where things are defined, identifies patterns. Never modifies code.
+- [`research-agent.md`](research-agent.md) - Read-only research synthesis (Sonnet). Answers "how does X work" questions by reading multiple files and returning a structured report. Distinct from `repo-explorer` (which handles "where" lookups on Haiku).

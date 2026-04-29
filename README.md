@@ -8,7 +8,7 @@
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL2-lightgrey)]()
 ![Hooks](https://img.shields.io/badge/hooks-2-green)
-![Agents](https://img.shields.io/badge/agents-5-green)
+![Agents](https://img.shields.io/badge/agents-6-green)
 ![Commands](https://img.shields.io/badge/commands-3-green)
 
 **Quick install:**
@@ -43,6 +43,7 @@ graph TB
         CRA["code-reviewer<br/><small>Sonnet</small>"]
         TR["test-runner<br/><small>Sonnet</small>"]
         RX["repo-explorer<br/><small>Haiku</small>"]
+        RA["research-agent<br/><small>Sonnet</small>"]
     end
 
     subgraph Hooks["Hooks - deterministic security layer"]
@@ -89,6 +90,7 @@ graph TB
 | [`code-reviewer`](agents/code-reviewer.md) | Sonnet | Read-only code reviewer. Returns structured findings (Critical / Important / Nice to have). Never modifies files. |
 | [`test-runner`](agents/test-runner.md) | Sonnet | Detects test framework, runs tests, returns structured failure analysis. Read-only. |
 | [`repo-explorer`](agents/repo-explorer.md) | Haiku | Read-only codebase exploration. Finds where things are defined, identifies patterns, returns structured findings. Never modifies code. |
+| [`research-agent`](agents/research-agent.md) | Sonnet | Read-only research synthesis. Answers "how does X work" by reading multiple files and returning structured pattern analysis. Distinct from `repo-explorer` (which handles "where" lookups). |
 
 ### Commands
 
@@ -111,6 +113,7 @@ graph TB
 |---------|------------|
 | [`code-review-routing`](claude-md-snippets/code-review-routing.md) | `code-reviewer` agent + `/code-review` command |
 | [`test-routing`](claude-md-snippets/test-routing.md) | `test-runner` agent + `/test` command |
+| [`research-routing`](claude-md-snippets/research-routing.md) | `research-agent` agent |
 
 ## Workflow example
 
@@ -143,7 +146,7 @@ In a running Claude Code session:
 /plugin install claude-leverage@filip-podstavec
 ```
 
-That's it. All five agents, three commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
+That's it. All six agents, three commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
 
 **Update and uninstall:**
 
@@ -222,17 +225,18 @@ cp commands/commit-smart.md .claude/commands/
 | `code-reviewer` agent + `/code-review` command | Sonnet reviews code, returns Critical/Important/Nice-to-have findings |
 | `test-runner` agent + `/test` command | Sonnet runs tests, returns structured failure analysis |
 | `repo-explorer` agent | Haiku-based codebase discovery, finds where things are defined |
+| `research-agent` agent | Sonnet synthesizes "how does X work" answers across multiple files - keeps your main context window clean |
 | CLAUDE.md snippets | Auto-routing rules so the main session delegates without you typing the command |
 
 **Scope:** Same choice as above - user-level or project-level. Snippets go into your `CLAUDE.md`.
 
 ```bash
 # User scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md ~/.claude/agents/
+cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md ~/.claude/agents/
 cp commands/code-review.md commands/test.md ~/.claude/commands/
 
 # - OR - Project scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md .claude/agents/
+cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md .claude/agents/
 cp commands/code-review.md commands/test.md .claude/commands/
 ```
 
