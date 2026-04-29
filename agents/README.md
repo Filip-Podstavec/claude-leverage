@@ -28,3 +28,4 @@ Haiku 4.5 has a separate rate pool on Max plans and is significantly faster for 
 - [`git-committer-quick.md`](git-committer-quick.md) - Speed-optimized variant for trivial commits only (Haiku, single file, <20 lines). Opt-in via separate slash command or explicit invocation.
 - [`code-reviewer.md`](code-reviewer.md) - Read-only code reviewer (Sonnet). Returns structured findings; never modifies code.
 - [`test-runner.md`](test-runner.md) - Detects framework, runs tests, returns structured failure analysis (Sonnet, read-only). Never modifies code or test files.
+- [`repo-explorer.md`](repo-explorer.md) - Read-only codebase exploration (Haiku). Finds where things are defined, identifies patterns. Never modifies code.
