@@ -15,3 +15,6 @@ node_modules/
 
 # Local project instructions
 CLAUDE.md
+
+# Local plans (not part of the plugin)
+plans/

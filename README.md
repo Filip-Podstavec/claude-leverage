@@ -8,8 +8,8 @@ Not every task in a coding session needs the most capable model. This repo orche
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL2-lightgrey)]()
 ![Hooks](https://img.shields.io/badge/hooks-2-green)
-![Agents](https://img.shields.io/badge/agents-6-green)
-![Commands](https://img.shields.io/badge/commands-3-green)
+![Agents](https://img.shields.io/badge/agents-7-green)
+![Commands](https://img.shields.io/badge/commands-4-green)
 
 **Quick install:**
 ```
@@ -35,6 +35,7 @@ graph TB
         CS["/commit-smart"]
         CR["/code-review"]
         TT["/test"]
+        GCT["/gather-context"]
     end
 
     subgraph Agents["Subagents - model-specific execution"]
@@ -44,6 +45,7 @@ graph TB
         TR["test-runner<br/><small>Sonnet</small>"]
         RX["repo-explorer<br/><small>Haiku</small>"]
         RA["research-agent<br/><small>Sonnet</small>"]
+        CG["context-gatherer<br/><small>Sonnet</small>"]
     end
 
     subgraph Hooks["Hooks - deterministic security layer"]
@@ -56,12 +58,13 @@ graph TB
         TRR["test-routing"]
     end
 
-    USER --> CS & CR & TT
+    USER --> CS & CR & TT & GCT
     USER -.->|"explore"| RX
     CS -->|"non-trivial"| GC
     CS -->|"trivial < 20 lines"| GCQ
     CR --> CRA
     TT --> TR
+    GCT --> CG
 
     Hooks -.->|"intercepts every Bash call"| Main
     Hooks -.->|"intercepts every Bash call"| Agents
@@ -91,6 +94,7 @@ graph TB
 | [`test-runner`](agents/test-runner.md) | Sonnet | Detects test framework, runs tests, returns structured failure analysis. Read-only. |
 | [`repo-explorer`](agents/repo-explorer.md) | Haiku | Read-only codebase exploration. Finds where things are defined, identifies patterns, returns structured findings. Never modifies code. |
 | [`research-agent`](agents/research-agent.md) | Sonnet | Read-only research synthesis. Answers "how does X work" by reading multiple files and returning structured pattern analysis. Distinct from `repo-explorer` (which handles "where" lookups). |
+| [`context-gatherer`](agents/context-gatherer.md) | Sonnet | Pre-fetches implementation context before coding. Given a task, gathers key files, patterns, dependencies, and constraints into a structured package. Saves Opus from exploring the codebase itself. |
 
 ### Commands
 
@@ -99,6 +103,7 @@ graph TB
 | [`/commit-smart`](commands/commit-smart.md) | Routes commits by complexity: trivial changes handled directly, non-trivial delegated to `git-committer` subagent. |
 | [`/code-review`](commands/code-review.md) | Delegates review to `code-reviewer` subagent, orchestrates user-confirmed fixes in main session. |
 | [`/test`](commands/test.md) | Delegates test execution to `test-runner` subagent, orchestrates user-confirmed fixes in main session. |
+| [`/gather-context`](commands/gather-context.md) | Delegates codebase exploration to `context-gatherer` subagent before implementation. Returns structured context package. |
 
 ### Hooks
 
@@ -114,23 +119,25 @@ graph TB
 | [`code-review-routing`](claude-md-snippets/code-review-routing.md) | `code-reviewer` agent + `/code-review` command |
 | [`test-routing`](claude-md-snippets/test-routing.md) | `test-runner` agent + `/test` command |
 | [`research-routing`](claude-md-snippets/research-routing.md) | `research-agent` agent |
+| [`context-gathering-routing`](claude-md-snippets/context-gathering-routing.md) | `context-gatherer` agent + `/gather-context` command |
 
 ## Workflow example
 
 A typical development cycle using claude-leverage:
 
 ```
-1. Explore codebase if needed          → Haiku repo-explorer (Opus saves context)
-2. Write code                          → Opus main session
-3. /code-review                        → Sonnet reviews (Opus saves context)
-4. Apply fixes from review             → Opus applies, guided by Sonnet's report
-5. /test                               → Sonnet runs tests, reports failures
-6. Fix failing tests                   → Opus fixes, guided by Sonnet's report
-7. /commit-smart                       → Routes automatically:
+1. /gather-context                     → Sonnet pre-fetches implementation context
+2. Explore codebase if needed          → Haiku repo-explorer (Opus saves context)
+3. Write code                          → Opus main session (guided by context package)
+4. /code-review                        → Sonnet reviews (Opus saves context)
+5. Apply fixes from review             → Opus applies, guided by Sonnet's report
+6. /test                               → Sonnet runs tests, reports failures
+7. Fix failing tests                   → Opus fixes, guided by Sonnet's report
+8. /commit-smart                       → Routes automatically:
    ├─ trivial (1-2 files, <50 lines)   → commits directly in session
    ├─ trivial + single file <20 lines  → optionally Haiku subagent
    └─ non-trivial                      → Sonnet git-committer subagent
-8. Hooks run silently on every step    → block secrets, prevent force push
+9. Hooks run silently on every step    → block secrets, prevent force push
 ```
 
 **Result:** Opus handles only architecture and code changes. Reviews, tests, and commits run on cheaper models. Hooks enforce security without relying on any prompt.
@@ -146,7 +153,7 @@ In a running Claude Code session:
 /plugin install claude-leverage@filip-podstavec
 ```
 
-That's it. All six agents, three commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
+That's it. All seven agents, four commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
 
 **Update and uninstall:**
 
@@ -226,18 +233,19 @@ cp commands/commit-smart.md .claude/commands/
 | `test-runner` agent + `/test` command | Sonnet runs tests, returns structured failure analysis |
 | `repo-explorer` agent | Haiku-based codebase discovery, finds where things are defined |
 | `research-agent` agent | Sonnet synthesizes "how does X work" answers across multiple files - keeps your main context window clean |
-| CLAUDE.md snippets | Auto-routing rules so the main session delegates without you typing the command |
+| `context-gatherer` agent + `/gather-context` command | Sonnet pre-fetches implementation context (types, patterns, deps) before you code — biggest token saver |
+| CLAUDE.md snippets | Auto-routing rules so the main session delegates without you typing the command (includes context-gathering routing) |
 
 **Scope:** Same choice as above - user-level or project-level. Snippets go into your `CLAUDE.md`.
 
 ```bash
 # User scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md ~/.claude/agents/
-cp commands/code-review.md commands/test.md ~/.claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md ~/.claude/agents/
+cp commands/code-review.md commands/test.md commands/gather-context.md ~/.claude/commands/
 
 # - OR - Project scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md .claude/agents/
-cp commands/code-review.md commands/test.md .claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md .claude/agents/
+cp commands/code-review.md commands/test.md commands/gather-context.md .claude/commands/
 ```
 
 Then copy the snippets you want from [`claude-md-snippets/`](claude-md-snippets/) into your `CLAUDE.md`.
