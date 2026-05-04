@@ -1,6 +1,6 @@
 # claude-leverage
 
-**Curated subagents, slash commands, hooks, and workflow patterns for Claude Code.**
+Not every task in a coding session needs the most capable model. This repo orchestrates Claude Code subagents so that research, code review, test runs, and trivial commits are handled by cost-efficient models — while implementation and architecture stay on the latest Opus. The result: 30–70% token savings on typical development work, with no compromise on code quality.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Filip-Podstavec/claude-leverage)](https://github.com/Filip-Podstavec/claude-leverage/stargazers)
