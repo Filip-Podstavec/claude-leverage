@@ -163,14 +163,17 @@ That's it. All seven agents, four commands, and two hooks are now available glob
 /plugin uninstall claude-leverage@filip-podstavec
 ```
 
-**Upgrading from 0.1.x:** If you see a hooks loading error after updating (`Failed to load hooks from .../0.1.0/hooks/hooks.json`), the old cached version has a known issue. Fix by reinstalling:
+**Upgrading from 0.1.x:** If you see a hooks loading error after updating (`Failed to load hooks from .../0.1.0/hooks/hooks.json`), the old cached version has a known issue. The platform does not clean old cache on update or reinstall — you must delete it manually:
 
-```
-/plugin uninstall claude-leverage@filip-podstavec
-/plugin install claude-leverage@filip-podstavec
+```bash
+# Linux/macOS
+rm -rf ~/.claude/plugins/cache/filip-podstavec/claude-leverage/0.1.0
+
+# Windows (PowerShell)
+Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\plugins\cache\filip-podstavec\claude-leverage\0.1.0"
 ```
 
-This is a [Claude Code platform issue](https://github.com/anthropics/claude-code/issues) — old plugin cache versions are not cleaned up on update.
+Then run `/reload-plugins` in your Claude Code session. This is a [Claude Code platform issue](https://github.com/anthropics/claude-code/issues) — old plugin cache versions are not cleaned up automatically.
 
 **Scope notes:** By default, plugins install to user scope (`~/.claude/plugins/`) and apply across all your projects. If you install with project scope (via the interactive `/plugin` UI), be aware of a known limitation: project-scoped plugins cannot be promoted to user scope through the UI - you would need to uninstall and reinstall. For most users, the default user scope is the right choice.
 
