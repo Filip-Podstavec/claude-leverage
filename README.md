@@ -163,6 +163,15 @@ That's it. All seven agents, four commands, and two hooks are now available glob
 /plugin uninstall claude-leverage@filip-podstavec
 ```
 
+**Upgrading from 0.1.x:** If you see a hooks loading error after updating (`Failed to load hooks from .../0.1.0/hooks/hooks.json`), the old cached version has a known issue. Fix by reinstalling:
+
+```
+/plugin uninstall claude-leverage@filip-podstavec
+/plugin install claude-leverage@filip-podstavec
+```
+
+This is a [Claude Code platform issue](https://github.com/anthropics/claude-code/issues) — old plugin cache versions are not cleaned up on update.
+
 **Scope notes:** By default, plugins install to user scope (`~/.claude/plugins/`) and apply across all your projects. If you install with project scope (via the interactive `/plugin` UI), be aware of a known limitation: project-scoped plugins cannot be promoted to user scope through the UI - you would need to uninstall and reinstall. For most users, the default user scope is the right choice.
 
 **CLAUDE.md snippets and workflow guides** are documentation, not Claude Code primitives - the plugin does not install them. Copy what you need from [`claude-md-snippets/`](claude-md-snippets/) into your project's CLAUDE.md file.
