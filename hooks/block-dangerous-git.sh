@@ -15,12 +15,33 @@
 
 set -euo pipefail
 
+# Check for jq dependency. Without it we cannot parse the hook input - fail
+# loudly rather than silently allow everything.
+if ! command -v jq >/dev/null 2>&1; then
+  cat >&2 <<'EOF'
+[block-dangerous-git] WARNING: jq is not installed - this hook is DISABLED.
+Install jq to enable git safety enforcement (force push, --no-verify, hard reset).
+  macOS:   brew install jq
+  Ubuntu:  sudo apt install jq
+EOF
+  exit 0
+fi
+
 # Parse command from stdin JSON. Fail-open on malformed input.
 cmd=$(jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
 [ -z "$cmd" ] && exit 0
 
+# Normalize for keyword matching: strip shell quotes and backslashes that
+# could be used to evade detection (e.g., `git "commit"`, `git\ push --force`).
+# This trades semantic accuracy for robustness - the normalized string is
+# only used for pattern matching, never executed.
+cmd_norm=$(printf '%s' "$cmd" | tr -d "'\"\\\\")
+
 # --- Force push ---
-if echo "$cmd" | grep -qE 'git\s+push' && echo "$cmd" | grep -qE '(--force|--force-with-lease|\s-f\s|\s-f$)'; then
+# Match --force, --force-with-lease, or any short-option cluster containing 'f'
+# (catches `-f`, `-fu`, `-uf`, `-fud` - all valid getopt-style combinations).
+if echo "$cmd_norm" | grep -qE 'git\s+push' && \
+   echo "$cmd_norm" | grep -qE '(--force|--force-with-lease|(\s|^)-[A-Za-z]*f[A-Za-z]*(\s|$))'; then
   cat >&2 <<'EOF'
 [block-dangerous-git] Force push detected.
 
@@ -33,7 +54,7 @@ EOF
 fi
 
 # --- No-verify commits ---
-if echo "$cmd" | grep -qE 'git\s+commit' && echo "$cmd" | grep -qE '(--no-verify)'; then
+if echo "$cmd_norm" | grep -qE 'git\s+commit' && echo "$cmd_norm" | grep -qE '(--no-verify)'; then
   cat >&2 <<'EOF'
 [block-dangerous-git] --no-verify detected on git commit.
 
@@ -47,7 +68,7 @@ EOF
 fi
 
 # --- Hard reset to protected branch ---
-if echo "$cmd" | grep -qE 'git\s+reset\s+--hard\s+\S*\b(main|master|develop|trunk)\b'; then
+if echo "$cmd_norm" | grep -qE 'git\s+reset\s+--hard\s+\S*\b(main|master|develop|trunk)\b'; then
   cat >&2 <<'EOF'
 [block-dangerous-git] Hard reset to a protected branch detected.
 
@@ -61,7 +82,7 @@ EOF
 fi
 
 # --- Force branch delete (warning only, does not block) ---
-if echo "$cmd" | grep -qE 'git\s+branch\s+-D\s'; then
+if echo "$cmd_norm" | grep -qE 'git\s+branch\s+-D\s'; then
   cat >&2 <<'EOF'
 [block-dangerous-git] Warning: force branch delete (git branch -D) detected.
 

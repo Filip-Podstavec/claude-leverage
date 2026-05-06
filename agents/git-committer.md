@@ -1,7 +1,7 @@
 ---
 name: git-committer
 description: "Stage, commit, and push non-trivial changes using Conventional Commits. Reads diff, matches repo style, reports result. Does not modify code. For trivial single-file commits under 20 lines, see git-committer-quick (Haiku) instead."
-tools: Bash, Read
+tools: Read, Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Bash(git rev-parse:*)
 model: sonnet
 ---
 

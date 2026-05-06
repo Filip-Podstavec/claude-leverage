@@ -14,12 +14,28 @@
 
 set -euo pipefail
 
+# Check for jq dependency. Without it we cannot parse the hook input - fail
+# loudly rather than silently allow everything.
+if ! command -v jq >/dev/null 2>&1; then
+  cat >&2 <<'EOF'
+[block-secrets-precommit] WARNING: jq is not installed - this hook is DISABLED.
+Install jq to enable secret scanning before commits.
+  macOS:   brew install jq
+  Ubuntu:  sudo apt install jq
+EOF
+  exit 0
+fi
+
 # Parse command from stdin JSON. Fail-open on malformed input.
 cmd=$(jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
 [ -z "$cmd" ] && exit 0
 
+# Normalize for keyword matching only: strip shell quotes and backslashes that
+# could be used to evade `git commit` detection (e.g., `git "commit"`).
+cmd_norm=$(printf '%s' "$cmd" | tr -d "'\"\\\\")
+
 # Only inspect git commit commands
-case "$cmd" in
+case "$cmd_norm" in
   *"git commit"*) ;;
   *) exit 0 ;;
 esac
@@ -56,7 +72,7 @@ declare -a patterns=(
   'AIza[0-9A-Za-z_-]{35}'
   'xox[baprs]-[A-Za-z0-9-]{10,}'
   '-----BEGIN.*PRIVATE KEY-----'
-  '(password|passwd|pwd|secret|api[_-]?key|access[_-]?token)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'$\{<]{8,}["'"'"']'
+  '(password|passwd|pwd|secret|api[_-]?key|access[_-]?token)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'$\{<]{8,}["'"'"']'
 )
 
 # Extract current file from diff for reporting
