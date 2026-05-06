@@ -8,8 +8,8 @@ Not every task in a coding session needs the most capable model. This repo orche
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL2-lightgrey)]()
 ![Hooks](https://img.shields.io/badge/hooks-2-green)
-![Agents](https://img.shields.io/badge/agents-7-green)
-![Commands](https://img.shields.io/badge/commands-4-green)
+![Agents](https://img.shields.io/badge/agents-8-green)
+![Commands](https://img.shields.io/badge/commands-5-green)
 
 **Quick install:**
 ```
@@ -36,6 +36,7 @@ graph TB
         CR["/code-review"]
         TT["/test"]
         GCT["/gather-context"]
+        PD["/pr-describe"]
     end
 
     subgraph Agents["Subagents - model-specific execution"]
@@ -46,6 +47,7 @@ graph TB
         RX["repo-explorer<br/><small>Haiku</small>"]
         RA["research-agent<br/><small>Sonnet</small>"]
         CG["context-gatherer<br/><small>Sonnet</small>"]
+        PRD["pr-describer<br/><small>Sonnet</small>"]
     end
 
     subgraph Hooks["Hooks - deterministic security layer"]
@@ -58,13 +60,14 @@ graph TB
         TRR["test-routing"]
     end
 
-    USER --> CS & CR & TT & GCT
+    USER --> CS & CR & TT & GCT & PD
     USER -.->|"explore"| RX
     CS -->|"non-trivial"| GC
     CS -->|"trivial < 20 lines"| GCQ
     CR --> CRA
     TT --> TR
     GCT --> CG
+    PD --> PRD
 
     Hooks -.->|"intercepts every Bash call"| Main
     Hooks -.->|"intercepts every Bash call"| Agents
@@ -95,6 +98,7 @@ graph TB
 | [`repo-explorer`](agents/repo-explorer.md) | Haiku | Read-only codebase exploration. Finds where things are defined, identifies patterns, returns structured findings. Never modifies code. |
 | [`research-agent`](agents/research-agent.md) | Sonnet | Read-only research synthesis. Answers "how does X work" by reading multiple files and returning structured pattern analysis. Distinct from `repo-explorer` (which handles "where" lookups). |
 | [`context-gatherer`](agents/context-gatherer.md) | Sonnet | Pre-fetches implementation context before coding. Given a task, gathers key files, patterns, dependencies, and constraints into a structured package. Saves Opus from exploring the codebase itself. |
+| [`pr-describer`](agents/pr-describer.md) | Sonnet | Reads branch diff, commit history, repo PR template, and optionally linked issues. Returns a structured PR body and a ready-to-run `gh pr create` command. Read-only - never opens the PR. |
 
 ### Commands
 
@@ -104,6 +108,7 @@ graph TB
 | [`/code-review`](commands/code-review.md) | Delegates review to `code-reviewer` subagent, orchestrates user-confirmed fixes in main session. |
 | [`/test`](commands/test.md) | Delegates test execution to `test-runner` subagent, orchestrates user-confirmed fixes in main session. |
 | [`/gather-context`](commands/gather-context.md) | Delegates codebase exploration to `context-gatherer` subagent before implementation. Returns structured context package. |
+| [`/pr-describe`](commands/pr-describe.md) | Delegates PR description writing to `pr-describer` subagent. Returns PR body plus a ready-to-run `gh pr create` command. Never opens the PR without explicit user approval. |
 
 ### Hooks
 
@@ -137,7 +142,8 @@ A typical development cycle using claude-leverage:
    ├─ trivial (1-2 files, <50 lines)   → commits directly in session
    ├─ trivial + single file <20 lines  → optionally Haiku subagent
    └─ non-trivial                      → Sonnet git-committer subagent
-9. Hooks run silently on every step    → block secrets, prevent force push
+9. /pr-describe                        → Sonnet drafts PR body + `gh pr create` command
+10. Hooks run silently on every step   → block secrets, prevent force push
 ```
 
 **Result:** Opus handles only architecture and code changes. Reviews, tests, and commits run on cheaper models. Hooks enforce security without relying on any prompt.
@@ -153,7 +159,7 @@ In a running Claude Code session:
 /plugin install claude-leverage@filip-podstavec
 ```
 
-That's it. All seven agents, four commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
+That's it. All eight agents, five commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
 
 **Update and uninstall:**
 
@@ -246,18 +252,19 @@ cp commands/commit-smart.md .claude/commands/
 | `repo-explorer` agent | Haiku-based codebase discovery, finds where things are defined |
 | `research-agent` agent | Sonnet synthesizes "how does X work" answers across multiple files - keeps your main context window clean |
 | `context-gatherer` agent + `/gather-context` command | Sonnet pre-fetches implementation context (types, patterns, deps) before you code — biggest token saver |
+| `pr-describer` agent + `/pr-describe` command | Sonnet reads branch diff + commit history + PR template + linked issues, returns PR body and ready-to-run `gh pr create` |
 | CLAUDE.md snippets | Auto-routing rules so the main session delegates without you typing the command (includes context-gathering routing) |
 
 **Scope:** Same choice as above - user-level or project-level. Snippets go into your `CLAUDE.md`.
 
 ```bash
 # User scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md ~/.claude/agents/
-cp commands/code-review.md commands/test.md commands/gather-context.md ~/.claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/pr-describer.md ~/.claude/agents/
+cp commands/code-review.md commands/test.md commands/gather-context.md commands/pr-describe.md ~/.claude/commands/
 
 # - OR - Project scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md .claude/agents/
-cp commands/code-review.md commands/test.md commands/gather-context.md .claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/pr-describer.md .claude/agents/
+cp commands/code-review.md commands/test.md commands/gather-context.md commands/pr-describe.md .claude/commands/
 ```
 
 Then copy the snippets you want from [`claude-md-snippets/`](claude-md-snippets/) into your `CLAUDE.md`.
