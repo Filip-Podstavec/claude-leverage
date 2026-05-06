@@ -8,8 +8,8 @@ Not every task in a coding session needs the most capable model. This repo orche
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL2-lightgrey)]()
 ![Hooks](https://img.shields.io/badge/hooks-2-green)
-![Agents](https://img.shields.io/badge/agents-8-green)
-![Commands](https://img.shields.io/badge/commands-5-green)
+![Agents](https://img.shields.io/badge/agents-9-green)
+![Commands](https://img.shields.io/badge/commands-6-green)
 
 **Quick install:**
 ```
@@ -37,6 +37,7 @@ graph TB
         TT["/test"]
         GCT["/gather-context"]
         PD["/pr-describe"]
+        DS["/docs-sync"]
     end
 
     subgraph Agents["Subagents - model-specific execution"]
@@ -48,6 +49,7 @@ graph TB
         RA["research-agent<br/><small>Sonnet</small>"]
         CG["context-gatherer<br/><small>Sonnet</small>"]
         PRD["pr-describer<br/><small>Sonnet</small>"]
+        DU["docs-updater<br/><small>Sonnet</small>"]
     end
 
     subgraph Hooks["Hooks - deterministic security layer"]
@@ -60,7 +62,7 @@ graph TB
         TRR["test-routing"]
     end
 
-    USER --> CS & CR & TT & GCT & PD
+    USER --> CS & CR & TT & GCT & PD & DS
     USER -.->|"explore"| RX
     CS -->|"non-trivial"| GC
     CS -->|"trivial < 20 lines"| GCQ
@@ -68,6 +70,7 @@ graph TB
     TT --> TR
     GCT --> CG
     PD --> PRD
+    DS --> DU
 
     Hooks -.->|"intercepts every Bash call"| Main
     Hooks -.->|"intercepts every Bash call"| Agents
@@ -99,6 +102,7 @@ graph TB
 | [`research-agent`](agents/research-agent.md) | Sonnet | Read-only research synthesis. Answers "how does X work" by reading multiple files and returning structured pattern analysis. Distinct from `repo-explorer` (which handles "where" lookups). |
 | [`context-gatherer`](agents/context-gatherer.md) | Sonnet | Pre-fetches implementation context before coding. Given a task, gathers key files, patterns, dependencies, and constraints into a structured package. Saves Opus from exploring the codebase itself. |
 | [`pr-describer`](agents/pr-describer.md) | Sonnet | Reads branch diff, commit history, repo PR template, and optionally linked issues. Returns a structured PR body and a ready-to-run `gh pr create` command. Read-only - never opens the PR. |
+| [`docs-updater`](agents/docs-updater.md) | Sonnet | Reads code diff and existing docs (README, CHANGELOG, docstrings on changed funcs). Returns confidence-labeled prose-direction suggestions. Read-only - main session applies edits fresh from live state. |
 
 ### Commands
 
@@ -109,6 +113,7 @@ graph TB
 | [`/test`](commands/test.md) | Delegates test execution to `test-runner` subagent, orchestrates user-confirmed fixes in main session. |
 | [`/gather-context`](commands/gather-context.md) | Delegates codebase exploration to `context-gatherer` subagent before implementation. Returns structured context package. |
 | [`/pr-describe`](commands/pr-describe.md) | Delegates PR description writing to `pr-describer` subagent. Returns PR body plus a ready-to-run `gh pr create` command. Never opens the PR without explicit user approval. |
+| [`/docs-sync`](commands/docs-sync.md) | Delegates doc-freshness check to `docs-updater` subagent. Returns confidence-labeled suggestions for README, CHANGELOG, and docstrings. Main session applies approved edits. |
 
 ### Hooks
 
@@ -125,6 +130,7 @@ graph TB
 | [`test-routing`](claude-md-snippets/test-routing.md) | `test-runner` agent + `/test` command |
 | [`research-routing`](claude-md-snippets/research-routing.md) | `research-agent` agent |
 | [`context-gathering-routing`](claude-md-snippets/context-gathering-routing.md) | `context-gatherer` agent + `/gather-context` command |
+| [`docs-sync-routing`](claude-md-snippets/docs-sync-routing.md) | `docs-updater` agent + `/docs-sync` command (opt-in reminder, no auto-route) |
 
 ## Workflow example
 
@@ -143,7 +149,8 @@ A typical development cycle using claude-leverage:
    ├─ trivial + single file <20 lines  → optionally Haiku subagent
    └─ non-trivial                      → Sonnet git-committer subagent
 9. /pr-describe                        → Sonnet drafts PR body + `gh pr create` command
-10. Hooks run silently on every step   → block secrets, prevent force push
+10. /docs-sync                         → Sonnet flags stale README/CHANGELOG, Opus applies
+11. Hooks run silently on every step   → block secrets, prevent force push
 ```
 
 **Result:** Opus handles only architecture and code changes. Reviews, tests, and commits run on cheaper models. Hooks enforce security without relying on any prompt.
@@ -159,7 +166,7 @@ In a running Claude Code session:
 /plugin install claude-leverage@filip-podstavec
 ```
 
-That's it. All eight agents, five commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
+That's it. All nine agents, six commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
 
 **Update and uninstall:**
 
@@ -253,18 +260,19 @@ cp commands/commit-smart.md .claude/commands/
 | `research-agent` agent | Sonnet synthesizes "how does X work" answers across multiple files - keeps your main context window clean |
 | `context-gatherer` agent + `/gather-context` command | Sonnet pre-fetches implementation context (types, patterns, deps) before you code — biggest token saver |
 | `pr-describer` agent + `/pr-describe` command | Sonnet reads branch diff + commit history + PR template + linked issues, returns PR body and ready-to-run `gh pr create` |
-| CLAUDE.md snippets | Auto-routing rules so the main session delegates without you typing the command (includes context-gathering routing) |
+| `docs-updater` agent + `/docs-sync` command | Sonnet checks README/CHANGELOG/docstrings against the diff, returns confidence-labeled prose-direction suggestions for Opus to apply |
+| CLAUDE.md snippets | Auto-routing rules so the main session delegates without you typing the command (includes context-gathering and opt-in docs-sync reminder) |
 
 **Scope:** Same choice as above - user-level or project-level. Snippets go into your `CLAUDE.md`.
 
 ```bash
 # User scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/pr-describer.md ~/.claude/agents/
-cp commands/code-review.md commands/test.md commands/gather-context.md commands/pr-describe.md ~/.claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/pr-describer.md agents/docs-updater.md ~/.claude/agents/
+cp commands/code-review.md commands/test.md commands/gather-context.md commands/pr-describe.md commands/docs-sync.md ~/.claude/commands/
 
 # - OR - Project scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/pr-describer.md .claude/agents/
-cp commands/code-review.md commands/test.md commands/gather-context.md commands/pr-describe.md .claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/pr-describer.md agents/docs-updater.md .claude/agents/
+cp commands/code-review.md commands/test.md commands/gather-context.md commands/pr-describe.md commands/docs-sync.md .claude/commands/
 ```
 
 Then copy the snippets you want from [`claude-md-snippets/`](claude-md-snippets/) into your `CLAUDE.md`.
