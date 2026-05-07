@@ -1,6 +1,6 @@
 ---
 name: docs-updater
-description: "Use after significant code changes to keep documentation in sync. Reads diff and existing docs, proposes specific updates to README, CHANGELOG, docstrings, and other documentation files. Read-only - returns prose-direction suggestions, never modifies files."
+description: "Use when the user wants documentation checked for freshness after code changes. Reads diff and existing docs, proposes specific updates to README, CHANGELOG, docstrings, and other documentation files. Read-only - returns prose-direction suggestions, never modifies files."
 tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*)
 model: sonnet
 ---

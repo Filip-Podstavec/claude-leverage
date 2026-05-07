@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: "Use after writing or modifying code. Use proactively before commits or PRs. Use when user asks for review, audit, or feedback on code. Read-only - returns structured feedback, never modifies files."
+description: "Use when the user asks for a code review, audit, security check, or feedback on changes. Also useful when the user signals readiness to commit or open a PR. Read-only - returns structured feedback, never modifies files."
 tools: Read, Grep, Glob
 model: sonnet
 ---

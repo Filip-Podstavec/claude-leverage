@@ -1,5 +1,7 @@
 # Context gathering routing
 
+**Threshold:** Delegate when the task will likely touch 3+ files OR when you don't yet know which files are involved. Inline for single-file changes where you already know the target.
+
 When about to implement a feature or fix a bug that will likely touch 3+ files, delegate context gathering to the `context-gatherer` subagent (Sonnet, read-only) instead of exploring the codebase yourself.
 
 The subagent reads relevant files in its own context, returns a structured implementation-ready package (key files, patterns, dependencies, constraints), and your main context window stays clean for actual implementation.

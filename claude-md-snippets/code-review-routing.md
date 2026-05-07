@@ -2,7 +2,9 @@
 
 When the user asks for a code review, audit, security check, or feedback on changes:
 
-- ALWAYS delegate to the `code-reviewer` subagent. Do not review directly in this session.
+- **Delegate** to the `code-reviewer` subagent when scope is non-trivial: 3+ files OR over 50 changed lines OR cross-file pattern checks needed.
+- **Review inline** (no delegation) when scope is trivial: 1-2 files under 50 lines combined. Delegation overhead exceeds savings on small reviews.
+- When delegating, also pass any non-obvious decisions made earlier in the session ("we considered X but went with Y because Z") so the subagent does not waste output re-litigating already-rejected alternatives.
 - Present findings to the user and wait for direction before making any changes.
 - Apply approved fixes in this session. The subagent never modifies code.
 

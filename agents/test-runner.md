@@ -1,6 +1,6 @@
 ---
 name: test-runner
-description: "Use after writing or modifying code to verify tests pass. Use proactively before commits. Use when user asks to run tests, check for regressions, or diagnose test failures. Reports structured failure analysis - never modifies code or test files."
+description: "Use when the user asks to run tests, check for regressions, or diagnose test failures. Also useful when the user signals readiness to commit. Reports structured failure analysis - never modifies code or test files."
 tools: Bash, Read, Grep, Glob
 model: sonnet
 ---

@@ -1,8 +1,10 @@
 # Research routing
 
+**Threshold:** Delegate when you would otherwise read 3+ files to synthesize the answer. Inline for 1-2 files.
+
 When you need to understand how something works in the codebase - patterns used, how a flow is structured, how multiple files interact - delegate to the `research-agent` subagent (Sonnet, read-only) instead of reading files directly.
 
-This applies whenever you would otherwise read 3+ files to synthesize an answer. The subagent reads in its own context, returns a structured report, and your main context window stays clean for the actual work.
+The subagent reads in its own context, returns a structured report, and your main context window stays clean for the actual work.
 
 ## When to delegate
 

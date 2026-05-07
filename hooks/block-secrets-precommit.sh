@@ -48,6 +48,13 @@ staged_diff=$(git diff --cached 2>/dev/null) || exit 0
 added_lines=$(echo "$staged_diff" | grep -E '^\+[^+]' || true)
 [ -z "$added_lines" ] && exit 0
 
+# Drop lines explicitly allowlisted with the marker comment.
+# Use sparingly - this is a per-line escape hatch for legitimate matches
+# (test fixtures, docs examples, mock tokens). Marker is load-bearing -
+# future readers may not recognize it.
+added_lines=$(echo "$added_lines" | grep -v 'claude-leverage-allow-secret' || true)
+[ -z "$added_lines" ] && exit 0
+
 # Secret patterns - name and extended regex
 declare -a pattern_names=(
   "AWS Access Key"

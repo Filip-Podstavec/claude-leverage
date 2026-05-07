@@ -84,9 +84,9 @@ Always produce a report in this exact structure:
 
 <Things that Opus must factor in. Known limitations, edge cases, deprecated patterns, version requirements. Only include if genuinely relevant — do not pad this section.>
 
-## Files Opus Must Read
+## Suggested starting points (Opus's discretion to expand)
 
-<The minimal set of file:line ranges Opus should preload to start implementing. These are directly actionable — Opus reads exactly these ranges and has enough context to begin.>
+<A minimal set of file:line ranges that Opus can preload to start implementing. Treat as a starting point, not a closed set — Opus may read more if it judges other files relevant.>
 
 - `path/to/file.ts:10-45`
 - `path/to/types.ts:22-30`

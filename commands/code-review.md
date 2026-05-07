@@ -28,18 +28,25 @@ You do NOT review the code yourself. The subagent does that. Your job is to dele
    - Otherwise, if there are unstaged changes, review those.
    - If nothing is changed, ask the user what they want reviewed.
 
-2. **Invoke the `code-reviewer` subagent** with a clear scope. Pass the relevant context (file paths or "the staged changes"). Wait for its structured report.
+2. **Capture session-decisions context (recommended for non-trivial sessions).** If you made non-obvious choices during this session that the subagent could waste output re-litigating, capture them as 2-5 lines of explicit constraints to pass alongside the diff. Examples:
+   - "Chose REST over GraphQL — team alignment, do not suggest GraphQL"
+   - "Skipped retry logic — handled at gateway, do not flag missing retries"
+   - "Used pattern X to match existing code in src/foo/, not the more 'idiomatic' Y"
 
-3. **Present findings to the user.** Keep your summary concise. Use the subagent's priority sections (Critical / Important / Nice to have). Do not editorialize - the subagent already prioritized.
+   Do NOT pass full session history. If no such non-obvious decisions exist, skip this step. The point is to prevent wasted review effort on already-settled questions, not to bias the review's independence.
 
-4. **Ask for direction.** Offer these options:
+3. **Invoke the `code-reviewer` subagent** with the scope and (if step 2 produced any) the constraints block. Wait for its structured report.
+
+4. **Present findings to the user.** Keep your summary concise. Use the subagent's priority sections (Critical / Important / Nice to have). Do not editorialize - the subagent already prioritized.
+
+5. **Ask for direction.** Offer these options:
    - Apply all critical and important findings
    - Apply specific findings (user picks which)
    - Skip fixes, the user will handle it
 
    Wait for explicit confirmation. Never apply fixes preemptively.
 
-5. **Apply approved fixes** using your full toolset (Edit, Write, Bash). The subagent has no write tools and is not involved in this phase.
+6. **Apply approved fixes** using your full toolset (Edit, Write, Bash). The subagent has no write tools and is not involved in this phase.
 
 ## Hard rules
 

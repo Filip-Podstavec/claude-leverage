@@ -30,7 +30,7 @@ You do NOT explore the codebase yourself. The subagent does that. Your job is to
 3. **Present the context package to the user.** Keep it as-is — the subagent's structured output is already optimized for consumption.
 
 4. **Use the context for implementation:**
-   - If the context package includes "Files Opus Must Read" — read those ranges, then begin implementing.
+   - If the context package includes "Suggested starting points" — read those ranges to begin, and expand to other files if you judge them relevant. Treat the list as a starting set, not the closed set.
    - If the subagent indicates this is greenfield (no existing code matches), proceed directly to implementation using the nearest relevant patterns listed in the package.
 
 ## Hard rules

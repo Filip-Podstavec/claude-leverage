@@ -7,9 +7,9 @@ Not every task in a coding session needs the most capable model. This repo orche
 [![GitHub issues](https://img.shields.io/github/issues/Filip-Podstavec/claude-leverage)](https://github.com/Filip-Podstavec/claude-leverage/issues)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL2-lightgrey)]()
-![Hooks](https://img.shields.io/badge/hooks-2-green)
+![Hooks](https://img.shields.io/badge/hooks-3-green)
 ![Agents](https://img.shields.io/badge/agents-8-green)
-![Commands](https://img.shields.io/badge/commands-5-green)
+![Commands](https://img.shields.io/badge/commands-6-green)
 
 **Quick install:**
 ```
@@ -37,6 +37,7 @@ graph TB
         TT["/test"]
         GCT["/gather-context"]
         DS["/docs-sync"]
+        IS["/install-snippets"]
     end
 
     subgraph Agents["Subagents - model-specific execution"]
@@ -50,9 +51,10 @@ graph TB
         DU["docs-updater<br/><small>Sonnet</small>"]
     end
 
-    subgraph Hooks["Hooks - deterministic security layer"]
+    subgraph Hooks["Hooks - deterministic security + observability"]
         BS["block-secrets-precommit"]
         BD["block-dangerous-git"]
+        TD["track-delegations<br/><small>PostToolUse, observability</small>"]
     end
 
     subgraph Snippets["CLAUDE.md Snippets"]
@@ -109,13 +111,15 @@ graph TB
 | [`/test`](commands/test.md) | Delegates test execution to `test-runner` subagent, orchestrates user-confirmed fixes in main session. |
 | [`/gather-context`](commands/gather-context.md) | Delegates codebase exploration to `context-gatherer` subagent before implementation. Returns structured context package. |
 | [`/docs-sync`](commands/docs-sync.md) | Delegates doc-freshness check to `docs-updater` subagent. Returns confidence-labeled suggestions for README, CHANGELOG, and docstrings. Main session applies approved edits. |
+| [`/install-snippets`](commands/install-snippets.md) | Interactively installs CLAUDE.md routing snippets into your `~/.claude/CLAUDE.md` or project `CLAUDE.md` (snippets are not auto-installed by the plugin). |
 
 ### Hooks
 
 | Hook | Trigger | Description |
 |------|---------|-------------|
-| [`block-secrets-precommit`](hooks/block-secrets-precommit.sh) | `git commit` | Scans staged diff for API keys, tokens, private keys. Blocks commit if found. |
+| [`block-secrets-precommit`](hooks/block-secrets-precommit.sh) | `git commit` | Scans staged diff for API keys, tokens, private keys. Blocks commit if found. Supports `claude-leverage-allow-secret` per-line allowlist marker. |
 | [`block-dangerous-git`](hooks/block-dangerous-git.sh) | `git push`, `git commit`, `git reset` | Blocks force push, `--no-verify`, hard reset on protected branches. |
+| [`track-delegations`](hooks/track-delegations.sh) | `Task` (PostToolUse) | Observability only - never blocks. Logs each subagent delegation to `~/.claude/claude-leverage-stats.jsonl` and prints a single parenthesized stderr note like `(claude-leverage: code-reviewer -> sonnet)`. |
 
 ### CLAUDE.md Snippets
 
@@ -160,7 +164,9 @@ In a running Claude Code session:
 /plugin install claude-leverage@filip-podstavec
 ```
 
-That's it. All eight agents, five commands, and two hooks are now available globally. Verify with `/agents` and `/commands`.
+That's it. All eight agents, six commands, and three hooks are now available globally. Verify with `/agents` and `/commands`.
+
+**One extra step for routing rules:** the plugin does not auto-install CLAUDE.md snippets (Claude Code limitation). To enable auto-routing, run `/install-snippets` in any session — it will append the routing rules to your `~/.claude/CLAUDE.md`. Without snippets, you can still use the slash commands explicitly (`/code-review`, `/test`, etc.).
 
 **Update and uninstall:**
 
@@ -205,6 +211,7 @@ Open the repo in Claude Code and tell it to set you up. The agent will walk you 
 |---------------------|--------------|
 | `block-secrets-precommit.sh` | Scans staged diff for API keys, tokens, private keys - blocks the commit if found |
 | `block-dangerous-git.sh` | Blocks force push, `--no-verify`, hard reset on protected branches |
+| `track-delegations.sh` | Observability only - logs subagent delegations subtly. Never blocks. |
 
 **Scope:** User-level only (`~/.claude/hooks/`) - hooks protect all your projects, not just one.
 
@@ -261,11 +268,11 @@ cp commands/commit-smart.md .claude/commands/
 ```bash
 # User scope
 cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/docs-updater.md ~/.claude/agents/
-cp commands/code-review.md commands/test.md commands/gather-context.md commands/docs-sync.md ~/.claude/commands/
+cp commands/code-review.md commands/test.md commands/gather-context.md commands/docs-sync.md commands/install-snippets.md ~/.claude/commands/
 
 # - OR - Project scope
 cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/docs-updater.md .claude/agents/
-cp commands/code-review.md commands/test.md commands/gather-context.md commands/docs-sync.md .claude/commands/
+cp commands/code-review.md commands/test.md commands/gather-context.md commands/docs-sync.md commands/install-snippets.md .claude/commands/
 ```
 
 Then copy the snippets you want from [`claude-md-snippets/`](claude-md-snippets/) into your `CLAUDE.md`.

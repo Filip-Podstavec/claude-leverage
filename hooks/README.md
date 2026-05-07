@@ -18,6 +18,13 @@ A subagent rule like "never use `--no-verify`" only applies when that subagent i
 
 - `block-secrets-precommit.sh` - Scans staged diff before `git commit` for API keys, tokens, and private keys. Blocks commit if found.
 - `block-dangerous-git.sh` - Blocks force push, `--no-verify` commits, and hard reset on protected branches.
+- `track-delegations.sh` - PostToolUse observability hook (non-blocking). Logs subagent delegations to `~/.claude/claude-leverage-stats.jsonl` and prints a one-line stderr note like `(claude-leverage: code-reviewer → sonnet)` after each delegation.
+
+## Known limits (read before relying on hooks for security)
+
+- **`jq` dependency, fail-open posture.** All hooks need `jq` to parse Claude Code's hook input JSON. If `jq` is missing, hooks print a warning to stderr and exit 0 (allow). This is intentional — blocking every Bash call when `jq` is missing would break unrelated work — but the trade-off is that until `jq` is installed, **the security guardrails are not enforced.** Install `jq` before treating hooks as a guarantee.
+- **Pattern-based detection has false negatives.** Secret patterns are heuristics; custom or novel formats may slip through. Hooks are defense-in-depth, not a substitute for CI-side secret scanning (e.g., gitleaks, trufflehog).
+- **False positives have a per-line escape hatch.** When a pattern matches a legitimate value (test fixture, documentation example, mock token), append the literal comment `claude-leverage-allow-secret` on the same line. The secrets hook skips lines containing that marker. Use sparingly — the marker is load-bearing, and future readers may not recognize it.
 
 ## Install
 
@@ -56,6 +63,14 @@ Add to `~/.claude/settings.json`:
         "hooks": [
           { "type": "command", "command": "$HOME/.claude/hooks/block-secrets-precommit.sh" },
           { "type": "command", "command": "$HOME/.claude/hooks/block-dangerous-git.sh" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/track-delegations.sh" }
         ]
       }
     ]
