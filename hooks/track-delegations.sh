@@ -26,6 +26,19 @@ stats_file="${HOME}/.claude/claude-leverage-stats.jsonl"
 mkdir -p "$(dirname "$stats_file")" 2>/dev/null || true
 ts=$(date -u +%FT%TZ 2>/dev/null || echo "unknown")
 
+# === DEBUG (temporary, removed in 0.9.0) =====================================
+# One-shot probe to discover whether Claude Code's PostToolUse hook payload
+# includes token-usage data (e.g. tool_response.usage.input_tokens). Dumps the
+# full raw stdin JSON to ~/.claude/leverage-debug.log so the maintainer can
+# inspect the structure once. Best-effort, never blocks. Will be stripped out
+# in the next release once the structure is known.
+{
+  printf '\n=== %s ===\n' "$ts"
+  printf '%s\n' "$JSON_INPUT"
+} >> "${HOME}/.claude/leverage-debug.log" 2>/dev/null || true
+# === END DEBUG ==============================================================
+
+
 # No parser available - log anonymously and exit silently.
 # We rely on Claude Code's matcher (configured as "Task" in hooks.json) to
 # ensure this hook only fires on Task tool calls. Without a parser we cannot
