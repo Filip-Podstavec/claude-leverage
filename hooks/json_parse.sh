@@ -22,9 +22,20 @@
 # JSON_INPUT once via read_stdin, then get_field can be called repeatedly
 # to extract dotted-path values.
 
+# JSON_INPUT holds the raw JSON received on stdin once read_stdin has been
+# called. Initialized to empty string so that sourcing this file in a hook
+# running under `set -u` (nounset) does not abort if a future caller forgets
+# to call read_stdin before get_field.
+JSON_INPUT=""
+
 # Capture stdin into JSON_INPUT. Call once per hook invocation.
+# Strips CR characters defensively: on Git Bash on Windows, Claude Code may
+# deliver hook input with CRLF line endings, which would otherwise leave
+# trailing \r characters embedded in extracted JSON string values, causing
+# silent string-comparison failures (e.g. "code-reviewer\r" not matching
+# the "code-reviewer" case pattern).
 read_stdin() {
-  JSON_INPUT=$(cat)
+  JSON_INPUT=$(cat | tr -d '\r')
 }
 
 # has_parser: returns 0 if any supported JSON parser is on PATH, 1 otherwise.
@@ -88,13 +99,20 @@ for p in parts:
     else:
         v = None
         break
-if v is None:
+# Mirror jq -r "// empty" semantics exactly: only null and false are
+# suppressed; numeric 0 IS emitted as "0" (jq behavior). True is emitted
+# as lowercase "true" to match jq -r (Python would otherwise print "True").
+# Empty string is also suppressed, so callers can distinguish "field
+# present with empty value" from "field has data" - same as jq.
+if v is None or v is False:
     pass
+elif isinstance(v, bool):
+    print("true")
 elif isinstance(v, str):
     if v != "":
         print(v)
 else:
-    # Non-string leaf (number, bool). Coerce to string for consistency with jq -r.
+    # Numbers (int, float) including 0, lists, dicts. Coerce to str.
     print(str(v))
 ' 2>/dev/null) || result=""
     printf '%s\n' "$result"

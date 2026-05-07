@@ -118,7 +118,7 @@ graph TB
 | [`/gather-context`](commands/gather-context.md) | Delegates codebase exploration to `context-gatherer` subagent before implementation. Returns structured context package. |
 | [`/docs-sync`](commands/docs-sync.md) | Delegates doc-freshness check to `docs-updater` subagent. Returns confidence-labeled suggestions for README, CHANGELOG, and docstrings. Main session applies approved edits. |
 | [`/install-snippets`](commands/install-snippets.md) | Interactively installs CLAUDE.md routing snippets into your `~/.claude/CLAUDE.md` or project `CLAUDE.md` (snippets are not auto-installed by the plugin). |
-| [`/leverage-stats`](commands/leverage-stats.md) | Reads the `track-delegations` log (`~/.claude/claude-leverage-stats.jsonl`) and prints lifetime totals, breakdown by tier and subagent, last-7-days activity. Read-only. |
+| [`/leverage-stats`](commands/leverage-stats.md) | Reads the `track-delegations` log (`~/.claude/claude-leverage-stats.jsonl`) and prints lifetime totals, breakdown by tier and subagent, last-7-days activity, real token-usage sums, plus a heuristic "estimated savings vs all-Opus" calculation (with explicit counterfactual disclaimer). Read-only. |
 
 ### Hooks
 
@@ -126,7 +126,7 @@ graph TB
 |------|---------|-------------|
 | [`block-secrets-precommit`](hooks/block-secrets-precommit.sh) | `git commit` | Scans staged diff for API keys, tokens, private keys. Blocks commit if found. Supports `claude-leverage-allow-secret` per-line allowlist marker. |
 | [`block-dangerous-git`](hooks/block-dangerous-git.sh) | `git push`, `git commit`, `git reset` | Blocks force push, `--no-verify`, hard reset on protected branches. |
-| [`track-delegations`](hooks/track-delegations.sh) | `Task` (PostToolUse) | Observability only - never blocks. Logs each subagent delegation to `~/.claude/claude-leverage-stats.jsonl` and prints a single parenthesized stderr note like `(claude-leverage: code-reviewer -> sonnet)`. Falls back to anonymous logging when no JSON parser is available so total counts still work. |
+| [`track-delegations`](hooks/track-delegations.sh) | `Task` (PostToolUse) | Observability only - never blocks. Logs each subagent delegation to `~/.claude/claude-leverage-stats.jsonl` including real token usage extracted from `tool_response.usage.*`, prints a single parenthesized stderr note like `(claude-leverage: code-reviewer -> sonnet, 13783 tok)`. Falls back to anonymous logging when no JSON parser is available so total counts still work. Companion aggregator at [`hooks/leverage_stats_agg.py`](hooks/leverage_stats_agg.py) is invoked by `/leverage-stats`. |
 
 All hooks need a JSON parser on PATH — `jq` preferred, `python3` or `python` work as automatic fallback. Security hooks fail-open with a loud warning if none are available (documented in [`hooks/README.md`](hooks/README.md)).
 
@@ -226,8 +226,8 @@ Open the repo in Claude Code and tell it to set you up. The agent will walk you 
 
 ```bash
 mkdir -p ~/.claude/hooks
-cp hooks/*.sh ~/.claude/hooks/
-chmod +x ~/.claude/hooks/*.sh
+cp hooks/*.sh hooks/leverage_stats_agg.py ~/.claude/hooks/
+chmod +x ~/.claude/hooks/*.sh ~/.claude/hooks/leverage_stats_agg.py
 ```
 
 Then register in `~/.claude/settings.json` - see [`hooks/README.md`](hooks/README.md) for the JSON config.

@@ -18,7 +18,9 @@ A subagent rule like "never use `--no-verify`" only applies when that subagent i
 
 - `block-secrets-precommit.sh` - Scans staged diff before `git commit` for API keys, tokens, and private keys. Blocks commit if found.
 - `block-dangerous-git.sh` - Blocks force push, `--no-verify` commits, and hard reset on protected branches.
-- `track-delegations.sh` - PostToolUse observability hook (non-blocking). Logs subagent delegations to `~/.claude/claude-leverage-stats.jsonl` and prints a one-line stderr note like `(claude-leverage: code-reviewer -> sonnet)` after each delegation.
+- `track-delegations.sh` - PostToolUse observability hook (non-blocking). Logs subagent delegations to `~/.claude/claude-leverage-stats.jsonl` including real token usage extracted from `tool_response.usage.*`. Prints a one-line stderr note like `(claude-leverage: code-reviewer -> sonnet, 13783 tok)` after each delegation.
+- `leverage_stats_agg.py` - Helper Python script (not itself a hook). Reads the JSONL log emitted by `track-delegations.sh` and prints pipe-separated tier aggregates. Invoked by the `/leverage-stats` slash command.
+- `json_parse.sh` - Helper shell library (not itself a hook). Sourced by all three hooks. Provides `read_stdin`, `has_parser`, and `get_field` with a jq -> python3 -> python fallback chain.
 
 ## Known limits (read before relying on hooks for security)
 
@@ -37,8 +39,8 @@ If you installed claude-leverage as a plugin (`/plugin install`), hooks are regi
 
 ```bash
 mkdir -p ~/.claude/hooks
-cp hooks/*.sh ~/.claude/hooks/
-chmod +x ~/.claude/hooks/*.sh
+cp hooks/*.sh hooks/leverage_stats_agg.py ~/.claude/hooks/
+chmod +x ~/.claude/hooks/*.sh ~/.claude/hooks/leverage_stats_agg.py
 ```
 
 ### Step 2: Install a JSON parser
