@@ -15,11 +15,13 @@ allowed-tools: Bash(jq:*), Bash(python3:*), Bash(python:*), Bash(test:*), Bash(c
   Unicode block characters (block-full and light-shade) render reliably in
   modern terminals.
 
-  IMPORTANT: do NOT put literal backticks anywhere in the bash preamble below.
-  Claude Code's slash command parser treats !`...` boundaries by literal-
-  backtick scanning - even backslash-escaped backticks inside bash strings
-  end the preamble prematurely. Backticks needed in the OUTPUT (markdown
-  code fences, inline code) are constructed at runtime via Python's chr(96).
+  IMPORTANT: do NOT put literal backticks anywhere in the bash preamble below
+  (or in this comment). Claude Code's slash-command parser scans the markdown
+  source for the bang-then-backtick boundary by literal-backtick match - even
+  backslash-escaped backticks inside bash strings, AND backticks inside HTML
+  comments like this one, terminate the preamble prematurely. Backticks
+  needed in the OUTPUT (markdown code fences, inline code) are constructed
+  at runtime via Python's chr(96).
 
   Security note:
   STATS_FILE is passed via env var, never interpolated into Python -c body.
