@@ -12,7 +12,7 @@
         "url": "https://github.com/Filip-Podstavec/claude-leverage.git"
       },
       "description": "Model routing and workflow patterns for Claude Code. Subagents on Sonnet/Haiku for execution work, hooks for security, slash commands for workflow.",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "category": "workflow",
       "keywords": [
         "subagents",

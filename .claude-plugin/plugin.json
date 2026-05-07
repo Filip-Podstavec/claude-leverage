@@ -1,6 +1,6 @@
 {
   "name": "claude-leverage",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Model routing and workflow patterns for Claude Code. Subagents on Sonnet/Haiku for execution work, hooks for security, slash commands for workflow.",
   "author": {
     "name": "Filip Podstavec",
