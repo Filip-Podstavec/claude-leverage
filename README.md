@@ -126,7 +126,9 @@ graph TB
 |------|---------|-------------|
 | [`block-secrets-precommit`](hooks/block-secrets-precommit.sh) | `git commit` | Scans staged diff for API keys, tokens, private keys. Blocks commit if found. Supports `claude-leverage-allow-secret` per-line allowlist marker. |
 | [`block-dangerous-git`](hooks/block-dangerous-git.sh) | `git push`, `git commit`, `git reset` | Blocks force push, `--no-verify`, hard reset on protected branches. |
-| [`track-delegations`](hooks/track-delegations.sh) | `Task` (PostToolUse) | Observability only - never blocks. Logs each subagent delegation to `~/.claude/claude-leverage-stats.jsonl` and prints a single parenthesized stderr note like `(claude-leverage: code-reviewer -> sonnet)`. |
+| [`track-delegations`](hooks/track-delegations.sh) | `Task` (PostToolUse) | Observability only - never blocks. Logs each subagent delegation to `~/.claude/claude-leverage-stats.jsonl` and prints a single parenthesized stderr note like `(claude-leverage: code-reviewer -> sonnet)`. Falls back to anonymous logging when no JSON parser is available so total counts still work. |
+
+All hooks need a JSON parser on PATH — `jq` preferred, `python3` or `python` work as automatic fallback. Security hooks fail-open with a loud warning if none are available (documented in [`hooks/README.md`](hooks/README.md)).
 
 ### CLAUDE.md Snippets
 

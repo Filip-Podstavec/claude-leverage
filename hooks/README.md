@@ -22,7 +22,8 @@ A subagent rule like "never use `--no-verify`" only applies when that subagent i
 
 ## Known limits (read before relying on hooks for security)
 
-- **`jq` dependency, fail-open posture.** All hooks need `jq` to parse Claude Code's hook input JSON. If `jq` is missing, hooks print a warning to stderr and exit 0 (allow). This is intentional — blocking every Bash call when `jq` is missing would break unrelated work — but the trade-off is that until `jq` is installed, **the security guardrails are not enforced.** Install `jq` before treating hooks as a guarantee.
+- **JSON parser dependency, fail-open posture.** Hooks need a JSON parser to inspect Claude Code's hook input. They try `jq` first, then `python3`, then `python`. If none are on PATH, the security hooks (`block-secrets-precommit`, `block-dangerous-git`) print a loud warning to stderr and exit 0 (allow). This is intentional — blocking every Bash call when no parser is available would break unrelated work — but the trade-off is that until at least one parser is installed, **the security guardrails are not enforced.** Most macOS/Linux systems already have `python3` preinstalled. Windows users typically need to install one explicitly (`winget install jqlang.jq` for jq, or python.org / Microsoft Store for Python).
+- **`track-delegations` degrades gracefully.** The observability hook still logs an anonymous record (subagent="unknown", tier="unknown") when no parser is available — total delegation counts remain accurate, only the per-agent breakdown is missing.
 - **Pattern-based detection has false negatives.** Secret patterns are heuristics; custom or novel formats may slip through. Hooks are defense-in-depth, not a substitute for CI-side secret scanning (e.g., gitleaks, trufflehog).
 - **False positives have a per-line escape hatch.** When a pattern matches a legitimate value (test fixture, documentation example, mock token), append the literal comment `claude-leverage-allow-secret` on the same line. The secrets hook skips lines containing that marker. Use sparingly — the marker is load-bearing, and future readers may not recognize it.
 
@@ -40,15 +41,28 @@ cp hooks/*.sh ~/.claude/hooks/
 chmod +x ~/.claude/hooks/*.sh
 ```
 
-### Step 2: Install jq
+### Step 2: Install a JSON parser
+
+Hooks need either `jq` or `python` (3 or 2) on PATH. Most systems already have one — check with:
 
 ```bash
-# macOS
+command -v jq || command -v python3 || command -v python
+```
+
+If nothing prints, install one:
+
+```bash
+# macOS - jq is fast, python3 is usually preinstalled
 brew install jq
 
-# Ubuntu/Debian
+# Ubuntu/Debian - jq lightweight; python3 typically preinstalled
 sudo apt install jq
+
+# Windows - via winget or Chocolatey, or python.org
+winget install jqlang.jq
 ```
+
+`jq` is preferred (lower startup cost on every Bash call), but `python` works as a transparent fallback.
 
 ### Step 3: Register in settings.json
 

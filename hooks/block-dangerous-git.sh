@@ -11,24 +11,28 @@
 #   - Exit 2: block the tool call (stderr message shown to user)
 #
 # Install: register in ~/.claude/settings.json under hooks.PreToolUse
-# Dependencies: jq
+# Dependencies: jq OR python (3 or 2). Either is sufficient. See json_parse.sh.
 
 set -euo pipefail
 
-# Check for jq dependency. Without it we cannot parse the hook input - fail
-# loudly rather than silently allow everything.
-if ! command -v jq >/dev/null 2>&1; then
+# Source shared parser helper.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/json_parse.sh"
+
+# Without any JSON parser we cannot inspect the command. Fail-open with a
+# loud warning rather than blocking every Bash call. Documented limitation.
+if ! has_parser; then
   cat >&2 <<'EOF'
-[block-dangerous-git] WARNING: jq is not installed - this hook is DISABLED.
-Install jq to enable git safety enforcement (force push, --no-verify, hard reset).
-  macOS:   brew install jq
-  Ubuntu:  sudo apt install jq
+[block-dangerous-git] WARNING: no JSON parser available - this hook is DISABLED.
+Install one of:
+  jq:     brew install jq | sudo apt install jq | winget install jqlang.jq
+  python: usually preinstalled on macOS/Linux; Windows: python.org or Microsoft Store
+Until then, force push, --no-verify, and hard-reset detection are inactive.
 EOF
   exit 0
 fi
 
-# Parse command from stdin JSON. Fail-open on malformed input.
-cmd=$(jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
+read_stdin
+cmd=$(get_field '.tool_input.command') || exit 0
 [ -z "$cmd" ] && exit 0
 
 # Normalize for keyword matching: strip shell quotes and backslashes that
