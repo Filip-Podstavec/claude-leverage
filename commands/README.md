@@ -18,6 +18,9 @@ After installing, the command is available as `/<filename>` in any session. Run 
 
 ## Available commands
 
-- [`commit-smart.md`](commit-smart.md) - Smart commit routing: trivial changes committed directly, non-trivial delegated to a git-committer subagent to save Opus context.
-- [`code-review.md`](code-review.md) - Delegates review to the `code-reviewer` subagent and orchestrates user-confirmed fixes in the main session. Requires `code-reviewer` agent to be installed.
-- [`test.md`](test.md) - Delegates test execution to the `test-runner` subagent and orchestrates user-confirmed fixes in the main session. Requires `test-runner` agent to be installed.
+- [`commit-smart.md`](commit-smart.md) - Three-tier commit routing: ultra-trivial → Haiku `git-committer-quick`, trivial → main session inline, non-trivial → Sonnet `git-committer` subagent. Falls through gracefully if cheaper tiers not installed.
+- [`code-review.md`](code-review.md) - Scope-conditional review delegation. Non-trivial scope (3+ files OR 50+ lines) → `code-reviewer` subagent (Sonnet); trivial scope → inline review. Optionally passes session decisions to subagent so review does not re-litigate settled choices. Requires `code-reviewer` agent.
+- [`test.md`](test.md) - Delegates test execution to the `test-runner` subagent and orchestrates user-confirmed fixes in the main session. Requires `test-runner` agent.
+- [`gather-context.md`](gather-context.md) - Pre-fetches implementation context via the `context-gatherer` subagent (Sonnet) before non-trivial implementation. Returns structured package; main session uses it to begin coding without exploring itself. Requires `context-gatherer` agent.
+- [`docs-sync.md`](docs-sync.md) - Delegates documentation freshness check to the `docs-updater` subagent (Sonnet). Returns confidence-labeled prose-direction suggestions; main session applies approved edits fresh from live state. Requires `docs-updater` agent.
+- [`install-snippets.md`](install-snippets.md) - Interactive installer for the CLAUDE.md routing snippets in `claude-md-snippets/`. Closes the gap that Claude Code plugins do not auto-install CLAUDE.md content. Appends selected snippets to user-level or project CLAUDE.md with marker comments for duplicate detection.

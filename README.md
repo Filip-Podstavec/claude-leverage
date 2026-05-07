@@ -57,15 +57,19 @@ graph TB
         TD["track-delegations<br/><small>PostToolUse, observability</small>"]
     end
 
-    subgraph Snippets["CLAUDE.md Snippets"]
+    subgraph Snippets["CLAUDE.md Snippets - opt-in routing rules"]
         CRR["code-review-routing"]
         TRR["test-routing"]
+        RR["research-routing"]
+        CGR["context-gathering-routing"]
+        DSR["docs-sync-routing"]
     end
 
     USER --> CS & CR & TT & GCT & DS
+    USER -.->|"one-time setup"| IS
     USER -.->|"explore"| RX
+    CS -->|"ultra-trivial 1 file <20 lines"| GCQ
     CS -->|"non-trivial"| GC
-    CS -->|"trivial < 20 lines"| GCQ
     CR --> CRA
     TT --> TR
     GCT --> CG
@@ -143,10 +147,10 @@ A typical development cycle using claude-leverage:
 5. Apply fixes from review             → Opus applies, guided by Sonnet's report
 6. /test                               → Sonnet runs tests, reports failures
 7. Fix failing tests                   → Opus fixes, guided by Sonnet's report
-8. /commit-smart                       → Routes automatically:
-   ├─ trivial (1-2 files, <50 lines)   → commits directly in session
-   ├─ trivial + single file <20 lines  → optionally Haiku subagent
-   └─ non-trivial                      → Sonnet git-committer subagent
+8. /commit-smart                       → Routes automatically (three tiers):
+   ├─ ultra-trivial (1 file, <20 lines) → Haiku git-committer-quick (default if installed)
+   ├─ trivial (1-2 files, <50 lines)    → commits directly in main session
+   └─ non-trivial                       → Sonnet git-committer subagent
 9. /docs-sync                         → Sonnet flags stale README/CHANGELOG, Opus applies
 10. Hooks run silently on every step   → block secrets, prevent force push
 ```
