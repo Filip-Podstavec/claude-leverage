@@ -8,9 +8,16 @@ allowed-tools: Bash(jq:*), Bash(python3:*), Bash(python:*), Bash(test:*), Bash(w
   - $F = $HOME/.claude/claude-leverage-stats.jsonl is always passed via the
     STATS_FILE env var or as a quoted positional argument. Never interpolated
     into jq filter strings or Python -c script bodies.
-  - The aggregator script at hooks/leverage_stats_agg.py is invoked with the
-    plugin root resolved at runtime; STATS_FILE points at the user's log file.
-    No shell expansion of file content occurs.
+  - The Python -c body is single-quoted at the shell level; the path is read
+    inside Python via os.environ['STATS_FILE'], not via shell expansion.
+
+  Maintenance note for future contributors:
+  - The inline Python in the "Tier breakdown" preamble line mirrors the logic
+    in hooks/leverage_stats_agg.py. The slash command uses inline because the
+    helper file's path resolution was unreliable in slash command context.
+    If you change one, change the other (same fields, same sort order, same
+    encoding handling). The jq fallback below also produces the same
+    pipe-separated output format - keep all three in sync.
 -->
 
 ## Context
@@ -23,24 +30,24 @@ from collections import defaultdict
 t = defaultdict(lambda: {"count":0,"total":0,"input":0,"output":0,"cread":0,"ccreate":0,"dur":0})
 fmap = [("total_tokens","total"),("input_tokens","input"),("output_tokens","output"),("cache_read_input_tokens","cread"),("cache_creation_input_tokens","ccreate"),("duration_ms","dur")]
 try:
-    fh = open(os.environ["STATS_FILE"], encoding="utf-8", errors="replace")
+    with open(os.environ["STATS_FILE"], encoding="utf-8", errors="replace") as fh:
+        for ln in fh:
+            ln = ln.strip()
+            if not ln: continue
+            try: r = json.loads(ln)
+            except Exception: continue
+            tier = r.get("tier","?") or "?"
+            if not isinstance(tier, str): tier = "?"
+            t[tier]["count"] += 1
+            for s,d in fmap:
+                v = r.get(s)
+                if isinstance(v,(int,float)) and not isinstance(v,bool): t[tier][d] += int(v)
 except Exception:
     raise SystemExit(0)
-for ln in fh:
-    ln = ln.strip()
-    if not ln: continue
-    try: r = json.loads(ln)
-    except Exception: continue
-    tier = r.get("tier","?") or "?"
-    if not isinstance(tier, str): tier = "?"
-    t[tier]["count"] += 1
-    for s,d in fmap:
-        v = r.get(s)
-        if isinstance(v,(int,float)) and not isinstance(v,bool): t[tier][d] += int(v)
 for tier in sorted(t, key=lambda x: (-t[x]["count"], x)):
     v = t[tier]
     print("%s|count=%d|total=%d|input=%d|output=%d|cread=%d|ccreate=%d|dur_ms=%d" % (tier, v["count"], v["total"], v["input"], v["output"], v["cread"], v["ccreate"], v["dur"]))
-' 2>/dev/null || echo "(python error)"; elif command -v jq >/dev/null 2>&1; then jq -s -r 'group_by(.tier) | map("\(.[0].tier): count=\(length)") | join("\n")' "$F" 2>/dev/null || echo "(jq error)"; else echo "(install python or jq for breakdown)"; fi`
+' 2>/dev/null || echo "(python error)"; elif command -v jq >/dev/null 2>&1; then jq -s -r 'group_by(.tier) | map({k: .[0].tier, count: length, total: (map(.total_tokens // 0) | add), input: (map(.input_tokens // 0) | add), output: (map(.output_tokens // 0) | add), cread: (map(.cache_read_input_tokens // 0) | add), ccreate: (map(.cache_creation_input_tokens // 0) | add), dur: (map(.duration_ms // 0) | add)}) | sort_by(-.count) | map("\(.k)|count=\(.count)|total=\(.total)|input=\(.input)|output=\(.output)|cread=\(.cread)|ccreate=\(.ccreate)|dur_ms=\(.dur)") | join("\n")' "$F" 2>/dev/null || echo "(jq error)"; else echo "(install python or jq for breakdown)"; fi`
 By subagent: !`F="$HOME/.claude/claude-leverage-stats.jsonl"; if [ ! -f "$F" ]; then echo "(no data)"; elif command -v jq >/dev/null 2>&1; then jq -s -r 'group_by(.subagent) | map({s: .[0].subagent, n: length}) | sort_by(-.n) | map("\(.s): \(.n)") | join("\n")' "$F" 2>/dev/null || echo "(jq error)"; elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then PY=$(command -v python3 || command -v python); STATS_FILE="$F" "$PY" -c "import json,os; from collections import Counter; rs=[json.loads(l) for l in open(os.environ['STATS_FILE']) if l.strip()]; c=Counter(r.get('subagent','?') for r in rs); print(chr(10).join(f'{k}: {v}' for k,v in c.most_common()))" 2>/dev/null || echo "(python error)"; else echo "(no parser)"; fi`
 Last 7 days: !`F="$HOME/.claude/claude-leverage-stats.jsonl"; if [ ! -f "$F" ]; then echo "0"; elif command -v jq >/dev/null 2>&1; then SINCE=$(date -u -d '7 days ago' +%FT%TZ 2>/dev/null || date -u -v-7d +%FT%TZ 2>/dev/null); if [ -z "$SINCE" ]; then echo "?"; else jq -s --arg since "$SINCE" 'map(select(.ts >= $since)) | length' "$F" 2>/dev/null || echo "0"; fi; elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then PY=$(command -v python3 || command -v python); STATS_FILE="$F" "$PY" -c "import json,os; from datetime import datetime, timedelta, timezone; cutoff=(datetime.now(timezone.utc)-timedelta(days=7)).isoformat(); n=sum(1 for l in open(os.environ['STATS_FILE']) if l.strip() and json.loads(l).get('ts','')>=cutoff); print(n)" 2>/dev/null || echo "?"; else echo "?"; fi`
 Last 5 entries: !`F="$HOME/.claude/claude-leverage-stats.jsonl"; if [ -f "$F" ]; then tail -5 "$F" 2>/dev/null; else echo "(no entries)"; fi`
