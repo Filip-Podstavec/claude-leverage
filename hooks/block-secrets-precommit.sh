@@ -63,8 +63,13 @@ added_lines=$(echo "$added_lines" | grep -v 'claude-leverage-allow-secret' || tr
 declare -a pattern_names=(
   "AWS Access Key"
   "GitHub Personal Access Token"
+  "GitHub Fine-grained PAT"
   "GitHub OAuth Token"
+  "GitHub User-to-Server Token"
+  "GitHub Server-to-Server Token"
+  "GitLab PAT"
   "Stripe Live Key"
+  "Stripe Test Key"
   "Anthropic API Key"
   "OpenAI-style Key"
   "Google API Key"
@@ -76,8 +81,13 @@ declare -a pattern_names=(
 declare -a patterns=(
   'AKIA[0-9A-Z]{16}'
   'ghp_[A-Za-z0-9]{36}'
+  'github_pat_[A-Za-z0-9_]{36,}'
   'gho_[A-Za-z0-9]{36}'
+  'ghu_[A-Za-z0-9]{36}'
+  'ghs_[A-Za-z0-9]{36}'
+  'glpat-[A-Za-z0-9_-]{20,}'
   'sk_live_[A-Za-z0-9]{24,}'
+  'sk_test_[A-Za-z0-9]{24,}'
   'sk-ant-[A-Za-z0-9_-]{90,}'
   'sk-[A-Za-z0-9]{40,}'
   'AIza[0-9A-Za-z_-]{35}'
@@ -92,8 +102,19 @@ current_file="unknown"
 for i in "${!patterns[@]}"; do
   matched_line=$(echo "$added_lines" | grep -iE -- "${patterns[$i]}" | head -1) || true
   if [ -n "$matched_line" ]; then
-    # Try to find the file this line belongs to
-    current_file=$(echo "$staged_diff" | grep -B 9999 -F "$matched_line" | grep '^+++ b/' | tail -1 | sed 's|^+++ b/||') || current_file="unknown"
+    # Find the file this line belongs to via single forward pass.
+    # Earlier versions used `grep -B 9999 -F "$matched_line" | grep '^+++ b/' | tail -1`
+    # which is O(N^2) on large staged diffs (re-buffering up to 9999 preceding
+    # lines per match). The awk pass tracks the current `+++ b/` header as it
+    # streams and emits it on first substring match - O(N) and identical output.
+    # MATCHED is exported via env var rather than awk -v to avoid backslash
+    # interpretation in the matched line.
+    current_file=$(MATCHED="$matched_line" awk '
+      BEGIN { m = ENVIRON["MATCHED"] }
+      /^\+\+\+ b\// { f = substr($0, 7); next }
+      index($0, m) { print f; exit }
+    ' <<< "$staged_diff") || current_file="unknown"
+    [ -z "$current_file" ] && current_file="unknown"
 
     # Redact sensitive portion for preview
     preview=$(echo "$matched_line" | head -c 80 | sed -E 's/[A-Za-z0-9_-]{12,}/***/g')
