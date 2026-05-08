@@ -64,7 +64,7 @@ ratios = {"sonnet": 5, "haiku": 25}
 savings = 0
 for tier, ratio in ratios.items():
     if tier in t and t[tier]["total"] > 0:
-        savings += t[tier]["total"] * (ratio - 1)
+        savings += t[tier]["total"] * (ratio - 1) // ratio
 if total_count == 0:
     print("_No delegations tracked yet._")
     raise SystemExit(0)
