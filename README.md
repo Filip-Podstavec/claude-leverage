@@ -2,14 +2,15 @@
 
 Not every task in a coding session needs the most capable model. This repo orchestrates Claude Code subagents so that research, code review, test runs, and trivial commits are handled by cost-efficient models — while implementation and architecture stay on the latest Opus. The result: 30–70% token savings on typical development work, with no compromise on code quality.
 
+[![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Filip-Podstavec/claude-leverage)](https://github.com/Filip-Podstavec/claude-leverage/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/Filip-Podstavec/claude-leverage)](https://github.com/Filip-Podstavec/claude-leverage/issues)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL2-lightgrey)]()
 ![Hooks](https://img.shields.io/badge/hooks-3-green)
-![Agents](https://img.shields.io/badge/agents-8-green)
-![Commands](https://img.shields.io/badge/commands-7-green)
+![Agents](https://img.shields.io/badge/agents-9-green)
+![Commands](https://img.shields.io/badge/commands-8-green)
 
 **Quick install:**
 ```
@@ -35,6 +36,7 @@ graph TB
         CS["/commit-smart"]
         CR["/code-review"]
         TT["/test"]
+        FT["/flaky-test"]
         GCT["/gather-context"]
         DS["/docs-sync"]
         IS["/install-snippets"]
@@ -46,6 +48,7 @@ graph TB
         GCQ["git-committer-quick<br/><small>Haiku</small>"]
         CRA["code-reviewer<br/><small>Sonnet</small>"]
         TR["test-runner<br/><small>Sonnet</small>"]
+        FTI["flaky-test-isolator<br/><small>Sonnet</small>"]
         RX["repo-explorer<br/><small>Haiku</small>"]
         RA["research-agent<br/><small>Sonnet</small>"]
         CG["context-gatherer<br/><small>Sonnet</small>"]
@@ -74,6 +77,7 @@ graph TB
     CS -->|"non-trivial"| GC
     CR --> CRA
     TT --> TR
+    FT --> FTI
     GCT --> CG
     DS --> DU
 
@@ -103,6 +107,7 @@ graph TB
 | [`git-committer-quick`](agents/git-committer-quick.md) | Haiku | Speed-optimized variant for trivial commits only (single file, <20 lines). Separate rate pool. |
 | [`code-reviewer`](agents/code-reviewer.md) | Sonnet | Read-only code reviewer. Returns structured findings (Critical / Important / Nice to have). Never modifies files. |
 | [`test-runner`](agents/test-runner.md) | Sonnet | Detects test framework, runs tests, returns structured failure analysis. Read-only. |
+| [`flaky-test-isolator`](agents/flaky-test-isolator.md) | Sonnet | Runs a single test N times sequentially, groups failures by normalized signature, returns stability report with dominant failure mode and reproducibility pattern. Hard caps: N≤50, 60s per-run timeout, 30 min wall budget. Read-only — does NOT fix the test. |
 | [`repo-explorer`](agents/repo-explorer.md) | Haiku | Read-only codebase exploration. Finds where things are defined, identifies patterns, returns structured findings. Never modifies code. |
 | [`research-agent`](agents/research-agent.md) | Sonnet | Read-only research synthesis. Answers "how does X work" by reading multiple files and returning structured pattern analysis. Distinct from `repo-explorer` (which handles "where" lookups). |
 | [`context-gatherer`](agents/context-gatherer.md) | Sonnet | Pre-fetches implementation context before coding. Given a task, gathers key files, patterns, dependencies, and constraints into a structured package. Saves Opus from exploring the codebase itself. |
@@ -115,9 +120,10 @@ graph TB
 | [`/commit-smart`](commands/commit-smart.md) | Routes commits by complexity: trivial changes handled directly, non-trivial delegated to `git-committer` subagent. |
 | [`/code-review`](commands/code-review.md) | Delegates review to `code-reviewer` subagent, orchestrates user-confirmed fixes in main session. |
 | [`/test`](commands/test.md) | Delegates test execution to `test-runner` subagent, orchestrates user-confirmed fixes in main session. |
+| [`/flaky-test`](commands/flaky-test.md) | Diagnoses a flaky test by delegating to `flaky-test-isolator` (Sonnet). Args: `<test-target> [--runs N=10] [--timeout SECONDS=60]`. Caps N at 50 and per-run timeout at 300s before delegating. Subagent runs the test sequentially, groups failures by signature, and returns a stability report. Main session never runs the tests itself. |
 | [`/gather-context`](commands/gather-context.md) | Delegates codebase exploration to `context-gatherer` subagent before implementation. Returns structured context package. |
 | [`/docs-sync`](commands/docs-sync.md) | Delegates doc-freshness check to `docs-updater` subagent. Returns confidence-labeled suggestions for README, CHANGELOG, and docstrings. Main session applies approved edits. |
-| [`/install-snippets`](commands/install-snippets.md) | Interactively installs CLAUDE.md routing snippets into your `~/.claude/CLAUDE.md` or project `CLAUDE.md` (snippets are not auto-installed by the plugin). |
+| [`/install-snippets`](commands/install-snippets.md) | Interactively installs or updates CLAUDE.md routing snippets in your `~/.claude/CLAUDE.md` or project `CLAUDE.md` (snippets are not auto-installed by the plugin). Idempotent: re-running detects drift in already-installed snippets and offers to update the block in place — no append duplicates. |
 | [`/leverage-stats`](commands/leverage-stats.md) | Reads the `track-delegations` log (`~/.claude/claude-leverage-stats.jsonl`) and prints lifetime totals, breakdown by tier and subagent, last-7-days activity, real token-usage sums, plus a heuristic "estimated savings vs all-Opus" calculation (with explicit counterfactual disclaimer). Read-only. |
 
 ### Hooks
@@ -266,6 +272,7 @@ cp commands/commit-smart.md .claude/commands/
 |---------------------|--------------|
 | `code-reviewer` agent + `/code-review` command | Sonnet reviews code, returns Critical/Important/Nice-to-have findings |
 | `test-runner` agent + `/test` command | Sonnet runs tests, returns structured failure analysis |
+| `flaky-test-isolator` agent + `/flaky-test` command | Sonnet runs a single test N times to surface intermittent failures, groups failures by signature, returns stability report |
 | `repo-explorer` agent | Haiku-based codebase discovery, finds where things are defined |
 | `research-agent` agent | Sonnet synthesizes "how does X work" answers across multiple files - keeps your main context window clean |
 | `context-gatherer` agent + `/gather-context` command | Sonnet pre-fetches implementation context (types, patterns, deps) before you code — biggest token saver |
@@ -276,12 +283,12 @@ cp commands/commit-smart.md .claude/commands/
 
 ```bash
 # User scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/docs-updater.md ~/.claude/agents/
-cp commands/code-review.md commands/test.md commands/gather-context.md commands/docs-sync.md commands/install-snippets.md commands/leverage-stats.md ~/.claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/flaky-test-isolator.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/docs-updater.md ~/.claude/agents/
+cp commands/code-review.md commands/test.md commands/flaky-test.md commands/gather-context.md commands/docs-sync.md commands/install-snippets.md commands/leverage-stats.md ~/.claude/commands/
 
 # - OR - Project scope
-cp agents/code-reviewer.md agents/test-runner.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/docs-updater.md .claude/agents/
-cp commands/code-review.md commands/test.md commands/gather-context.md commands/docs-sync.md commands/install-snippets.md commands/leverage-stats.md .claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/flaky-test-isolator.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/docs-updater.md .claude/agents/
+cp commands/code-review.md commands/test.md commands/flaky-test.md commands/gather-context.md commands/docs-sync.md commands/install-snippets.md commands/leverage-stats.md .claude/commands/
 ```
 
 Then copy the snippets you want from [`claude-md-snippets/`](claude-md-snippets/) into your `CLAUDE.md`.

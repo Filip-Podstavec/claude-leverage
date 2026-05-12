@@ -18,3 +18,8 @@ CLAUDE.md
 
 # Local plans (not part of the plugin)
 plans/
+
+# Python (tests)
+__pycache__/
+.pytest_cache/
+*.pyc
