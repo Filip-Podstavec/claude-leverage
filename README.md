@@ -1,6 +1,8 @@
 # claude-leverage
 
-Not every task in a coding session needs the most capable model. This repo orchestrates Claude Code subagents so that research, code review, test runs, and trivial commits are handled by cost-efficient models — while implementation and architecture stay on the latest Opus. The result: 30–70% token savings on typical development work, with no compromise on code quality.
+Not every task in a coding session needs the most capable model. This repo orchestrates Claude Code subagents so that research, code review, test runs, and trivial commits are handled by cost-efficient models — while implementation and architecture stay on the latest Opus.
+
+> **Honest benchmark update (2026-05-21, v0.10.0).** Our first systematic benchmark (4 tasks × 2 conditions × N=3 cold-cache headless sessions, full methodology in [`bench/`](bench/)) shows that **on short isolated sessions, plugin overhead currently exceeds delegation savings**: median session cost goes from $0.36 (baseline) to $0.73 (leveraged), +102%. The individual agents *are* efficient when invoked (77-88% intrinsic savings vs Opus doing the same work alone), but Opus orchestration + system-prompt cache-creation tax dominates on small cold-cache workloads. See [Benchmarks](#benchmarks) for the chart, raw numbers, and the per-agent verdicts driving v0.11 changes.
 
 [![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -167,6 +169,53 @@ A typical development cycle using claude-leverage:
 ```
 
 **Result:** Opus handles only architecture and code changes. Reviews, tests, and commits run on cheaper models. Hooks enforce security without relying on any prompt.
+
+## Benchmarks
+
+Real headless `claude -p` runs, baseline (vanilla Claude Code) vs leveraged (with `claude-leverage` plugin), N=3 cold-cache sessions per cell, full reproducible methodology in [`bench/`](bench/). Median cost across the suite: baseline **$0.361** → leveraged **$0.728** (**+102%**). Every individual task regressed; quality checks all passed.
+
+![cost per task](bench/results/2026-05-21_v0.10.0/hero.png)
+
+**Per-task cost + tier breakdown** — bar height is USD cost per session, stack colors are which model produced the cost. Note T2: baseline already uses Haiku (via Claude Code's built-in `Explore`), so the leveraged context-gatherer (Sonnet) is structurally *more expensive* than the baseline for this task.
+
+![per-task breakdown](bench/results/2026-05-21_v0.10.0/per-task.png)
+
+| Task | Baseline cost | Leveraged cost | Cost delta | Tokens (b → l) | Quality |
+|---|---:|---:|---:|---:|---:|
+| T2 context-gather-feature | $0.152 | $0.208 | **+36%** | 35.5k → 37.4k | OK |
+| T3 commit-trivial | $0.066 | $0.154 | **+134%** | 49.6k → 54.8k | OK |
+| T4 commit-nontrivial | $0.072 | $0.175 | **+143%** | 51.1k → 55.4k | OK |
+| T1 code-review-medium | $0.070 | $0.192 | **+172%** | 34.0k → 37.0k | OK |
+
+**The honest explanation.** Token volume only grew +8% — but USD cost grew +102% because Opus cache-creation tokens (system prompt with 10 extra agents) are dramatically more expensive per token than cache-read tokens. Plugin loading + Opus orchestration overhead (~$0.13/session fixed cost) dominates on short isolated tasks. The Sonnet/Haiku delegations themselves ARE efficient when measured intrinsically (77-88% savings vs Opus alone doing the same work — see [`bench/results/2026-05-21_v0.10.0/per-agent-report.md`](bench/results/2026-05-21_v0.10.0/per-agent-report.md)), but they don't move the needle enough to overcome the overhead on this size of task.
+
+**When the plugin should still win** (not tested in v1):
+- Long sessions where the system-prompt cache amortizes across many invocations
+- Tasks with heavy context exploration where Sonnet delegations save large Opus reads
+- Workflows where security hooks add value independent of token cost
+
+**Action items driving v0.11** (from [`bench/results/2026-05-21_v0.10.0/per-agent-report.md`](bench/results/2026-05-21_v0.10.0/per-agent-report.md)):
+1. Reconsider `context-gatherer` tier — baseline Claude Code already routes context-gathering to Haiku via `Explore`. Putting it on Sonnet is structurally worse. Either move it to Haiku or repurpose it.
+2. Reduce plugin system-prompt footprint — 10 agent definitions in the system prompt costs ~$0.10/session even before any delegation. Investigate on-demand agent loading or trimming agent prompts.
+3. Test warm-cache long sessions in v2 — the cold-cache mini-suite is the plugin's worst case; the value proposition probably materializes in different workloads we are not yet measuring.
+
+**What this benchmark does NOT measure** (limitations called out, not buried):
+- Wall-clock latency (logged but not headlined)
+- Statistical significance — N=3 is too small for confidence claims; we show min-max range, no p-values
+- Long sessions / warm cache (every session resets to cold cache here)
+- Multi-language fixtures (Python only)
+- Plugin's security hooks (`block-secrets-precommit`, `block-dangerous-git`) — their value is correctness, not tokens
+
+**Reproduce locally:** Claude Max/Pro subscription, ~$3.5 in equivalent API consumption, ~20 min wall-clock.
+
+```bash
+python bench/fixtures/build_fixtures.py    # idempotent
+python bench/harness/run.py --n 3          # 24 sessions
+python bench/harness/report.py             # hero + per-task PNG + report.md
+python bench/harness/per_agent_report.py   # internal: per-agent verdicts
+```
+
+Last benchmarked: **2026-05-21** · plugin **v0.10.0** · Claude Code **2.1.89** (resolved in headless subprocess) · models **claude-opus-4-6[1m]**, **claude-sonnet-4-6**, **claude-haiku-4-5-20251001**. Full raw data: [`bench/results/2026-05-21_v0.10.0/`](bench/results/2026-05-21_v0.10.0/).
 
 ## Quick install (recommended)
 

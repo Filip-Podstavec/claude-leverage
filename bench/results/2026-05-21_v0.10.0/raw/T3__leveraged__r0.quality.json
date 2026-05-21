@@ -1,0 +1,9 @@
+{
+  "pass": true,
+  "reasons": [
+    "OK commits_added=1",
+    "OK subject: 'fix: correct typo in README (Liscence \u00e2\u2020\u2019 License)'",
+    "OK files_changed=1",
+    "OK tier 'haiku' engaged (delegations: ['haiku'])"
+  ]
+}

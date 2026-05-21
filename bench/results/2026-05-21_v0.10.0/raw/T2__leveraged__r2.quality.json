@@ -1,0 +1,8 @@
+{
+  "pass": true,
+  "reasons": [
+    "OK required: /status\\.py/",
+    "OK required: /require_auth/",
+    "OK required: /VERSION/"
+  ]
+}

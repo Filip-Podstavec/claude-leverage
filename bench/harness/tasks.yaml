@@ -1,0 +1,117 @@
+# Mini-suite task definitions for the synthetic benchmark.
+#
+# Each task runs twice (baseline + leveraged) for N runs. Per-condition prompts
+# diverge only for slash-command-routed tasks (T3, T4) where the leveraged
+# condition uses /commit-smart but baseline cannot (the command does not exist
+# without the plugin).
+#
+# Quality checks are deterministic Python expressions evaluated by score.py.
+# They have access to:
+#   - `output` (str)   - the agent's final assistant text from stream-json
+#   - `transcript` (list[dict])  - all stream-json events
+#   - `fixture_dir` (pathlib.Path)  - the working copy used for this run
+#   - `delegations` (list[dict])   - parsed records from track-delegations.sh stderr
+#   - regex helpers `re`, `re.IGNORECASE`
+#
+# Keep checks SIMPLE - one assertion per task, the one that catches the most
+# obvious quality regression.
+
+tasks:
+  - id: T1
+    name: code-review-medium
+    fixture: code-review-medium
+    description: Reviewer must find a seeded SQL-injection-style bug in a 3-file staged diff.
+    expected_agent: code-reviewer
+    expected_tier: sonnet
+    prompts:
+      baseline: |
+        Review the staged changes (`git diff --cached`) for bugs, security issues,
+        and quality problems. Report findings clearly, organized by severity.
+      leveraged: |
+        Review the staged changes (`git diff --cached`) for bugs, security issues,
+        and quality problems. Report findings clearly, organized by severity.
+    timeout_sec: 600
+    quality_check:
+      # Output must mention users.py AND at least one of: sql / injection / raw query / f-string / concat.
+      kind: regex_all
+      patterns_required_all:
+        - "users\\.py"
+      patterns_required_any:
+        - "sql"
+        - "injection"
+        - "raw query"
+        - "f-?string"
+        - "concat"
+      case_insensitive: true
+
+  - id: T2
+    name: context-gather-feature
+    fixture: context-gather-feature
+    description: Context gatherer must surface the three key files for a new endpoint.
+    expected_agent: context-gatherer
+    expected_tier: sonnet
+    prompts:
+      baseline: |
+        I want to add a `/healthz` endpoint to this service. It must return the same
+        uptime + version JSON as `/status` but without authentication. Before I start
+        coding, gather the implementation context I'll need: which files I should
+        read, which existing patterns to follow, and which tests already cover this
+        area. Do not write code yet - just the context package.
+      leveraged: |
+        I want to add a `/healthz` endpoint to this service. It must return the same
+        uptime + version JSON as `/status` but without authentication. Before I start
+        coding, gather the implementation context I'll need: which files I should
+        read, which existing patterns to follow, and which tests already cover this
+        area. Do not write code yet - just the context package.
+    timeout_sec: 600
+    quality_check:
+      # Must reference all three: the status route file, the auth decorator name, the version constant.
+      kind: regex_all
+      patterns_required_all:
+        - "status\\.py"
+        - "require_auth"
+        - "VERSION"
+      case_insensitive: true
+
+  - id: T3
+    name: commit-trivial
+    fixture: commit-trivial
+    description: Trivial commit (single file, 4-line typo fix) should route to Haiku in leveraged.
+    expected_agent: git-committer-quick
+    expected_tier: haiku
+    prompts:
+      baseline: |
+        Commit the staged changes with a conventional-commits message. The change is
+        already staged - just inspect it, write a good message, and create the commit.
+        Do not push.
+      leveraged: |
+        Commit the staged changes using /commit-smart. Do not push.
+    timeout_sec: 300
+    quality_check:
+      kind: git_commit
+      subject_regex: "^(docs|chore|fix)(\\([a-z0-9_-]+\\))?: "
+      expected_commits_added: 1
+      expected_files_changed: 1
+      # leveraged-only: track-delegations must show the tier
+      leveraged_expected_tier: haiku
+
+  - id: T4
+    name: commit-nontrivial
+    fixture: commit-nontrivial
+    description: Non-trivial commit (3 files, mixed concerns) should route to Sonnet in leveraged.
+    expected_agent: git-committer
+    expected_tier: sonnet
+    prompts:
+      baseline: |
+        Commit the staged changes with a conventional-commits message. The change is
+        already staged across multiple files - inspect the diff, decide on the right
+        scope, write a clear message, and create the commit. Do not push.
+      leveraged: |
+        Commit the staged changes using /commit-smart. Do not push.
+    timeout_sec: 600
+    quality_check:
+      kind: git_commit
+      subject_regex: "^(feat|fix|refactor|chore|test)(\\([a-z0-9_-]+\\))?: "
+      expected_commits_added: 1
+      min_files_changed: 2
+      leveraged_expected_tier: sonnet

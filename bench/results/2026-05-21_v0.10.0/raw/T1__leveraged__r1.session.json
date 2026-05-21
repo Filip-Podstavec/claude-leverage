@@ -1,0 +1,98 @@
+{
+  "cell": "T1__leveraged__r1",
+  "task": "T1",
+  "task_name": "code-review-medium",
+  "condition": "leveraged",
+  "run_idx": 1,
+  "runid": "2026-05-21_v0.10.0",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 82.1,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:git-committer-quick",
+    "claude-leverage:git-committer",
+    "claude-leverage:flaky-test-isolator",
+    "claude-leverage:docs-updater",
+    "claude-leverage:README",
+    "claude-leverage:test-runner",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:repo-explorer",
+    "claude-leverage:research-agent",
+    "claude-leverage:context-gatherer"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 3,
+    "output": 595,
+    "cache_read": 17425,
+    "cache_creation": 18796,
+    "total": 36819
+  },
+  "total_cost_usd": 0.18831430000000002,
+  "duration_ms": 80894,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 3,
+      "outputTokens": 595,
+      "cacheReadInputTokens": 17425,
+      "cacheCreationInputTokens": 18796,
+      "webSearchRequests": 0,
+      "costUSD": 0.1410775,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-sonnet-4-6": {
+      "inputTokens": 6,
+      "outputTokens": 1818,
+      "cacheReadInputTokens": 16496,
+      "cacheCreationInputTokens": 4000,
+      "webSearchRequests": 0,
+      "costUSD": 0.0472368,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "delegations": [
+    {
+      "agent": "claude-leverage:code-reviewer",
+      "tier": "sonnet",
+      "tokens": 7211,
+      "input_tokens": 1,
+      "output_tokens": 1126,
+      "cache_read_input_tokens": 5266,
+      "cache_creation_input_tokens": 818,
+      "duration_ms": 65924,
+      "_raw": {
+        "ts": "2026-05-21T12:48:20Z",
+        "subagent": "claude-leverage:code-reviewer",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 1126,
+        "cache_read_input_tokens": 5266,
+        "cache_creation_input_tokens": 818,
+        "total_tokens": 7211,
+        "duration_ms": 65924
+      }
+    }
+  ],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK required: /users\\.py/",
+    "OK any-of matched: ['sql', 'injection', 'f-?string']"
+  ],
+  "final_text_len": 1435
+}

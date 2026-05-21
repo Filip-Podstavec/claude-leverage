@@ -1,0 +1,3 @@
+harness/_state/
+harness/__pycache__/
+harness/*.pyc

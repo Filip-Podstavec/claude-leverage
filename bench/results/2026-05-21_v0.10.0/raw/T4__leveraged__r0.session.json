@@ -1,0 +1,100 @@
+{
+  "cell": "T4__leveraged__r0",
+  "task": "T4",
+  "task_name": "commit-nontrivial",
+  "condition": "leveraged",
+  "run_idx": 0,
+  "runid": "2026-05-21_v0.10.0",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 37.95,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:docs-updater",
+    "claude-leverage:README",
+    "claude-leverage:research-agent",
+    "claude-leverage:test-runner",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:git-committer",
+    "claude-leverage:repo-explorer",
+    "claude-leverage:git-committer-quick",
+    "claude-leverage:flaky-test-isolator",
+    "claude-leverage:context-gatherer"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 5,
+    "output": 377,
+    "cache_read": 35910,
+    "cache_creation": 18984,
+    "total": 55276
+  },
+  "total_cost_usd": 0.18377010000000002,
+  "duration_ms": 36638,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 5,
+      "outputTokens": 377,
+      "cacheReadInputTokens": 35910,
+      "cacheCreationInputTokens": 18984,
+      "webSearchRequests": 0,
+      "costUSD": 0.146055,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-sonnet-4-6": {
+      "inputTokens": 5,
+      "outputTokens": 588,
+      "cacheReadInputTokens": 11767,
+      "cacheCreationInputTokens": 6760,
+      "webSearchRequests": 0,
+      "costUSD": 0.0377151,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "delegations": [
+    {
+      "agent": "claude-leverage:git-committer",
+      "tier": "sonnet",
+      "tokens": 6873,
+      "input_tokens": 1,
+      "output_tokens": 112,
+      "cache_read_input_tokens": 6374,
+      "cache_creation_input_tokens": 386,
+      "duration_ms": 20163,
+      "_raw": {
+        "ts": "2026-05-21T13:02:30Z",
+        "subagent": "claude-leverage:git-committer",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 112,
+        "cache_read_input_tokens": 6374,
+        "cache_creation_input_tokens": 386,
+        "total_tokens": 6873,
+        "duration_ms": 20163
+      }
+    }
+  ],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK commits_added=1",
+    "OK subject: 'feat: add multiply and divide operations'",
+    "OK files_changed=3 >= 2",
+    "OK tier 'sonnet' engaged (delegations: ['sonnet'])"
+  ],
+  "final_text_len": 82
+}

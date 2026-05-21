@@ -23,3 +23,16 @@ plans/
 __pycache__/
 .pytest_cache/
 *.pyc
+
+# Session-local scheduled-task state (created by ScheduleWakeup, not part of repo)
+.claude/
+
+# Benchmark fixtures are generated artifacts: build_fixtures.py is the
+# source of truth and reproduces them. Tracking the generated dirs would
+# (a) treat each as an embedded git repo (they all have inner .git/) and
+# (b) bloat history with regenerable content.
+bench/fixtures/*
+!bench/fixtures/build_fixtures.py
+
+# Per-run benchmark state (checkpoint dirs, log files).
+bench/harness/_state/
