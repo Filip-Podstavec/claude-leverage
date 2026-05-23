@@ -8,13 +8,16 @@ Pick what applies, paste it into your `CLAUDE.md`, and adjust to taste.
 
 No install step. Browse the snippets, copy what you need into your `CLAUDE.md`.
 
-## Available snippets
+## Available snippets (default install)
 
 - [`code-review-routing.md`](code-review-routing.md) - Scope-conditional review routing: delegate to `code-reviewer` for non-trivial scope (3+ files or 50+ lines), inline for trivial. Pair with `agents/code-reviewer.md` and `commands/code-review.md`.
 - [`test-routing.md`](test-routing.md) - Scope-conditional test routing: delegate to `test-runner` for full-suite or multi-file changes, inline for single targeted tests. Pair with `agents/test-runner.md` and `commands/test.md`.
-- [`research-routing.md`](research-routing.md) - Threshold-based research routing: delegate to `research-agent` when synthesis spans 3+ files, inline for 1-2 files. Pair with `agents/research-agent.md`.
-- [`context-gathering-routing.md`](context-gathering-routing.md) - Pre-implementation context routing: delegate to `context-gatherer` when a task will likely touch 3+ files or files are unknown, inline for single-file changes. Pair with `agents/context-gatherer.md` and `commands/gather-context.md`.
-- [`docs-sync-routing.md`](docs-sync-routing.md) - Opt-in reminder pattern (no auto-route): nudges the main session to suggest `/docs-sync` after substantial code changes that touch user-visible surfaces. Pair with `agents/docs-updater.md` and `commands/docs-sync.md`.
+- [`context-gathering-routing.md`](context-gathering-routing.md) - Pre-implementation context routing: delegate to `context-gatherer` (Haiku) when a task will likely touch 3+ files or files are unknown, inline for single-file changes. Pair with `agents/context-gatherer.md` and `commands/gather-context.md`.
+
+## Extras (opt-in) — see [`../extras/`](../extras/README.md)
+
+- `research-routing` (in `extras/claude-md-snippets/`) - pair with `research-agent` extra
+- `docs-sync-routing` (in `extras/claude-md-snippets/`) - pair with `docs-updater` + `/docs-sync` extras
 
 ## Easier install
 

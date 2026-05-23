@@ -14,28 +14,19 @@ Unstaged files: !`git diff --name-only`
 
 ## Routing decision (apply to numbers above)
 
-Three-tier routing. Match top-down:
+Two-tier routing. Match top-down:
 
-**ULTRA-TRIVIAL** (delegate to `git-committer-quick`, Haiku tier — cheapest):
-- Exactly 1 file changed, AND
-- Under 20 lines total (insertions + deletions), AND
+**TRIVIAL** (commit directly from this session, Opus inline):
+- 1-2 files changed, AND
+- Under 80 lines total (insertions + deletions), AND
 - No security-sensitive paths (anything matching `auth`, `crypto`, `secret`, `token`, `key`, `password`, `payment`, `billing`, `.env`)
-- AND `git-committer-quick` agent is installed
-
-**TRIVIAL** (commit and push directly from this session, Opus inline):
-- 1-2 files, AND
-- Under 50 lines total, AND
-- No security-sensitive paths
-- AND did not match ULTRA-TRIVIAL above (or `git-committer-quick` is not installed)
 
 **NON-TRIVIAL** (delegate to `git-committer` subagent, Sonnet):
-- Anything else
+- Anything else (3+ files, 80+ lines, or any sensitive path)
+
+> **Note on the Haiku tier.** Earlier versions of this command had an "ultra-trivial → `git-committer-quick` (Haiku)" path. Benchmarking ([`bench/`](../bench/)) showed that the Task-tool round-trip overhead for very small commits exceeds the per-token savings of Haiku vs Opus, so the Haiku tier no longer auto-fires. The agent is still installed; invoke it manually (`@git-committer-quick`) if Opus is rate-limited or you specifically want a separate rate pool for plumbing commits.
 
 ## Action
-
-If **ULTRA-TRIVIAL**:
-1. Invoke the `git-committer-quick` subagent (Haiku) with: "Stage, commit, and push the change. Single-file trivial scope, message subject only."
-2. Pass back the subagent's report.
 
 If **TRIVIAL**:
 1. Read the staged diff. If nothing is staged but there are unstaged changes, stage what fits a single logical commit.
@@ -55,9 +46,3 @@ If **NON-TRIVIAL**:
 - Never force push
 - Never use `--no-verify` to bypass pre-commit hooks
 - Never amend or rebase
-
-## Why Haiku is the default for ultra-trivial
-
-The whole pitch of this plugin is "use the cheapest tier that works." For a 5-line typo fix, an Opus inline commit is overkill — the message can be derived directly from the diff with no architectural reasoning. Haiku via `git-committer-quick` uses a separate rate pool (helps when Opus is rate-limited) and is dramatically cheaper.
-
-If `git-committer-quick` is not installed, the ULTRA-TRIVIAL path falls through to TRIVIAL (Opus inline) automatically. To opt out of Haiku for a specific commit, run the commit manually outside this command.

@@ -1,0 +1,51 @@
+{
+  "cell": "T3__baseline__r0",
+  "task": "T3",
+  "task_name": "commit-trivial",
+  "condition": "baseline",
+  "run_idx": 0,
+  "runid": "2026-05-23_v0.11.0-cold",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 14.99,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide"
+  ],
+  "plugins": [],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 43,
+    "output": 429,
+    "cache_read": 43782,
+    "cache_creation": 5365,
+    "total": 49619
+  },
+  "total_cost_usd": 0.06636225000000001,
+  "duration_ms": 13599,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 43,
+      "outputTokens": 429,
+      "cacheReadInputTokens": 43782,
+      "cacheCreationInputTokens": 5365,
+      "webSearchRequests": 0,
+      "costUSD": 0.06636225000000001,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "delegations": [],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK commits_added=1",
+    "OK subject: 'docs: fix typo in README license heading'",
+    "OK files_changed=1"
+  ],
+  "final_text_len": 63
+}

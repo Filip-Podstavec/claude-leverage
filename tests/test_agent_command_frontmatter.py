@@ -19,6 +19,10 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = REPO_ROOT / "agents"
 COMMANDS_DIR = REPO_ROOT / "commands"
+# extras/ holds opt-in components that aren't loaded by the default plugin
+# install but still need to be structurally valid (same maintenance contract).
+EXTRAS_AGENTS_DIR = REPO_ROOT / "extras" / "agents"
+EXTRAS_COMMANDS_DIR = REPO_ROOT / "extras" / "commands"
 
 VALID_MODELS = {"sonnet", "haiku", "opus"}
 
@@ -54,13 +58,17 @@ def parse_frontmatter(text: str) -> Optional[dict[str, str]]:
 
 
 # Discovery is module-level so the parametrize IDs name each file explicitly
-# in pytest output. Failures point straight at the offending file.
-AGENT_FILES = sorted(
-    p for p in AGENTS_DIR.glob("*.md") if p.name.lower() != "readme.md"
-)
-COMMAND_FILES = sorted(
-    p for p in COMMANDS_DIR.glob("*.md") if p.name.lower() != "readme.md"
-)
+# in pytest output. Failures point straight at the offending file. extras/
+# components participate in the same validation so they don't drift while
+# they're not loaded by the default plugin.
+def _md_files(d: Path) -> list[Path]:
+    if not d.exists():
+        return []
+    return [p for p in d.glob("*.md") if p.name.lower() != "readme.md"]
+
+
+AGENT_FILES = sorted(_md_files(AGENTS_DIR) + _md_files(EXTRAS_AGENTS_DIR))
+COMMAND_FILES = sorted(_md_files(COMMANDS_DIR) + _md_files(EXTRAS_COMMANDS_DIR))
 
 
 # ---------------------------------------------------------------------------

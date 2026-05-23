@@ -88,8 +88,8 @@ TURNS = [
     },
     {
         "id": "W3.tiny-commit",
-        "expected_agent": "git-committer-quick",
-        "expected_tier": "haiku",
+        "expected_agent": "inline",
+        "expected_tier": "opus",  # /commit-smart now routes 1-file <80-LOC inline
         "prompt": (
             "In `README.md`, the word 'Liscence' is misspelled. Fix it to 'License'. "
             "Then stage ONLY that change (use `git reset` first to unstage the larger "
@@ -103,7 +103,7 @@ TURNS = [
             "subject_regex": "^(docs|chore|fix)(\\([a-z0-9_-]+\\))?: ",
             "expected_commits_added": 1,
             "expected_files_changed": 1,
-            "leveraged_expected_tier": "haiku",
+            # No tier check - the new /commit-smart commits 1-file <80-LOC inline.
         },
     },
     {

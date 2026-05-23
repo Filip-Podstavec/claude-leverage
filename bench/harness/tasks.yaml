@@ -76,9 +76,9 @@ tasks:
   - id: T3
     name: commit-trivial
     fixture: commit-trivial
-    description: Trivial commit (single file, 4-line typo fix) should route to Haiku in leveraged.
-    expected_agent: git-committer-quick
-    expected_tier: haiku
+    description: Trivial commit (single file, 4-line typo fix) — leveraged /commit-smart now routes inline (no delegation) since the Task tool overhead exceeds Haiku per-token savings on tiny commits.
+    expected_agent: inline
+    expected_tier: opus
     prompts:
       baseline: |
         Commit the staged changes with a conventional-commits message. The change is
@@ -92,8 +92,7 @@ tasks:
       subject_regex: "^(docs|chore|fix)(\\([a-z0-9_-]+\\))?: "
       expected_commits_added: 1
       expected_files_changed: 1
-      # leveraged-only: track-delegations must show the tier
-      leveraged_expected_tier: haiku
+      # No tier check - the new /commit-smart routes 1-file <80-LOC commits inline.
 
   - id: T4
     name: commit-nontrivial

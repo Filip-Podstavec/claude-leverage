@@ -1,0 +1,95 @@
+{
+  "cell": "T2__leveraged__r2",
+  "task": "T2",
+  "task_name": "context-gather-feature",
+  "condition": "leveraged",
+  "run_idx": 2,
+  "runid": "2026-05-23_v0.11.0-cold-reverted",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 66.94,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:README",
+    "claude-leverage:context-gatherer",
+    "claude-leverage:git-committer",
+    "claude-leverage:test-runner",
+    "claude-leverage:git-committer-quick"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 5,
+    "output": 1011,
+    "cache_read": 34747,
+    "cache_creation": 19349,
+    "total": 55112
+  },
+  "total_cost_usd": 0.20734154999999993,
+  "duration_ms": 65765,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 5,
+      "outputTokens": 1011,
+      "cacheReadInputTokens": 34747,
+      "cacheCreationInputTokens": 19349,
+      "webSearchRequests": 0,
+      "costUSD": 0.16360474999999997,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 4155,
+      "outputTokens": 3578,
+      "cacheReadInputTokens": 85693,
+      "cacheCreationInputTokens": 10498,
+      "webSearchRequests": 0,
+      "costUSD": 0.0437368,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "delegations": [
+    {
+      "agent": "claude-leverage:context-gatherer",
+      "tier": "haiku",
+      "tokens": 11752,
+      "input_tokens": 6,
+      "output_tokens": 1248,
+      "cache_read_input_tokens": 10105,
+      "cache_creation_input_tokens": 393,
+      "duration_ms": 40176,
+      "_raw": {
+        "ts": "2026-05-23T20:23:26Z",
+        "subagent": "claude-leverage:context-gatherer",
+        "tier": "haiku",
+        "input_tokens": 6,
+        "output_tokens": 1248,
+        "cache_read_input_tokens": 10105,
+        "cache_creation_input_tokens": 393,
+        "total_tokens": 11752,
+        "duration_ms": 40176
+      }
+    }
+  ],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK required: /status\\.py/",
+    "OK required: /require_auth/",
+    "OK required: /VERSION/"
+  ],
+  "final_text_len": 2007
+}

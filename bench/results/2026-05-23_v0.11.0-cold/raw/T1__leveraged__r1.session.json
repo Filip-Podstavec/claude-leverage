@@ -1,0 +1,94 @@
+{
+  "cell": "T1__leveraged__r1",
+  "task": "T1",
+  "task_name": "code-review-medium",
+  "condition": "leveraged",
+  "run_idx": 1,
+  "runid": "2026-05-23_v0.11.0-cold",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 65.47,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:README",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:test-runner",
+    "claude-leverage:context-gatherer",
+    "claude-leverage:git-committer",
+    "claude-leverage:git-committer-quick"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 5,
+    "output": 889,
+    "cache_read": 34922,
+    "cache_creation": 19630,
+    "total": 55446
+  },
+  "total_cost_usd": 0.2100184,
+  "duration_ms": 62833,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 5,
+      "outputTokens": 889,
+      "cacheReadInputTokens": 34922,
+      "cacheCreationInputTokens": 19630,
+      "webSearchRequests": 0,
+      "costUSD": 0.1623985,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-sonnet-4-6": {
+      "inputTokens": 6,
+      "outputTokens": 1997,
+      "cacheReadInputTokens": 14998,
+      "cacheCreationInputTokens": 3506,
+      "webSearchRequests": 0,
+      "costUSD": 0.0476199,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "delegations": [
+    {
+      "agent": "claude-leverage:code-reviewer",
+      "tier": "sonnet",
+      "tokens": 6888,
+      "input_tokens": 1,
+      "output_tokens": 1297,
+      "cache_read_input_tokens": 4766,
+      "cache_creation_input_tokens": 824,
+      "duration_ms": 38753,
+      "_raw": {
+        "ts": "2026-05-23T19:43:11Z",
+        "subagent": "claude-leverage:code-reviewer",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 1297,
+        "cache_read_input_tokens": 4766,
+        "cache_creation_input_tokens": 824,
+        "total_tokens": 6888,
+        "duration_ms": 38753
+      }
+    }
+  ],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK required: /users\\.py/",
+    "OK any-of matched: ['sql', 'injection', 'f-?string']"
+  ],
+  "final_text_len": 1824
+}

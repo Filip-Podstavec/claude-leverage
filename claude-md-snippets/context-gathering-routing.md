@@ -2,7 +2,7 @@
 
 **Threshold:** Delegate when the task will likely touch 3+ files OR when you don't yet know which files are involved. Inline for single-file changes where you already know the target.
 
-When about to implement a feature or fix a bug that will likely touch 3+ files, delegate context gathering to the `context-gatherer` subagent (Sonnet, read-only) instead of exploring the codebase yourself.
+When about to implement a feature or fix a bug that will likely touch 3+ files, delegate context gathering to the `context-gatherer` subagent (Haiku, read-only) instead of exploring the codebase yourself.
 
 The subagent reads relevant files in its own context, returns a structured implementation-ready package (key files, patterns, dependencies, constraints), and your main context window stays clean for actual implementation.
 
@@ -17,8 +17,8 @@ The subagent reads relevant files in its own context, returns a structured imple
 
 - Single-file changes where you already know the target
 - Tasks where you've already gathered context earlier in this session
-- Pure understanding questions ("how does X work?") — those route to `research-agent`
-- Pure location lookups ("where is X defined?") — those route to `repo-explorer`
+- Pure understanding questions ("how does X work?") — let Opus use Claude Code's built-in `general-purpose` agent, or install the `research-agent` extra
+- Pure location lookups ("where is X defined?") — let Opus use Claude Code's built-in `Explore` agent (Haiku, free)
 
 ## Good vs bad delegations
 

@@ -11,8 +11,8 @@ Not every task in a coding session needs the most capable model. This repo orche
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL2-lightgrey)]()
 ![Hooks](https://img.shields.io/badge/hooks-3-green)
-![Agents](https://img.shields.io/badge/agents-9-green)
-![Commands](https://img.shields.io/badge/commands-8-green)
+![Agents](https://img.shields.io/badge/agents-5_core_%2B_4_extras-green)
+![Commands](https://img.shields.io/badge/commands-6_core_%2B_2_extras-green)
 
 **Quick install:**
 ```
@@ -34,27 +34,28 @@ graph TB
         USER["User prompt"]
     end
 
-    subgraph Commands["Slash Commands - workflow routing"]
+    subgraph Commands["Slash Commands - workflow routing (default install)"]
         CS["/commit-smart"]
         CR["/code-review"]
         TT["/test"]
-        FT["/flaky-test"]
         GCT["/gather-context"]
-        DS["/docs-sync"]
         IS["/install-snippets"]
         LS["/leverage-stats"]
     end
 
-    subgraph Agents["Subagents - model-specific execution"]
+    subgraph Agents["Subagents - model-specific execution (default install)"]
         GC["git-committer<br/><small>Sonnet</small>"]
         GCQ["git-committer-quick<br/><small>Haiku</small>"]
         CRA["code-reviewer<br/><small>Sonnet</small>"]
         TR["test-runner<br/><small>Sonnet</small>"]
-        FTI["flaky-test-isolator<br/><small>Sonnet</small>"]
-        RX["repo-explorer<br/><small>Haiku</small>"]
-        RA["research-agent<br/><small>Sonnet</small>"]
-        CG["context-gatherer<br/><small>Sonnet</small>"]
-        DU["docs-updater<br/><small>Sonnet</small>"]
+        CG["context-gatherer<br/><small>Haiku</small>"]
+    end
+
+    subgraph Extras["extras/ — opt-in (not in default install)"]
+        FT["/flaky-test → flaky-test-isolator"]
+        DS["/docs-sync → docs-updater"]
+        RX["repo-explorer<br/><small>(duplicates CC Explore)</small>"]
+        RA["research-agent<br/><small>(duplicates CC general-purpose)</small>"]
     end
 
     subgraph Hooks["Hooks - deterministic security + observability"]
@@ -66,22 +67,17 @@ graph TB
     subgraph Snippets["CLAUDE.md Snippets - opt-in routing rules"]
         CRR["code-review-routing"]
         TRR["test-routing"]
-        RR["research-routing"]
         CGR["context-gathering-routing"]
-        DSR["docs-sync-routing"]
     end
 
-    USER --> CS & CR & TT & GCT & DS
+    USER --> CS & CR & TT & GCT
     USER -.->|"one-time setup"| IS
     USER -.->|"observability"| LS
-    USER -.->|"explore"| RX
-    CS -->|"ultra-trivial 1 file <20 lines"| GCQ
+    CS -->|"ultra-trivial 1-2 files <80 lines"| GCQ
     CS -->|"non-trivial"| GC
     CR --> CRA
     TT --> TR
-    FT --> FTI
     GCT --> CG
-    DS --> DU
 
     Hooks -.->|"intercepts every Bash call"| Main
     Hooks -.->|"intercepts every Bash call"| Agents
@@ -101,32 +97,42 @@ graph TB
 
 ## Components
 
-### Agents
+### Agents (default install)
 
 | Agent | Model | Description |
 |-------|-------|-------------|
 | [`git-committer`](agents/git-committer.md) | Sonnet | Stage, commit, push for non-trivial changes. Reads diff, writes Conventional Commits message. Never modifies code. |
-| [`git-committer-quick`](agents/git-committer-quick.md) | Haiku | Speed-optimized variant for trivial commits only (single file, <20 lines). Separate rate pool. |
+| [`git-committer-quick`](agents/git-committer-quick.md) | Haiku | Speed-optimized variant for trivial commits only (single file, small diff). Separate rate pool. |
 | [`code-reviewer`](agents/code-reviewer.md) | Sonnet | Read-only code reviewer. Returns structured findings (Critical / Important / Nice to have). Never modifies files. |
 | [`test-runner`](agents/test-runner.md) | Sonnet | Detects test framework, runs tests, returns structured failure analysis. Read-only. |
-| [`flaky-test-isolator`](agents/flaky-test-isolator.md) | Sonnet | Runs a single test N times sequentially, groups failures by normalized signature, returns stability report with dominant failure mode and reproducibility pattern. Hard caps: N≤50, 60s per-run timeout, 30 min wall budget. Read-only — does NOT fix the test. |
-| [`repo-explorer`](agents/repo-explorer.md) | Haiku | Read-only codebase exploration. Finds where things are defined, identifies patterns, returns structured findings. Never modifies code. |
-| [`research-agent`](agents/research-agent.md) | Sonnet | Read-only research synthesis. Answers "how does X work" by reading multiple files and returning structured pattern analysis. Distinct from `repo-explorer` (which handles "where" lookups). |
-| [`context-gatherer`](agents/context-gatherer.md) | Sonnet | Pre-fetches implementation context before coding. Given a task, gathers key files, patterns, dependencies, and constraints into a structured package. Saves Opus from exploring the codebase itself. |
-| [`docs-updater`](agents/docs-updater.md) | Sonnet | Reads code diff and existing docs (README, CHANGELOG, docstrings on changed funcs). Returns confidence-labeled prose-direction suggestions. Read-only - main session applies edits fresh from live state. |
+| [`context-gatherer`](agents/context-gatherer.md) | Haiku | Pre-fetches implementation context (key files, patterns, dependencies) before coding, in a structured format. Read-only. |
 
-### Commands
+### Agents (extras, not in default install) — see [`extras/`](extras/README.md)
+
+| Agent | Model | Why it's an extra |
+|-------|-------|--------------------|
+| [`flaky-test-isolator`](extras/agents/flaky-test-isolator.md) | Sonnet | Low frequency in real use; pays loading tax for everyone |
+| [`docs-updater`](extras/agents/docs-updater.md) | Sonnet | Low frequency in real use |
+| [`repo-explorer`](extras/agents/repo-explorer.md) | Haiku | Claude Code built-in `Explore` (Haiku) covers this for free |
+| [`research-agent`](extras/agents/research-agent.md) | Sonnet | Claude Code built-in `general-purpose` covers this |
+
+### Commands (default install)
 
 | Command | Description |
 |---------|-------------|
-| [`/commit-smart`](commands/commit-smart.md) | Routes commits by complexity: trivial changes handled directly, non-trivial delegated to `git-committer` subagent. |
+| [`/commit-smart`](commands/commit-smart.md) | Routes commits by complexity: small inline-friendly diffs handled directly by the main session; larger diffs delegated to `git-committer`. |
 | [`/code-review`](commands/code-review.md) | Delegates review to `code-reviewer` subagent, orchestrates user-confirmed fixes in main session. |
 | [`/test`](commands/test.md) | Delegates test execution to `test-runner` subagent, orchestrates user-confirmed fixes in main session. |
-| [`/flaky-test`](commands/flaky-test.md) | Diagnoses a flaky test by delegating to `flaky-test-isolator` (Sonnet). Args: `<test-target> [--runs N=10] [--timeout SECONDS=60]`. Caps N at 50 and per-run timeout at 300s before delegating. Subagent runs the test sequentially, groups failures by signature, and returns a stability report. Main session never runs the tests itself. |
-| [`/gather-context`](commands/gather-context.md) | Delegates codebase exploration to `context-gatherer` subagent before implementation. Returns structured context package. |
-| [`/docs-sync`](commands/docs-sync.md) | Delegates doc-freshness check to `docs-updater` subagent. Returns confidence-labeled suggestions for README, CHANGELOG, and docstrings. Main session applies approved edits. |
-| [`/install-snippets`](commands/install-snippets.md) | Interactively installs or updates CLAUDE.md routing snippets in your `~/.claude/CLAUDE.md` or project `CLAUDE.md` (snippets are not auto-installed by the plugin). Idempotent: re-running detects drift in already-installed snippets and offers to update the block in place — no append duplicates. |
+| [`/gather-context`](commands/gather-context.md) | Delegates implementation context pre-fetch to `context-gatherer` (Haiku) before coding. Returns structured context package. |
+| [`/install-snippets`](commands/install-snippets.md) | Interactively installs or updates CLAUDE.md routing snippets in your `~/.claude/CLAUDE.md` or project `CLAUDE.md` (snippets are not auto-installed by the plugin). Idempotent: re-running detects drift in already-installed snippets and offers to update the block in place. |
 | [`/leverage-stats`](commands/leverage-stats.md) | Reads the `track-delegations` log (`~/.claude/claude-leverage-stats.jsonl`) and prints lifetime totals, breakdown by tier and subagent, last-7-days activity, real token-usage sums, plus a heuristic "estimated savings vs all-Opus" calculation (with explicit counterfactual disclaimer). Read-only. |
+
+### Commands (extras) — see [`extras/`](extras/README.md)
+
+| Command | Requires |
+|---------|----------|
+| [`/flaky-test`](extras/commands/flaky-test.md) | `flaky-test-isolator` extra |
+| [`/docs-sync`](extras/commands/docs-sync.md) | `docs-updater` extra |
 
 ### Hooks
 
@@ -138,34 +144,38 @@ graph TB
 
 All hooks need a JSON parser on PATH — `jq` preferred, `python3` or `python` work as automatic fallback. Security hooks fail-open with a loud warning if none are available (documented in [`hooks/README.md`](hooks/README.md)).
 
-### CLAUDE.md Snippets
+### CLAUDE.md Snippets (default install)
 
 | Snippet | Pairs with |
 |---------|------------|
 | [`code-review-routing`](claude-md-snippets/code-review-routing.md) | `code-reviewer` agent + `/code-review` command |
 | [`test-routing`](claude-md-snippets/test-routing.md) | `test-runner` agent + `/test` command |
-| [`research-routing`](claude-md-snippets/research-routing.md) | `research-agent` agent |
 | [`context-gathering-routing`](claude-md-snippets/context-gathering-routing.md) | `context-gatherer` agent + `/gather-context` command |
-| [`docs-sync-routing`](claude-md-snippets/docs-sync-routing.md) | `docs-updater` agent + `/docs-sync` command (opt-in reminder, no auto-route) |
+
+### CLAUDE.md Snippets (extras) — see [`extras/`](extras/README.md)
+
+| Snippet | Pairs with |
+|---------|------------|
+| [`research-routing`](extras/claude-md-snippets/research-routing.md) | `research-agent` extra |
+| [`docs-sync-routing`](extras/claude-md-snippets/docs-sync-routing.md) | `docs-updater` extra + `/docs-sync` extra (opt-in reminder, no auto-route) |
 
 ## Workflow example
 
 A typical development cycle using claude-leverage:
 
 ```
-1. /gather-context                     → Sonnet pre-fetches implementation context
-2. Explore codebase if needed          → Haiku repo-explorer (Opus saves context)
+1. /gather-context                     → Haiku pre-fetches implementation context
+2. Explore codebase if needed          → CC built-in Explore agent (Haiku, free)
 3. Write code                          → Opus main session (guided by context package)
 4. /code-review                        → Sonnet reviews (Opus saves context)
 5. Apply fixes from review             → Opus applies, guided by Sonnet's report
 6. /test                               → Sonnet runs tests, reports failures
 7. Fix failing tests                   → Opus fixes, guided by Sonnet's report
 8. /commit-smart                       → Routes automatically (three tiers):
-   ├─ ultra-trivial (1 file, <20 lines) → Haiku git-committer-quick (default if installed)
-   ├─ trivial (1-2 files, <50 lines)    → commits directly in main session
-   └─ non-trivial                       → Sonnet git-committer subagent
-9. /docs-sync                         → Sonnet flags stale README/CHANGELOG, Opus applies
-10. Hooks run silently on every step   → block secrets, prevent force push
+   ├─ ultra-trivial (1-2 files, <80 lines) → Haiku git-committer-quick
+   ├─ trivial (small inline-friendly)       → commits directly in main session
+   └─ non-trivial (multi-file, large diff)  → Sonnet git-committer subagent
+9. Hooks run silently on every step    → block secrets, prevent force push
 ```
 
 **Result:** Opus handles only architecture and code changes. Reviews, tests, and commits run on cheaper models. Hooks enforce security without relying on any prompt.
@@ -195,16 +205,19 @@ Real headless `claude -p` runs, baseline (vanilla Claude Code) vs leveraged (wit
 | T4 commit-nontrivial | $0.073 | $0.174 | **+139 %** |
 | T1 code-review-medium | $0.074 | $0.193 | **+162 %** |
 
-**The honest explanation.** USD cost is what users actually pay. The plugin adds 10 agent definitions to the Opus system prompt, which costs ~$0.10 per session in `cache_creation_input_tokens` (paid in expensive Opus dollars). On a single cold short task, that fixed overhead exceeds the Sonnet/Haiku delegation savings. The individual agents stay efficient — see [`bench/results/2026-05-23_v0.10.0-cold-post-trim/per-agent-report.md`](bench/results/2026-05-23_v0.10.0-cold-post-trim/per-agent-report.md) — but they can't outrun the load-tax. In warm sessions the cache_creation cost is paid once and amortized across all subsequent turns; that's why the warm stage drops to +26 %.
+**The honest explanation.** USD cost is what users actually pay. The plugin adds extra agent definitions to the Opus system prompt, which costs ~$0.10 per session in `cache_creation_input_tokens` (paid in expensive Opus dollars). On a single cold short task, that fixed overhead exceeds the Sonnet/Haiku delegation savings. The individual agents stay efficient — see [`bench/results/2026-05-23_v0.10.0-cold-post-trim/per-agent-report.md`](bench/results/2026-05-23_v0.10.0-cold-post-trim/per-agent-report.md) — but they can't outrun the load-tax. In warm sessions the cache_creation cost is paid once and amortized across all subsequent turns; that's why the warm stage drops to +26 %.
 
 **Changes made between stages (driven by the v1 results):**
 - **Trimmed agent prompts** in `agents/*.md`: 845 → 635 lines, −25 %. Top 4 agents shortened individually (docs-updater 160 → 74, flaky-test-isolator 153 → 105, context-gatherer 105 → 75, test-runner 104 → 80).
 - **`context-gatherer` model switched from Sonnet to Haiku** — baseline Claude Code already routes context-gathering to Haiku via the built-in `Explore` agent, and v1 data showed our Sonnet version was structurally more expensive. `track-delegations.sh` tier map updated to match.
 
-**What's still on the table** (next round, not in this benchmark):
-- Test sessions with 10+ turns instead of 4 — extrapolation suggests the gap closes further when the per-session loading tax is spread across more delegations.
-- Audit `git-committer-quick` orchestration cost on T3 — `/commit-smart` adds ~$0.09 of Opus orchestration for a task baseline can do for $0.07; possibly the trivial-commit path should commit inline rather than delegate.
-- Test workflows with heavier context exploration where Sonnet delegations save large Opus reads (the per-agent intrinsic-efficiency numbers suggest there's real value, the question is at what session size it shows up).
+**What we tried for v0.11 — and what didn't move the needle.** In a follow-up round we attempted three further optimizations to see if we could push the cost down further. The detailed per-task data is in [`bench/results/2026-05-23_v0.11.0-cold-reverted/`](bench/results/2026-05-23_v0.11.0-cold-reverted/) and [`bench/results/2026-05-23_v0.11.0-warm-reverted/`](bench/results/2026-05-23_v0.11.0-warm-reverted/):
+
+- **Moved 4 agents to `extras/`** (`repo-explorer`, `research-agent`, `docs-updater`, `flaky-test-isolator`) so the default install loads 5 agents instead of 9. Expected to reduce `cache_creation` tax. **Result: no measurable change in cold leveraged cost** ($0.706 → $0.707). The Claude Code framework system prompt dominates the cached payload; our 4 agent definitions were ~5 % of it. Kept the change anyway for structural cleanliness (fewer things to maintain, lighter default), but it's not a cost optimization.
+- **Aggressive prompt trim** (third-pass, attempted target ~30 LOC per agent). **Result: cost regression.** Shorter agents needed more iterations to converge on the same answer, doubling `cache_read` tokens and raising costs ~3 %. **Reverted.** The v0.10 post-trim sizes are the local optimum.
+- **`/commit-smart` routing simplified** to two tiers — inline for 1–2 files & <80 LOC, Sonnet for everything else — so trivial commits don't pay Task-tool round-trip overhead. **Result: cost-neutral.** The Haiku delegation cost we removed and the Opus inline cost we added are about the same dollars; kept the change because the simpler two-tier rule is easier to reason about.
+
+Net: the v0.11.0 release is **structural cleanup, not measurable cost optimization** vs v0.10's post-trim numbers. The actual unlock is going to require something we don't control yet (smaller framework system prompt, on-demand agent loading, or a fundamentally different routing model).
 
 **What this benchmark does NOT measure:**
 - Wall-clock latency (logged but not headlined)
@@ -227,7 +240,7 @@ python bench/harness/report_combined.py \
     --out-name  <date>_combined
 ```
 
-Last benchmarked: **2026-05-23** · plugin **v0.10.0** (with v0.11 agent changes) · Claude Code **2.1.89** (resolved in headless subprocess) · models **claude-opus-4-6[1m]**, **claude-sonnet-4-6**, **claude-haiku-4-5-20251001**. Full raw data: [`bench/results/2026-05-23_combined/`](bench/results/2026-05-23_combined/).
+Last benchmarked: **2026-05-23** · plugin **v0.11.0** (chart numbers are v0.10's post-trim configuration; v0.11 follow-up data above) · Claude Code **2.1.89** (resolved in headless subprocess) · models **claude-opus-4-6[1m]**, **claude-sonnet-4-6**, **claude-haiku-4-5-20251001**. Primary chart raw data: [`bench/results/2026-05-23_combined/`](bench/results/2026-05-23_combined/). v0.11 follow-up data: [`bench/results/2026-05-23_v0.11.0-cold-reverted/`](bench/results/2026-05-23_v0.11.0-cold-reverted/) + [`-warm-reverted/`](bench/results/2026-05-23_v0.11.0-warm-reverted/).
 
 ## Quick install (recommended)
 
@@ -306,7 +319,7 @@ Then register in `~/.claude/settings.json` - see [`hooks/README.md`](hooks/READM
 | What gets installed | What it does |
 |---------------------|--------------|
 | `git-committer` agent | Handles non-trivial commits on Sonnet - reads diff, writes Conventional Commits message |
-| `git-committer-quick` agent | Handles trivial commits on Haiku - single file, <20 lines, separate rate pool |
+| `git-committer-quick` agent | Handles trivial commits on Haiku - small inline-friendly diffs, separate rate pool |
 | `/commit-smart` command | Routing logic: measures diff size and routes to the right tier automatically |
 
 **Scope:** Choose one:
@@ -333,26 +346,22 @@ cp commands/commit-smart.md .claude/commands/
 |---------------------|--------------|
 | `code-reviewer` agent + `/code-review` command | Sonnet reviews code, returns Critical/Important/Nice-to-have findings |
 | `test-runner` agent + `/test` command | Sonnet runs tests, returns structured failure analysis |
-| `flaky-test-isolator` agent + `/flaky-test` command | Sonnet runs a single test N times to surface intermittent failures, groups failures by signature, returns stability report |
-| `repo-explorer` agent | Haiku-based codebase discovery, finds where things are defined |
-| `research-agent` agent | Sonnet synthesizes "how does X work" answers across multiple files - keeps your main context window clean |
-| `context-gatherer` agent + `/gather-context` command | Sonnet pre-fetches implementation context (types, patterns, deps) before you code — biggest token saver |
-| `docs-updater` agent + `/docs-sync` command | Sonnet checks README/CHANGELOG/docstrings against the diff, returns confidence-labeled prose-direction suggestions for Opus to apply |
-| CLAUDE.md snippets | Auto-routing rules so the main session delegates without you typing the command (includes context-gathering and opt-in docs-sync reminder) |
+| `context-gatherer` agent + `/gather-context` command | Haiku pre-fetches implementation context (types, patterns, deps) in a structured format |
+| CLAUDE.md snippets | Auto-routing rules so the main session delegates without you typing the command |
 
 **Scope:** Same choice as above - user-level or project-level. Snippets go into your `CLAUDE.md`.
 
 ```bash
 # User scope
-cp agents/code-reviewer.md agents/test-runner.md agents/flaky-test-isolator.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/docs-updater.md ~/.claude/agents/
-cp commands/code-review.md commands/test.md commands/flaky-test.md commands/gather-context.md commands/docs-sync.md commands/install-snippets.md commands/leverage-stats.md ~/.claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/context-gatherer.md ~/.claude/agents/
+cp commands/code-review.md commands/test.md commands/gather-context.md commands/install-snippets.md commands/leverage-stats.md ~/.claude/commands/
 
 # - OR - Project scope
-cp agents/code-reviewer.md agents/test-runner.md agents/flaky-test-isolator.md agents/repo-explorer.md agents/research-agent.md agents/context-gatherer.md agents/docs-updater.md .claude/agents/
-cp commands/code-review.md commands/test.md commands/flaky-test.md commands/gather-context.md commands/docs-sync.md commands/install-snippets.md commands/leverage-stats.md .claude/commands/
+cp agents/code-reviewer.md agents/test-runner.md agents/context-gatherer.md .claude/agents/
+cp commands/code-review.md commands/test.md commands/gather-context.md commands/install-snippets.md commands/leverage-stats.md .claude/commands/
 ```
 
-Then copy the snippets you want from [`claude-md-snippets/`](claude-md-snippets/) into your `CLAUDE.md`.
+Then copy the snippets you want from [`claude-md-snippets/`](claude-md-snippets/) into your `CLAUDE.md`. Extras (low-frequency agents + `/docs-sync`, `/flaky-test`) live in [`extras/`](extras/) — see [`extras/README.md`](extras/README.md) for opt-in install.
 
 ### After install
 

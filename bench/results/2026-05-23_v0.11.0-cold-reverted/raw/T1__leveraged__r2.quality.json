@@ -1,0 +1,7 @@
+{
+  "pass": true,
+  "reasons": [
+    "OK required: /users\\.py/",
+    "OK any-of matched: ['sql', 'injection', 'f-?string']"
+  ]
+}

@@ -22,14 +22,19 @@ The main session typically runs Opus for orchestration and architecture decision
 
 Haiku 4.5 has a separate rate pool on Max plans and is significantly faster for pure plumbing tasks (no reasoning, no writing). The `git-committer-quick` agent demonstrates when this trade-off makes sense - for trivial commits where the message can be derived directly from the diff. For commits requiring real understanding of why the code changed, Sonnet remains the right tier.
 
-## Available agents
+## Available agents (default install)
 
 - [`git-committer.md`](git-committer.md) - Stage, commit, push for non-trivial commits (Sonnet). Reads diff, writes Conventional Commits message matching repo style. Does not modify code.
-- [`git-committer-quick.md`](git-committer-quick.md) - Speed-optimized variant for ultra-trivial commits (Haiku, single file, <20 lines). When installed, `/commit-smart` defaults to this for qualifying scope.
+- [`git-committer-quick.md`](git-committer-quick.md) - Speed-optimized variant for trivial commits (Haiku, small inline-friendly diffs). When installed, `/commit-smart` defaults to this for qualifying scope.
 - [`code-reviewer.md`](code-reviewer.md) - Read-only code reviewer (Sonnet). Returns structured findings; never modifies code.
 - [`test-runner.md`](test-runner.md) - Detects framework, runs tests, returns structured failure analysis (Sonnet, read-only). Never modifies code or test files.
-- [`flaky-test-isolator.md`](flaky-test-isolator.md) - Diagnoses flaky tests by running a single target N times sequentially, grouping failures by normalized signature, and returning a stability report (Sonnet, read-only). Hard caps: N≤50, 60s per-run timeout, 30 min wall budget. Distinct from `test-runner` (one-shot diagnosis) — use this for statistical signal across runs.
-- [`repo-explorer.md`](repo-explorer.md) - Read-only codebase exploration (Haiku). Finds where things are defined, identifies patterns. Never modifies code.
-- [`research-agent.md`](research-agent.md) - Read-only research synthesis (Sonnet). Answers "how does X work" questions by reading multiple files and returning a structured report. Distinct from `repo-explorer` (which handles "where" lookups on Haiku).
-- [`context-gatherer.md`](context-gatherer.md) - Pre-fetches implementation context before coding (Sonnet, read-only). Given a task, gathers key files, patterns, dependencies, and constraints into a structured package so the main session does not have to explore itself.
-- [`docs-updater.md`](docs-updater.md) - Documentation freshness specialist (Sonnet, read-only). Reads code diff and existing docs (README, CHANGELOG, docstrings on changed funcs), returns confidence-labeled prose-direction suggestions. Main session applies edits fresh from live state.
+- [`context-gatherer.md`](context-gatherer.md) - Pre-fetches implementation context before coding (Haiku, read-only). Given a task, gathers key files, patterns, dependencies, and constraints into a structured package so the main session does not have to explore itself.
+
+## Extras (opt-in, not in default install)
+
+Four agents live in [`../extras/agents/`](../extras/agents/) because they either duplicate Claude Code built-ins or are too low-frequency to justify their loading tax on every session. See [`extras/README.md`](../extras/README.md) for opt-in install.
+
+- `flaky-test-isolator` (Sonnet) - flaky-test diagnostics; low frequency in real use
+- `docs-updater` (Sonnet) - README/CHANGELOG freshness; low frequency
+- `repo-explorer` (Haiku) - covered by Claude Code built-in `Explore`
+- `research-agent` (Sonnet) - covered by Claude Code built-in `general-purpose`
