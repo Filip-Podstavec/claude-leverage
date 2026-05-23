@@ -1,0 +1,51 @@
+{
+  "cell": "T4__baseline__r2",
+  "task": "T4",
+  "task_name": "commit-nontrivial",
+  "condition": "baseline",
+  "run_idx": 2,
+  "runid": "2026-05-23_v0.10.0-cold-post-trim",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 16.67,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide"
+  ],
+  "plugins": [],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 42,
+    "output": 488,
+    "cache_read": 44530,
+    "cache_creation": 6126,
+    "total": 51186
+  },
+  "total_cost_usd": 0.0729625,
+  "duration_ms": 14900,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 42,
+      "outputTokens": 488,
+      "cacheReadInputTokens": 44530,
+      "cacheCreationInputTokens": 6126,
+      "webSearchRequests": 0,
+      "costUSD": 0.0729625,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "delegations": [],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK commits_added=1",
+    "OK subject: 'feat(calc): add multiply and divide operations'",
+    "OK files_changed=3 >= 2"
+  ],
+  "final_text_len": 113
+}

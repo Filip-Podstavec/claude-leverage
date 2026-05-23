@@ -1,0 +1,193 @@
+{
+  "cell": "warm__leveraged__r1",
+  "condition": "leveraged",
+  "run_idx": 1,
+  "runid": "2026-05-23_v0.10.0-warm",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 116.61,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:context-gatherer",
+    "claude-leverage:docs-updater",
+    "claude-leverage:flaky-test-isolator",
+    "claude-leverage:git-committer",
+    "claude-leverage:repo-explorer",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:test-runner",
+    "claude-leverage:README",
+    "claude-leverage:research-agent",
+    "claude-leverage:git-committer-quick"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "total_cost_usd": 0.38770439999999995,
+  "total_tokens": 24903,
+  "duration_ms": 12549,
+  "num_internal_turns": 1,
+  "session_usage": {
+    "input": 3,
+    "output": 505,
+    "cache_read": 23347,
+    "cache_creation": 1048
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 102,
+      "outputTokens": 3140,
+      "cacheReadInputTokens": 232150,
+      "cacheCreationInputTokens": 24395,
+      "webSearchRequests": 0,
+      "costUSD": 0.34755375,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 91,
+      "outputTokens": 2888,
+      "cacheReadInputTokens": 82334,
+      "cacheCreationInputTokens": 13909,
+      "webSearchRequests": 0,
+      "costUSD": 0.04015064999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "n_turns_quality_passed": 3,
+  "n_turns_expected": 4,
+  "turns": [
+    {
+      "turn_id": "W1.code-review",
+      "turn_idx": 0,
+      "approx_cost_usd": 0.078643,
+      "turn_tokens": 59550,
+      "usage": {
+        "input": 173,
+        "output": 17,
+        "cache_read": 54995,
+        "cache_creation": 4365
+      },
+      "n_assistant_text_events": 3,
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql', 'injection', 'f-?string']"
+      ],
+      "final_text_len": 6436
+    },
+    {
+      "turn_id": "W2.context-gather",
+      "turn_idx": 1,
+      "approx_cost_usd": 0.082769,
+      "turn_tokens": 62675,
+      "usage": {
+        "input": 3,
+        "output": 115,
+        "cache_read": 61799,
+        "cache_creation": 758
+      },
+      "n_assistant_text_events": 3,
+      "quality_pass": false,
+      "quality_reasons": [
+        "MISSING required: /status\\.py/",
+        "MISSING required: /require_auth/",
+        "OK required: /VERSION/"
+      ],
+      "final_text_len": 710
+    },
+    {
+      "turn_id": "W3.tiny-commit",
+      "turn_idx": 2,
+      "approx_cost_usd": 0.08757,
+      "turn_tokens": 66310,
+      "usage": {
+        "input": 5,
+        "output": 41,
+        "cache_read": 63757,
+        "cache_creation": 2507
+      },
+      "n_assistant_text_events": 3,
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'fix: correct spelling of License in README'",
+        "OK files_changed=1",
+        "OK tier 'haiku' engaged (delegations: ['haiku'])"
+      ],
+      "final_text_len": 531
+    },
+    {
+      "turn_id": "W4.final-review",
+      "turn_idx": 3,
+      "approx_cost_usd": 0.138723,
+      "turn_tokens": 105044,
+      "usage": {
+        "input": 15,
+        "output": 9,
+        "cache_read": 102607,
+        "cache_creation": 2413
+      },
+      "n_assistant_text_events": 6,
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /README/"
+      ],
+      "final_text_len": 3909
+    }
+  ],
+  "delegations": [
+    {
+      "agent": "claude-leverage:context-gatherer",
+      "tier": "haiku",
+      "tokens": null,
+      "input_tokens": null,
+      "output_tokens": null,
+      "cache_read_input_tokens": null,
+      "cache_creation_input_tokens": null,
+      "duration_ms": null,
+      "_raw": {
+        "ts": "2026-05-23T19:11:15Z",
+        "subagent": "claude-leverage:context-gatherer",
+        "tier": "haiku",
+        "input_tokens": null,
+        "output_tokens": null,
+        "cache_read_input_tokens": null,
+        "cache_creation_input_tokens": null,
+        "total_tokens": null,
+        "duration_ms": null
+      }
+    },
+    {
+      "agent": "claude-leverage:git-committer-quick",
+      "tier": "haiku",
+      "tokens": 6110,
+      "input_tokens": 4,
+      "output_tokens": 24,
+      "cache_read_input_tokens": 5836,
+      "cache_creation_input_tokens": 246,
+      "duration_ms": 13036,
+      "_raw": {
+        "ts": "2026-05-23T19:12:04Z",
+        "subagent": "claude-leverage:git-committer-quick",
+        "tier": "haiku",
+        "input_tokens": 4,
+        "output_tokens": 24,
+        "cache_read_input_tokens": 5836,
+        "cache_creation_input_tokens": 246,
+        "total_tokens": 6110,
+        "duration_ms": 13036
+      }
+    }
+  ]
+}

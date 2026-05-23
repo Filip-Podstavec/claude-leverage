@@ -1,0 +1,61 @@
+{
+  "cell": "T2__baseline__r2",
+  "task": "T2",
+  "task_name": "context-gather-feature",
+  "condition": "baseline",
+  "run_idx": 2,
+  "runid": "2026-05-23_v0.10.0-cold-post-trim",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 82.92,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide"
+  ],
+  "plugins": [],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 3,
+    "output": 1103,
+    "cache_read": 27430,
+    "cache_creation": 7941,
+    "total": 36477
+  },
+  "total_cost_usd": 0.1579392,
+  "duration_ms": 81685,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 3,
+      "outputTokens": 1103,
+      "cacheReadInputTokens": 27430,
+      "cacheCreationInputTokens": 7941,
+      "webSearchRequests": 0,
+      "costUSD": 0.09093625,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 72,
+      "outputTokens": 5113,
+      "cacheReadInputTokens": 293447,
+      "cacheCreationInputTokens": 9617,
+      "webSearchRequests": 0,
+      "costUSD": 0.06700294999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "delegations": [],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK required: /status\\.py/",
+    "OK required: /require_auth/",
+    "OK required: /VERSION/"
+  ],
+  "final_text_len": 2087
+}

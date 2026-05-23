@@ -1,0 +1,100 @@
+{
+  "cell": "T3__leveraged__r0",
+  "task": "T3",
+  "task_name": "commit-trivial",
+  "condition": "leveraged",
+  "run_idx": 0,
+  "runid": "2026-05-23_v0.10.0-cold-post-trim",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 32.62,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:context-gatherer",
+    "claude-leverage:flaky-test-isolator",
+    "claude-leverage:docs-updater",
+    "claude-leverage:repo-explorer",
+    "claude-leverage:README",
+    "claude-leverage:test-runner",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:git-committer",
+    "claude-leverage:research-agent",
+    "claude-leverage:git-committer-quick"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 5,
+    "output": 449,
+    "cache_read": 35865,
+    "cache_creation": 18936,
+    "total": 55255
+  },
+  "total_cost_usd": 0.15819455,
+  "duration_ms": 30624,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 5,
+      "outputTokens": 449,
+      "cacheReadInputTokens": 35865,
+      "cacheCreationInputTokens": 18936,
+      "webSearchRequests": 0,
+      "costUSD": 0.14753249999999998,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 16,
+      "outputTokens": 346,
+      "cacheReadInputTokens": 16423,
+      "cacheCreationInputTokens": 5819,
+      "webSearchRequests": 0,
+      "costUSD": 0.01066205,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "delegations": [
+    {
+      "agent": "claude-leverage:git-committer-quick",
+      "tier": "haiku",
+      "tokens": 5851,
+      "input_tokens": 4,
+      "output_tokens": 28,
+      "cache_read_input_tokens": 5652,
+      "cache_creation_input_tokens": 167,
+      "duration_ms": 13459,
+      "_raw": {
+        "ts": "2026-05-23T18:56:09Z",
+        "subagent": "claude-leverage:git-committer-quick",
+        "tier": "haiku",
+        "input_tokens": 4,
+        "output_tokens": 28,
+        "cache_read_input_tokens": 5652,
+        "cache_creation_input_tokens": 167,
+        "total_tokens": 5851,
+        "duration_ms": 13459
+      }
+    }
+  ],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK commits_added=1",
+    "OK subject: 'fix: correct typo in README heading'",
+    "OK files_changed=1",
+    "OK tier 'haiku' engaged (delegations: ['haiku'])"
+  ],
+  "final_text_len": 74
+}

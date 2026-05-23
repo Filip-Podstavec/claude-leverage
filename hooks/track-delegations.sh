@@ -59,9 +59,12 @@ subagent=$(printf '%s' "$subagent" | tr -d '\000-\037\177-\237')
 }
 
 # Map subagent name to model tier. Best-effort; non-leverage agents get "other".
+# context-gatherer moved to haiku in v0.11 after benchmark surfaced that
+# baseline already uses Haiku for context exploration via Claude Code's
+# built-in `Explore` agent; Sonnet was structurally more expensive.
 case "$subagent" in
-  *git-committer-quick*|*repo-explorer*) tier="haiku" ;;
-  *git-committer*|*code-reviewer*|*test-runner*|*research-agent*|*context-gatherer*|*docs-updater*) tier="sonnet" ;;
+  *git-committer-quick*|*repo-explorer*|*context-gatherer*) tier="haiku" ;;
+  *git-committer*|*code-reviewer*|*test-runner*|*research-agent*|*docs-updater*) tier="sonnet" ;;
   *) tier="other" ;;
 esac
 

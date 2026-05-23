@@ -1,0 +1,50 @@
+{
+  "cell": "T1__baseline__r0",
+  "task": "T1",
+  "task_name": "code-review-medium",
+  "condition": "baseline",
+  "run_idx": 0,
+  "runid": "2026-05-23_v0.10.0-cold-post-trim",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 24.18,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide"
+  ],
+  "plugins": [],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 3,
+    "output": 874,
+    "cache_read": 27403,
+    "cache_creation": 5860,
+    "total": 34140
+  },
+  "total_cost_usd": 0.0721915,
+  "duration_ms": 22393,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 3,
+      "outputTokens": 874,
+      "cacheReadInputTokens": 27403,
+      "cacheCreationInputTokens": 5860,
+      "webSearchRequests": 0,
+      "costUSD": 0.0721915,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "delegations": [],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK required: /users\\.py/",
+    "OK any-of matched: ['sql', 'injection', 'f-?string']"
+  ],
+  "final_text_len": 2578
+}

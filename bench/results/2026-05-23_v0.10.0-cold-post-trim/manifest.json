@@ -1,0 +1,1821 @@
+{
+  "runid": "2026-05-23_v0.10.0-cold-post-trim",
+  "started_at": "2026-05-23T18:43:45Z",
+  "plugin_dir": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+  "claude_code_version": "2.1.89 (Claude Code)",
+  "plugin_version": "0.10.0",
+  "n_runs": 3,
+  "tasks": [
+    "T1",
+    "T2",
+    "T3",
+    "T4"
+  ],
+  "conditions": [
+    "baseline",
+    "leveraged"
+  ],
+  "cells": [
+    {
+      "cell": "T1__baseline__r0",
+      "task": "T1",
+      "task_name": "code-review-medium",
+      "condition": "baseline",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 24.18,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 874,
+        "cache_read": 27403,
+        "cache_creation": 5860,
+        "total": 34140
+      },
+      "total_cost_usd": 0.0721915,
+      "duration_ms": 22393,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 874,
+          "cacheReadInputTokens": 27403,
+          "cacheCreationInputTokens": 5860,
+          "webSearchRequests": 0,
+          "costUSD": 0.0721915,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql', 'injection', 'f-?string']"
+      ],
+      "final_text_len": 2578
+    },
+    {
+      "cell": "T1__baseline__r1",
+      "task": "T1",
+      "task_name": "code-review-medium",
+      "condition": "baseline",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 32.2,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 940,
+        "cache_read": 27403,
+        "cache_creation": 5860,
+        "total": 34206
+      },
+      "total_cost_usd": 0.0738415,
+      "duration_ms": 30889,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 940,
+          "cacheReadInputTokens": 27403,
+          "cacheCreationInputTokens": 5860,
+          "webSearchRequests": 0,
+          "costUSD": 0.0738415,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql', 'injection', 'f-?string']"
+      ],
+      "final_text_len": 2848
+    },
+    {
+      "cell": "T1__baseline__r2",
+      "task": "T1",
+      "task_name": "code-review-medium",
+      "condition": "baseline",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 27.05,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 971,
+        "cache_read": 27403,
+        "cache_creation": 5860,
+        "total": 34237
+      },
+      "total_cost_usd": 0.0746165,
+      "duration_ms": 25840,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 971,
+          "cacheReadInputTokens": 27403,
+          "cacheCreationInputTokens": 5860,
+          "webSearchRequests": 0,
+          "costUSD": 0.0746165,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql', 'injection', 'f-?string']"
+      ],
+      "final_text_len": 2922
+    },
+    {
+      "cell": "T1__leveraged__r0",
+      "task": "T1",
+      "task_name": "code-review-medium",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 31.37,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:docs-updater",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:git-committer",
+        "claude-leverage:README",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:test-runner",
+        "claude-leverage:research-agent"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 982,
+        "cache_read": 17437,
+        "cache_creation": 18454,
+        "total": 36876
+      },
+      "total_cost_usd": 0.148621,
+      "duration_ms": 30109,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 982,
+          "cacheReadInputTokens": 17437,
+          "cacheCreationInputTokens": 18454,
+          "webSearchRequests": 0,
+          "costUSD": 0.148621,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql', 'injection', 'f-?string']"
+      ],
+      "final_text_len": 2804
+    },
+    {
+      "cell": "T1__leveraged__r1",
+      "task": "T1",
+      "task_name": "code-review-medium",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 62.77,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:docs-updater",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:README",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:git-committer",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:test-runner",
+        "claude-leverage:research-agent",
+        "claude-leverage:repo-explorer"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 623,
+        "cache_read": 17437,
+        "cache_creation": 19058,
+        "total": 37121
+      },
+      "total_cost_usd": 0.1931622,
+      "duration_ms": 61551,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 623,
+          "cacheReadInputTokens": 17437,
+          "cacheCreationInputTokens": 19058,
+          "webSearchRequests": 0,
+          "costUSD": 0.143421,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 6,
+          "outputTokens": 2077,
+          "cacheReadInputTokens": 15544,
+          "cacheCreationInputTokens": 3708,
+          "webSearchRequests": 0,
+          "costUSD": 0.0497412,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": 7141,
+          "input_tokens": 1,
+          "output_tokens": 1348,
+          "cache_read_input_tokens": 4956,
+          "cache_creation_input_tokens": 836,
+          "duration_ms": 43500,
+          "_raw": {
+            "ts": "2026-05-23T18:46:30Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 1348,
+            "cache_read_input_tokens": 4956,
+            "cache_creation_input_tokens": 836,
+            "total_tokens": 7141,
+            "duration_ms": 43500
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql', 'injection', 'f-?string']"
+      ],
+      "final_text_len": 1466
+    },
+    {
+      "cell": "T1__leveraged__r2",
+      "task": "T1",
+      "task_name": "code-review-medium",
+      "condition": "leveraged",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 62.48,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:docs-updater",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:README",
+        "claude-leverage:test-runner",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:git-committer",
+        "claude-leverage:research-agent",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:repo-explorer"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 747,
+        "cache_read": 17437,
+        "cache_creation": 19128,
+        "total": 37315
+      },
+      "total_cost_usd": 0.19778360000000003,
+      "duration_ms": 61229,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 747,
+          "cacheReadInputTokens": 17437,
+          "cacheCreationInputTokens": 19128,
+          "webSearchRequests": 0,
+          "costUSD": 0.14695850000000002,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 6,
+          "outputTokens": 2154,
+          "cacheReadInputTokens": 15507,
+          "cacheCreationInputTokens": 3692,
+          "webSearchRequests": 0,
+          "costUSD": 0.0508251,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": 7207,
+          "input_tokens": 1,
+          "output_tokens": 1430,
+          "cache_read_input_tokens": 4940,
+          "cache_creation_input_tokens": 836,
+          "duration_ms": 40801,
+          "_raw": {
+            "ts": "2026-05-23T18:47:30Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 1430,
+            "cache_read_input_tokens": 4940,
+            "cache_creation_input_tokens": 836,
+            "total_tokens": 7207,
+            "duration_ms": 40801
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql', 'injection', 'f-?string']"
+      ],
+      "final_text_len": 1979
+    },
+    {
+      "cell": "T2__baseline__r0",
+      "task": "T2",
+      "task_name": "context-gather-feature",
+      "condition": "baseline",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 88.46,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 1003,
+        "cache_read": 27430,
+        "cache_creation": 7327,
+        "total": 35763
+      },
+      "total_cost_usd": 0.17591759999999998,
+      "duration_ms": 87050,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 1003,
+          "cacheReadInputTokens": 27430,
+          "cacheCreationInputTokens": 7327,
+          "webSearchRequests": 0,
+          "costUSD": 0.08459875,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 62,
+          "outputTokens": 5203,
+          "cacheReadInputTokens": 385631,
+          "cacheCreationInputTokens": 21343,
+          "webSearchRequests": 0,
+          "costUSD": 0.09131885,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /status\\.py/",
+        "OK required: /require_auth/",
+        "OK required: /VERSION/"
+      ],
+      "final_text_len": 1872
+    },
+    {
+      "cell": "T2__baseline__r1",
+      "task": "T2",
+      "task_name": "context-gather-feature",
+      "condition": "baseline",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 85.0,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 961,
+        "cache_read": 27430,
+        "cache_creation": 7239,
+        "total": 35633
+      },
+      "total_cost_usd": 0.16102339999999998,
+      "duration_ms": 83636,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 961,
+          "cacheReadInputTokens": 27430,
+          "cacheCreationInputTokens": 7239,
+          "webSearchRequests": 0,
+          "costUSD": 0.08299875,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 65,
+          "outputTokens": 4611,
+          "cacheReadInputTokens": 407784,
+          "cacheCreationInputTokens": 11301,
+          "webSearchRequests": 0,
+          "costUSD": 0.07802465,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /status\\.py/",
+        "OK required: /require_auth/",
+        "OK required: /VERSION/"
+      ],
+      "final_text_len": 1839
+    },
+    {
+      "cell": "T2__baseline__r2",
+      "task": "T2",
+      "task_name": "context-gather-feature",
+      "condition": "baseline",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 82.92,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 1103,
+        "cache_read": 27430,
+        "cache_creation": 7941,
+        "total": 36477
+      },
+      "total_cost_usd": 0.1579392,
+      "duration_ms": 81685,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 1103,
+          "cacheReadInputTokens": 27430,
+          "cacheCreationInputTokens": 7941,
+          "webSearchRequests": 0,
+          "costUSD": 0.09093625,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 72,
+          "outputTokens": 5113,
+          "cacheReadInputTokens": 293447,
+          "cacheCreationInputTokens": 9617,
+          "webSearchRequests": 0,
+          "costUSD": 0.06700294999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /status\\.py/",
+        "OK required: /require_auth/",
+        "OK required: /VERSION/"
+      ],
+      "final_text_len": 2087
+    },
+    {
+      "cell": "T2__leveraged__r0",
+      "task": "T2",
+      "task_name": "context-gather-feature",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 62.36,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:README",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:git-committer",
+        "claude-leverage:research-agent",
+        "claude-leverage:test-runner",
+        "claude-leverage:docs-updater",
+        "claude-leverage:repo-explorer"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 5,
+        "output": 896,
+        "cache_read": 35769,
+        "cache_creation": 19859,
+        "total": 56529
+      },
+      "total_cost_usd": 0.20698030000000003,
+      "duration_ms": 60883,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 896,
+          "cacheReadInputTokens": 35769,
+          "cacheCreationInputTokens": 19859,
+          "webSearchRequests": 0,
+          "costUSD": 0.16442825,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 4158,
+          "outputTokens": 3569,
+          "cacheReadInputTokens": 79928,
+          "cacheCreationInputTokens": 10045,
+          "webSearchRequests": 0,
+          "costUSD": 0.04255205,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:context-gatherer",
+          "tier": "haiku",
+          "tokens": 11330,
+          "input_tokens": 6,
+          "output_tokens": 1279,
+          "cache_read_input_tokens": 9890,
+          "cache_creation_input_tokens": 155,
+          "duration_ms": 35155,
+          "_raw": {
+            "ts": "2026-05-23T18:52:49Z",
+            "subagent": "claude-leverage:context-gatherer",
+            "tier": "haiku",
+            "input_tokens": 6,
+            "output_tokens": 1279,
+            "cache_read_input_tokens": 9890,
+            "cache_creation_input_tokens": 155,
+            "total_tokens": 11330,
+            "duration_ms": 35155
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /status\\.py/",
+        "OK required: /require_auth/",
+        "OK required: /VERSION/"
+      ],
+      "final_text_len": 1824
+    },
+    {
+      "cell": "T2__leveraged__r1",
+      "task": "T2",
+      "task_name": "context-gather-feature",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 48.24,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:test-runner",
+        "claude-leverage:docs-updater",
+        "claude-leverage:research-agent",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:README",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:git-committer",
+        "claude-leverage:code-reviewer"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 847,
+        "cache_read": 17464,
+        "cache_creation": 18811,
+        "total": 37125
+      },
+      "total_cost_usd": 0.17717824999999998,
+      "duration_ms": 46867,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 847,
+          "cacheReadInputTokens": 17464,
+          "cacheCreationInputTokens": 18811,
+          "webSearchRequests": 0,
+          "costUSD": 0.14749075,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 67,
+          "outputTokens": 2630,
+          "cacheReadInputTokens": 61980,
+          "cacheCreationInputTokens": 8218,
+          "webSearchRequests": 0,
+          "costUSD": 0.0296875,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:context-gatherer",
+          "tier": "haiku",
+          "tokens": 9201,
+          "input_tokens": 6,
+          "output_tokens": 977,
+          "cache_read_input_tokens": 7766,
+          "cache_creation_input_tokens": 452,
+          "duration_ms": 27645,
+          "_raw": {
+            "ts": "2026-05-23T18:53:40Z",
+            "subagent": "claude-leverage:context-gatherer",
+            "tier": "haiku",
+            "input_tokens": 6,
+            "output_tokens": 977,
+            "cache_read_input_tokens": 7766,
+            "cache_creation_input_tokens": 452,
+            "total_tokens": 9201,
+            "duration_ms": 27645
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /status\\.py/",
+        "OK required: /require_auth/",
+        "OK required: /VERSION/"
+      ],
+      "final_text_len": 1787
+    },
+    {
+      "cell": "T2__leveraged__r2",
+      "task": "T2",
+      "task_name": "context-gather-feature",
+      "condition": "leveraged",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 60.4,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:docs-updater",
+        "claude-leverage:test-runner",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:README",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:research-agent",
+        "claude-leverage:git-committer",
+        "claude-leverage:flaky-test-isolator"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 3,
+        "output": 786,
+        "cache_read": 17464,
+        "cache_creation": 19366,
+        "total": 37619
+      },
+      "total_cost_usd": 0.18448835000000002,
+      "duration_ms": 59042,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 3,
+          "outputTokens": 786,
+          "cacheReadInputTokens": 17464,
+          "cacheCreationInputTokens": 19366,
+          "webSearchRequests": 0,
+          "costUSD": 0.1494345,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 76,
+          "outputTokens": 3439,
+          "cacheReadInputTokens": 69366,
+          "cacheCreationInputTokens": 8677,
+          "webSearchRequests": 0,
+          "costUSD": 0.03505385,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:context-gatherer",
+          "tier": "haiku",
+          "tokens": 10241,
+          "input_tokens": 7,
+          "output_tokens": 1557,
+          "cache_read_input_tokens": 8235,
+          "cache_creation_input_tokens": 442,
+          "duration_ms": 35339,
+          "_raw": {
+            "ts": "2026-05-23T18:54:38Z",
+            "subagent": "claude-leverage:context-gatherer",
+            "tier": "haiku",
+            "input_tokens": 7,
+            "output_tokens": 1557,
+            "cache_read_input_tokens": 8235,
+            "cache_creation_input_tokens": 442,
+            "total_tokens": 10241,
+            "duration_ms": 35339
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /status\\.py/",
+        "OK required: /require_auth/",
+        "OK required: /VERSION/"
+      ],
+      "final_text_len": 1793
+    },
+    {
+      "cell": "T3__baseline__r0",
+      "task": "T3",
+      "task_name": "commit-trivial",
+      "condition": "baseline",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 13.26,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 4,
+        "output": 432,
+        "cache_read": 43837,
+        "cache_creation": 5367,
+        "total": 49640
+      },
+      "total_cost_usd": 0.06628225,
+      "duration_ms": 11732,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 432,
+          "cacheReadInputTokens": 43837,
+          "cacheCreationInputTokens": 5367,
+          "webSearchRequests": 0,
+          "costUSD": 0.06628225,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'docs: fix typo in README.md'",
+        "OK files_changed=1"
+      ],
+      "final_text_len": 55
+    },
+    {
+      "cell": "T3__baseline__r1",
+      "task": "T3",
+      "task_name": "commit-trivial",
+      "condition": "baseline",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 17.05,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 4,
+        "output": 418,
+        "cache_read": 43837,
+        "cache_creation": 5362,
+        "total": 49621
+      },
+      "total_cost_usd": 0.065901,
+      "duration_ms": 15874,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 418,
+          "cacheReadInputTokens": 43837,
+          "cacheCreationInputTokens": 5362,
+          "webSearchRequests": 0,
+          "costUSD": 0.065901,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'docs: fix typo in README heading (Liscence \u00e2\u2020\u2019 License)'",
+        "OK files_changed=1"
+      ],
+      "final_text_len": 66
+    },
+    {
+      "cell": "T3__baseline__r2",
+      "task": "T3",
+      "task_name": "commit-trivial",
+      "condition": "baseline",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 15.33,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 4,
+        "output": 446,
+        "cache_read": 43837,
+        "cache_creation": 5372,
+        "total": 49659
+      },
+      "total_cost_usd": 0.0666635,
+      "duration_ms": 13508,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 446,
+          "cacheReadInputTokens": 43837,
+          "cacheCreationInputTokens": 5372,
+          "webSearchRequests": 0,
+          "costUSD": 0.0666635,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'docs: fix typo in README license heading'",
+        "OK files_changed=1"
+      ],
+      "final_text_len": 98
+    },
+    {
+      "cell": "T3__leveraged__r0",
+      "task": "T3",
+      "task_name": "commit-trivial",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 32.62,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:docs-updater",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:README",
+        "claude-leverage:test-runner",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:git-committer",
+        "claude-leverage:research-agent",
+        "claude-leverage:git-committer-quick"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 5,
+        "output": 449,
+        "cache_read": 35865,
+        "cache_creation": 18936,
+        "total": 55255
+      },
+      "total_cost_usd": 0.15819455,
+      "duration_ms": 30624,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 449,
+          "cacheReadInputTokens": 35865,
+          "cacheCreationInputTokens": 18936,
+          "webSearchRequests": 0,
+          "costUSD": 0.14753249999999998,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 16,
+          "outputTokens": 346,
+          "cacheReadInputTokens": 16423,
+          "cacheCreationInputTokens": 5819,
+          "webSearchRequests": 0,
+          "costUSD": 0.01066205,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:git-committer-quick",
+          "tier": "haiku",
+          "tokens": 5851,
+          "input_tokens": 4,
+          "output_tokens": 28,
+          "cache_read_input_tokens": 5652,
+          "cache_creation_input_tokens": 167,
+          "duration_ms": 13459,
+          "_raw": {
+            "ts": "2026-05-23T18:56:09Z",
+            "subagent": "claude-leverage:git-committer-quick",
+            "tier": "haiku",
+            "input_tokens": 4,
+            "output_tokens": 28,
+            "cache_read_input_tokens": 5652,
+            "cache_creation_input_tokens": 167,
+            "total_tokens": 5851,
+            "duration_ms": 13459
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'fix: correct typo in README heading'",
+        "OK files_changed=1",
+        "OK tier 'haiku' engaged (delegations: ['haiku'])"
+      ],
+      "final_text_len": 74
+    },
+    {
+      "cell": "T3__leveraged__r1",
+      "task": "T3",
+      "task_name": "commit-trivial",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 33.63,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:research-agent",
+        "claude-leverage:test-runner",
+        "claude-leverage:docs-updater",
+        "claude-leverage:git-committer",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:README",
+        "claude-leverage:git-committer-quick"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 5,
+        "output": 320,
+        "cache_read": 35785,
+        "cache_creation": 18719,
+        "total": 54829
+      },
+      "total_cost_usd": 0.15325304999999995,
+      "duration_ms": 32025,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 320,
+          "cacheReadInputTokens": 35785,
+          "cacheCreationInputTokens": 18719,
+          "webSearchRequests": 0,
+          "costUSD": 0.14291124999999996,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 15,
+          "outputTokens": 300,
+          "cacheReadInputTokens": 16393,
+          "cacheCreationInputTokens": 5750,
+          "webSearchRequests": 0,
+          "costUSD": 0.0103418,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:git-committer-quick",
+          "tier": "haiku",
+          "tokens": 5777,
+          "input_tokens": 3,
+          "output_tokens": 24,
+          "cache_read_input_tokens": 5628,
+          "cache_creation_input_tokens": 122,
+          "duration_ms": 11600,
+          "_raw": {
+            "ts": "2026-05-23T18:56:42Z",
+            "subagent": "claude-leverage:git-committer-quick",
+            "tier": "haiku",
+            "input_tokens": 3,
+            "output_tokens": 24,
+            "cache_read_input_tokens": 5628,
+            "cache_creation_input_tokens": 122,
+            "total_tokens": 5777,
+            "duration_ms": 11600
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'fix: correct spelling of License in README'",
+        "OK files_changed=1",
+        "OK tier 'haiku' engaged (delegations: ['haiku'])"
+      ],
+      "final_text_len": 95
+    },
+    {
+      "cell": "T3__leveraged__r2",
+      "task": "T3",
+      "task_name": "commit-trivial",
+      "condition": "leveraged",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 28.93,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:test-runner",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:docs-updater",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:README",
+        "claude-leverage:git-committer",
+        "claude-leverage:research-agent"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 5,
+        "output": 338,
+        "cache_read": 35865,
+        "cache_creation": 18820,
+        "total": 55028
+      },
+      "total_cost_usd": 0.15438349999999995,
+      "duration_ms": 27718,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 338,
+          "cacheReadInputTokens": 35865,
+          "cacheCreationInputTokens": 18820,
+          "webSearchRequests": 0,
+          "costUSD": 0.14403249999999998,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 15,
+          "outputTokens": 305,
+          "cacheReadInputTokens": 16360,
+          "cacheCreationInputTokens": 5740,
+          "webSearchRequests": 0,
+          "costUSD": 0.010350999999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:git-committer-quick",
+          "tier": "haiku",
+          "tokens": 5774,
+          "input_tokens": 3,
+          "output_tokens": 31,
+          "cache_read_input_tokens": 5617,
+          "cache_creation_input_tokens": 123,
+          "duration_ms": 11614,
+          "_raw": {
+            "ts": "2026-05-23T18:57:11Z",
+            "subagent": "claude-leverage:git-committer-quick",
+            "tier": "haiku",
+            "input_tokens": 3,
+            "output_tokens": 31,
+            "cache_read_input_tokens": 5617,
+            "cache_creation_input_tokens": 123,
+            "total_tokens": 5774,
+            "duration_ms": 11614
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: \"fix: correct spelling of 'License' in README\"",
+        "OK files_changed=1",
+        "OK tier 'haiku' engaged (delegations: ['haiku'])"
+      ],
+      "final_text_len": 95
+    },
+    {
+      "cell": "T4__baseline__r0",
+      "task": "T4",
+      "task_name": "commit-nontrivial",
+      "condition": "baseline",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 15.08,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 4,
+        "output": 479,
+        "cache_read": 44568,
+        "cache_creation": 6134,
+        "total": 51185
+      },
+      "total_cost_usd": 0.0726165,
+      "duration_ms": 13659,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 479,
+          "cacheReadInputTokens": 44568,
+          "cacheCreationInputTokens": 6134,
+          "webSearchRequests": 0,
+          "costUSD": 0.0726165,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'feat(calc): add multiply and divide operations'",
+        "OK files_changed=3 >= 2"
+      ],
+      "final_text_len": 77
+    },
+    {
+      "cell": "T4__baseline__r1",
+      "task": "T4",
+      "task_name": "commit-nontrivial",
+      "condition": "baseline",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 18.4,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 4,
+        "output": 489,
+        "cache_read": 44568,
+        "cache_creation": 6132,
+        "total": 51193
+      },
+      "total_cost_usd": 0.072854,
+      "duration_ms": 16953,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 489,
+          "cacheReadInputTokens": 44568,
+          "cacheCreationInputTokens": 6132,
+          "webSearchRequests": 0,
+          "costUSD": 0.072854,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'feat(calc): add multiply and divide operations'",
+        "OK files_changed=3 >= 2"
+      ],
+      "final_text_len": 111
+    },
+    {
+      "cell": "T4__baseline__r2",
+      "task": "T4",
+      "task_name": "commit-nontrivial",
+      "condition": "baseline",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 16.67,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 42,
+        "output": 488,
+        "cache_read": 44530,
+        "cache_creation": 6126,
+        "total": 51186
+      },
+      "total_cost_usd": 0.0729625,
+      "duration_ms": 14900,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 42,
+          "outputTokens": 488,
+          "cacheReadInputTokens": 44530,
+          "cacheCreationInputTokens": 6126,
+          "webSearchRequests": 0,
+          "costUSD": 0.0729625,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "delegations": [],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'feat(calc): add multiply and divide operations'",
+        "OK files_changed=3 >= 2"
+      ],
+      "final_text_len": 113
+    },
+    {
+      "cell": "T4__leveraged__r0",
+      "task": "T4",
+      "task_name": "commit-nontrivial",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 47.63,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:git-committer",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:README",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:research-agent",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:test-runner",
+        "claude-leverage:docs-updater"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 5,
+        "output": 418,
+        "cache_read": 35934,
+        "cache_creation": 19013,
+        "total": 55370
+      },
+      "total_cost_usd": 0.18829464999999998,
+      "duration_ms": 46295,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 418,
+          "cacheReadInputTokens": 35934,
+          "cacheCreationInputTokens": 19013,
+          "webSearchRequests": 0,
+          "costUSD": 0.14727325,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 6,
+          "outputTokens": 668,
+          "cacheReadInputTokens": 17553,
+          "cacheCreationInputTokens": 6858,
+          "webSearchRequests": 0,
+          "costUSD": 0.0410214,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:git-committer",
+          "tier": "sonnet",
+          "tokens": 6988,
+          "input_tokens": 1,
+          "output_tokens": 129,
+          "cache_read_input_tokens": 6540,
+          "cache_creation_input_tokens": 318,
+          "duration_ms": 19160,
+          "_raw": {
+            "ts": "2026-05-23T18:58:48Z",
+            "subagent": "claude-leverage:git-committer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 129,
+            "cache_read_input_tokens": 6540,
+            "cache_creation_input_tokens": 318,
+            "total_tokens": 6988,
+            "duration_ms": 19160
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'feat: add multiply and divide operations with CLI and tests'",
+        "OK files_changed=3 >= 2",
+        "OK tier 'sonnet' engaged (delegations: ['sonnet'])"
+      ],
+      "final_text_len": 194
+    },
+    {
+      "cell": "T4__leveraged__r1",
+      "task": "T4",
+      "task_name": "commit-nontrivial",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 37.01,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:docs-updater",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:git-committer",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:test-runner",
+        "claude-leverage:README",
+        "claude-leverage:research-agent",
+        "claude-leverage:context-gatherer"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 5,
+        "output": 421,
+        "cache_read": 36087,
+        "cache_creation": 19110,
+        "total": 55623
+      },
+      "total_cost_usd": 0.17343875,
+      "duration_ms": 35799,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 421,
+          "cacheReadInputTokens": 36087,
+          "cacheCreationInputTokens": 19110,
+          "webSearchRequests": 0,
+          "costUSD": 0.148031,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 5,
+          "outputTokens": 609,
+          "cacheReadInputTokens": 15755,
+          "cacheCreationInputTokens": 3075,
+          "webSearchRequests": 0,
+          "costUSD": 0.02540775,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:git-committer",
+          "tier": "sonnet",
+          "tokens": 6956,
+          "input_tokens": 1,
+          "output_tokens": 71,
+          "cache_read_input_tokens": 6560,
+          "cache_creation_input_tokens": 324,
+          "duration_ms": 17508,
+          "_raw": {
+            "ts": "2026-05-23T18:59:26Z",
+            "subagent": "claude-leverage:git-committer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 71,
+            "cache_read_input_tokens": 6560,
+            "cache_creation_input_tokens": 324,
+            "total_tokens": 6956,
+            "duration_ms": 17508
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'feat: add multiply and divide operations'",
+        "OK files_changed=3 >= 2",
+        "OK tier 'sonnet' engaged (delegations: ['sonnet'])"
+      ],
+      "final_text_len": 198
+    },
+    {
+      "cell": "T4__leveraged__r2",
+      "task": "T4",
+      "task_name": "commit-nontrivial",
+      "condition": "leveraged",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-cold-post-trim",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 37.65,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:docs-updater",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:git-committer",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:README",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:research-agent",
+        "claude-leverage:test-runner"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "error_message": "",
+      "tokens": {
+        "input": 5,
+        "output": 413,
+        "cache_read": 36087,
+        "cache_creation": 19099,
+        "total": 55604
+      },
+      "total_cost_usd": 0.1737742,
+      "duration_ms": 36418,
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 413,
+          "cacheReadInputTokens": 36087,
+          "cacheCreationInputTokens": 19099,
+          "webSearchRequests": 0,
+          "costUSD": 0.14776224999999998,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 5,
+          "outputTokens": 641,
+          "cacheReadInputTokens": 15744,
+          "cacheCreationInputTokens": 3109,
+          "webSearchRequests": 0,
+          "costUSD": 0.02601195,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "delegations": [
+        {
+          "agent": "claude-leverage:git-committer",
+          "tier": "sonnet",
+          "tokens": 6985,
+          "input_tokens": 1,
+          "output_tokens": 66,
+          "cache_read_input_tokens": 6552,
+          "cache_creation_input_tokens": 366,
+          "duration_ms": 18574,
+          "_raw": {
+            "ts": "2026-05-23T19:00:06Z",
+            "subagent": "claude-leverage:git-committer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 66,
+            "cache_read_input_tokens": 6552,
+            "cache_creation_input_tokens": 366,
+            "total_tokens": 6985,
+            "duration_ms": 18574
+          }
+        }
+      ],
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: 'feat: add multiply and divide operations'",
+        "OK files_changed=3 >= 2",
+        "OK tier 'sonnet' engaged (delegations: ['sonnet'])"
+      ],
+      "final_text_len": 195
+    }
+  ],
+  "updated_at": "2026-05-23T19:00:12Z",
+  "total_cost_usd_so_far": 3.2424,
+  "finished_at": "2026-05-23T19:00:12Z"
+}

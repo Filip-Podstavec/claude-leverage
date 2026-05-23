@@ -1,0 +1,1055 @@
+{
+  "runid": "2026-05-23_v0.10.0-warm",
+  "mode": "warm",
+  "started_at": "2026-05-23T19:00:30Z",
+  "plugin_dir": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+  "claude_code_version": "2.1.89 (Claude Code)",
+  "plugin_version": "0.10.0",
+  "n_runs": 3,
+  "fixture": "warm-session",
+  "turns": [
+    "W1.code-review",
+    "W2.context-gather",
+    "W3.tiny-commit",
+    "W4.final-review"
+  ],
+  "conditions": [
+    "baseline",
+    "leveraged"
+  ],
+  "cells": [
+    {
+      "cell": "warm__baseline__r0",
+      "condition": "baseline",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-warm",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 109.97,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "total_cost_usd": 0.2818737,
+      "total_tokens": 184321,
+      "duration_ms": 108669,
+      "num_internal_turns": 10,
+      "session_usage": {
+        "input": 44,
+        "output": 2437,
+        "cache_read": 171046,
+        "cache_creation": 10794
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 44,
+          "outputTokens": 2437,
+          "cacheReadInputTokens": 171046,
+          "cacheCreationInputTokens": 10794,
+          "webSearchRequests": 0,
+          "costUSD": 0.21413049999999997,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 64,
+          "outputTokens": 3880,
+          "cacheReadInputTokens": 237792,
+          "cacheCreationInputTokens": 19600,
+          "webSearchRequests": 0,
+          "costUSD": 0.0677432,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 4,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.06037,
+          "turn_tokens": 106807,
+          "usage": {
+            "input": 29,
+            "output": 80,
+            "cache_read": 89594,
+            "cache_creation": 17104
+          },
+          "n_assistant_text_events": 7,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 7107
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.064226,
+          "turn_tokens": 113628,
+          "usage": {
+            "input": 36,
+            "output": 109,
+            "cache_read": 110347,
+            "cache_creation": 3136
+          },
+          "n_assistant_text_events": 7,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /status\\.py/",
+            "OK required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 2877
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.073375,
+          "turn_tokens": 129814,
+          "usage": {
+            "input": 27,
+            "output": 7,
+            "cache_read": 127798,
+            "cache_creation": 1982
+          },
+          "n_assistant_text_events": 7,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: \"fix: correct 'Liscence' typo to 'License' in README.md\"",
+            "OK files_changed=1"
+          ],
+          "final_text_len": 1821
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.083903,
+          "turn_tokens": 148441,
+          "usage": {
+            "input": 40,
+            "output": 143,
+            "cache_read": 143657,
+            "cache_creation": 4601
+          },
+          "n_assistant_text_events": 7,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 8922
+        }
+      ],
+      "delegations": []
+    },
+    {
+      "cell": "warm__baseline__r1",
+      "condition": "baseline",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-warm",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 129.52,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "total_cost_usd": 0.30831994999999995,
+      "total_tokens": 247909,
+      "duration_ms": 128234,
+      "num_internal_turns": 12,
+      "session_usage": {
+        "input": 14,
+        "output": 2473,
+        "cache_read": 234627,
+        "cache_creation": 10795
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 14,
+          "outputTokens": 2473,
+          "cacheReadInputTokens": 234627,
+          "cacheCreationInputTokens": 10795,
+          "webSearchRequests": 0,
+          "costUSD": 0.24667724999999996,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 68,
+          "outputTokens": 4302,
+          "cacheReadInputTokens": 290847,
+          "cacheCreationInputTokens": 8784,
+          "webSearchRequests": 0,
+          "costUSD": 0.06164270000000001,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 4,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.064252,
+          "turn_tokens": 123417,
+          "usage": {
+            "input": 36,
+            "output": 77,
+            "cache_read": 118523,
+            "cache_creation": 4781
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 7388
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.072294,
+          "turn_tokens": 138863,
+          "usage": {
+            "input": 33,
+            "output": 375,
+            "cache_read": 135091,
+            "cache_creation": 3364
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /status\\.py/",
+            "OK required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 3803
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.082526,
+          "turn_tokens": 158517,
+          "usage": {
+            "input": 24,
+            "output": 117,
+            "cache_read": 153051,
+            "cache_creation": 5325
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: \"fix: correct 'Liscence' typo to 'License' in README.md\"",
+            "OK files_changed=1"
+          ],
+          "final_text_len": 9654
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.089248,
+          "turn_tokens": 171428,
+          "usage": {
+            "input": 8,
+            "output": 223,
+            "cache_read": 169664,
+            "cache_creation": 1533
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 2059
+        }
+      ],
+      "delegations": []
+    },
+    {
+      "cell": "warm__baseline__r2",
+      "condition": "baseline",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-warm",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 110.2,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "total_cost_usd": 0.36558025000000005,
+      "total_tokens": 24248,
+      "duration_ms": 3572,
+      "num_internal_turns": 1,
+      "session_usage": {
+        "input": 3,
+        "output": 31,
+        "cache_read": 22563,
+        "cache_creation": 1651
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 20,
+          "outputTokens": 3820,
+          "cacheReadInputTokens": 310108,
+          "cacheCreationInputTokens": 12939,
+          "webSearchRequests": 0,
+          "costUSD": 0.33152275,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 31,
+          "outputTokens": 1899,
+          "cacheReadInputTokens": 52965,
+          "cacheCreationInputTokens": 15388,
+          "webSearchRequests": 0,
+          "costUSD": 0.034057500000000004,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 3,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.082046,
+          "turn_tokens": 92048,
+          "usage": {
+            "input": 5,
+            "output": 97,
+            "cache_read": 87531,
+            "cache_creation": 4415
+          },
+          "n_assistant_text_events": 5,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 6198
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.089315,
+          "turn_tokens": 100203,
+          "usage": {
+            "input": 5,
+            "output": 134,
+            "cache_read": 98541,
+            "cache_creation": 1523
+          },
+          "n_assistant_text_events": 5,
+          "quality_pass": false,
+          "quality_reasons": [
+            "MISSING required: /status\\.py/",
+            "MISSING required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 1635
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.094604,
+          "turn_tokens": 106136,
+          "usage": {
+            "input": 5,
+            "output": 220,
+            "cache_read": 105095,
+            "cache_creation": 816
+          },
+          "n_assistant_text_events": 5,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: \"fix: correct 'Liscence' typo to 'License' in README.md\"",
+            "OK files_changed=1"
+          ],
+          "final_text_len": 904
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.099615,
+          "turn_tokens": 111758,
+          "usage": {
+            "input": 7,
+            "output": 175,
+            "cache_read": 108396,
+            "cache_creation": 3180
+          },
+          "n_assistant_text_events": 5,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 3109
+        }
+      ],
+      "delegations": []
+    },
+    {
+      "cell": "warm__leveraged__r0",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "runid": "2026-05-23_v0.10.0-warm",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 257.64,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:README",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:research-agent",
+        "claude-leverage:test-runner",
+        "claude-leverage:git-committer",
+        "claude-leverage:docs-updater",
+        "claude-leverage:repo-explorer"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "total_cost_usd": 0.59057965,
+      "total_tokens": 28901,
+      "duration_ms": 3700,
+      "num_internal_turns": 1,
+      "session_usage": {
+        "input": 3,
+        "output": 39,
+        "cache_read": 26761,
+        "cache_creation": 2098
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 147,
+          "outputTokens": 4088,
+          "cacheReadInputTokens": 298152,
+          "cacheCreationInputTokens": 28859,
+          "webSearchRequests": 0,
+          "costUSD": 0.43237975,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 14,
+          "outputTokens": 4111,
+          "cacheReadInputTokens": 44039,
+          "cacheCreationInputTokens": 9674,
+          "webSearchRequests": 0,
+          "costUSD": 0.11119620000000001,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 102,
+          "outputTokens": 3673,
+          "cacheReadInputTokens": 111292,
+          "cacheCreationInputTokens": 13926,
+          "webSearchRequests": 0,
+          "costUSD": 0.0470037,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 2,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.092397,
+          "turn_tokens": 88205,
+          "usage": {
+            "input": 141,
+            "output": 301,
+            "cache_read": 72739,
+            "cache_creation": 15024
+          },
+          "n_assistant_text_events": 9,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 11440
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.137677,
+          "turn_tokens": 131431,
+          "usage": {
+            "input": 22,
+            "output": 123,
+            "cache_read": 125666,
+            "cache_creation": 5620
+          },
+          "n_assistant_text_events": 9,
+          "quality_pass": false,
+          "quality_reasons": [
+            "OK required: /status\\.py/",
+            "MISSING required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 4384
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.11459,
+          "turn_tokens": 109391,
+          "usage": {
+            "input": 9,
+            "output": 292,
+            "cache_read": 103207,
+            "cache_creation": 5883
+          },
+          "n_assistant_text_events": 9,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: 'fix: correct typo in README heading (Liscence -> License)'",
+            "OK files_changed=1",
+            "OK tier 'haiku' engaged (delegations: ['haiku', 'sonnet'])"
+          ],
+          "final_text_len": 7089
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.245916,
+          "turn_tokens": 234760,
+          "usage": {
+            "input": 11,
+            "output": 293,
+            "cache_read": 228633,
+            "cache_creation": 5823
+          },
+          "n_assistant_text_events": 9,
+          "quality_pass": false,
+          "quality_reasons": [
+            "MISSING required: /README/"
+          ],
+          "final_text_len": 4268
+        }
+      ],
+      "delegations": [
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": 7369,
+          "input_tokens": 1,
+          "output_tokens": 1545,
+          "cache_read_input_tokens": 5002,
+          "cache_creation_input_tokens": 821,
+          "duration_ms": 45432,
+          "_raw": {
+            "ts": "2026-05-23T19:07:15Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 1545,
+            "cache_read_input_tokens": 5002,
+            "cache_creation_input_tokens": 821,
+            "total_tokens": 7369,
+            "duration_ms": 45432
+          }
+        },
+        {
+          "agent": "claude-leverage:context-gatherer",
+          "tier": "haiku",
+          "tokens": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cache_read_input_tokens": null,
+          "cache_creation_input_tokens": null,
+          "duration_ms": null,
+          "_raw": {
+            "ts": "2026-05-23T19:07:48Z",
+            "subagent": "claude-leverage:context-gatherer",
+            "tier": "haiku",
+            "input_tokens": null,
+            "output_tokens": null,
+            "cache_read_input_tokens": null,
+            "cache_creation_input_tokens": null,
+            "total_tokens": null,
+            "duration_ms": null
+          }
+        },
+        {
+          "agent": "claude-leverage:git-committer-quick",
+          "tier": "haiku",
+          "tokens": 6175,
+          "input_tokens": 3,
+          "output_tokens": 35,
+          "cache_read_input_tokens": 5874,
+          "cache_creation_input_tokens": 263,
+          "duration_ms": 13018,
+          "_raw": {
+            "ts": "2026-05-23T19:08:22Z",
+            "subagent": "claude-leverage:git-committer-quick",
+            "tier": "haiku",
+            "input_tokens": 3,
+            "output_tokens": 35,
+            "cache_read_input_tokens": 5874,
+            "cache_creation_input_tokens": 263,
+            "total_tokens": 6175,
+            "duration_ms": 13018
+          }
+        },
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": 7958,
+          "input_tokens": 1,
+          "output_tokens": 973,
+          "cache_read_input_tokens": 6746,
+          "cache_creation_input_tokens": 238,
+          "duration_ms": 38808,
+          "_raw": {
+            "ts": "2026-05-23T19:09:11Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 973,
+            "cache_read_input_tokens": 6746,
+            "cache_creation_input_tokens": 238,
+            "total_tokens": 7958,
+            "duration_ms": 38808
+          }
+        }
+      ]
+    },
+    {
+      "cell": "warm__leveraged__r1",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "runid": "2026-05-23_v0.10.0-warm",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 116.61,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:docs-updater",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:git-committer",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:test-runner",
+        "claude-leverage:README",
+        "claude-leverage:research-agent",
+        "claude-leverage:git-committer-quick"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "total_cost_usd": 0.38770439999999995,
+      "total_tokens": 24903,
+      "duration_ms": 12549,
+      "num_internal_turns": 1,
+      "session_usage": {
+        "input": 3,
+        "output": 505,
+        "cache_read": 23347,
+        "cache_creation": 1048
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 102,
+          "outputTokens": 3140,
+          "cacheReadInputTokens": 232150,
+          "cacheCreationInputTokens": 24395,
+          "webSearchRequests": 0,
+          "costUSD": 0.34755375,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 91,
+          "outputTokens": 2888,
+          "cacheReadInputTokens": 82334,
+          "cacheCreationInputTokens": 13909,
+          "webSearchRequests": 0,
+          "costUSD": 0.04015064999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 3,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.078643,
+          "turn_tokens": 59550,
+          "usage": {
+            "input": 173,
+            "output": 17,
+            "cache_read": 54995,
+            "cache_creation": 4365
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 6436
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.082769,
+          "turn_tokens": 62675,
+          "usage": {
+            "input": 3,
+            "output": 115,
+            "cache_read": 61799,
+            "cache_creation": 758
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": false,
+          "quality_reasons": [
+            "MISSING required: /status\\.py/",
+            "MISSING required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 710
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.08757,
+          "turn_tokens": 66310,
+          "usage": {
+            "input": 5,
+            "output": 41,
+            "cache_read": 63757,
+            "cache_creation": 2507
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: 'fix: correct spelling of License in README'",
+            "OK files_changed=1",
+            "OK tier 'haiku' engaged (delegations: ['haiku'])"
+          ],
+          "final_text_len": 531
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.138723,
+          "turn_tokens": 105044,
+          "usage": {
+            "input": 15,
+            "output": 9,
+            "cache_read": 102607,
+            "cache_creation": 2413
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 3909
+        }
+      ],
+      "delegations": [
+        {
+          "agent": "claude-leverage:context-gatherer",
+          "tier": "haiku",
+          "tokens": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cache_read_input_tokens": null,
+          "cache_creation_input_tokens": null,
+          "duration_ms": null,
+          "_raw": {
+            "ts": "2026-05-23T19:11:15Z",
+            "subagent": "claude-leverage:context-gatherer",
+            "tier": "haiku",
+            "input_tokens": null,
+            "output_tokens": null,
+            "cache_read_input_tokens": null,
+            "cache_creation_input_tokens": null,
+            "total_tokens": null,
+            "duration_ms": null
+          }
+        },
+        {
+          "agent": "claude-leverage:git-committer-quick",
+          "tier": "haiku",
+          "tokens": 6110,
+          "input_tokens": 4,
+          "output_tokens": 24,
+          "cache_read_input_tokens": 5836,
+          "cache_creation_input_tokens": 246,
+          "duration_ms": 13036,
+          "_raw": {
+            "ts": "2026-05-23T19:12:04Z",
+            "subagent": "claude-leverage:git-committer-quick",
+            "tier": "haiku",
+            "input_tokens": 4,
+            "output_tokens": 24,
+            "cache_read_input_tokens": 5836,
+            "cache_creation_input_tokens": 246,
+            "total_tokens": 6110,
+            "duration_ms": 13036
+          }
+        }
+      ]
+    },
+    {
+      "cell": "warm__leveraged__r2",
+      "condition": "leveraged",
+      "run_idx": 2,
+      "runid": "2026-05-23_v0.10.0-warm",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 110.79,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:git-committer",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:README",
+        "claude-leverage:test-runner",
+        "claude-leverage:flaky-test-isolator",
+        "claude-leverage:repo-explorer",
+        "claude-leverage:docs-updater",
+        "claude-leverage:research-agent"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "total_cost_usd": 0.36367629999999995,
+      "total_tokens": 24429,
+      "duration_ms": 12158,
+      "num_internal_turns": 1,
+      "session_usage": {
+        "input": 3,
+        "output": 527,
+        "cache_read": 22752,
+        "cache_creation": 1147
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 16,
+          "outputTokens": 2784,
+          "cacheReadInputTokens": 205843,
+          "cacheCreationInputTokens": 23899,
+          "webSearchRequests": 0,
+          "costUSD": 0.32197025,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 73,
+          "outputTokens": 3050,
+          "cacheReadInputTokens": 72668,
+          "cacheCreationInputTokens": 15293,
+          "webSearchRequests": 0,
+          "costUSD": 0.04170605,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 3,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.073543,
+          "turn_tokens": 57593,
+          "usage": {
+            "input": 3,
+            "output": 24,
+            "cache_read": 53602,
+            "cache_creation": 3964
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 5507
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.07775,
+          "turn_tokens": 60888,
+          "usage": {
+            "input": 3,
+            "output": 121,
+            "cache_read": 59062,
+            "cache_creation": 1702
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": false,
+          "quality_reasons": [
+            "MISSING required: /status\\.py/",
+            "MISSING required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 503
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.081377,
+          "turn_tokens": 63728,
+          "usage": {
+            "input": 4,
+            "output": 32,
+            "cache_read": 62049,
+            "cache_creation": 1643
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: 'fix: typo in README section header'",
+            "OK files_changed=1",
+            "OK tier 'haiku' engaged (delegations: ['haiku'])"
+          ],
+          "final_text_len": 524
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.131007,
+          "turn_tokens": 102595,
+          "usage": {
+            "input": 16,
+            "output": 36,
+            "cache_read": 99082,
+            "cache_creation": 3461
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 3792
+        }
+      ],
+      "delegations": [
+        {
+          "agent": "claude-leverage:context-gatherer",
+          "tier": "haiku",
+          "tokens": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cache_read_input_tokens": null,
+          "cache_creation_input_tokens": null,
+          "duration_ms": null,
+          "_raw": {
+            "ts": "2026-05-23T19:13:10Z",
+            "subagent": "claude-leverage:context-gatherer",
+            "tier": "haiku",
+            "input_tokens": null,
+            "output_tokens": null,
+            "cache_read_input_tokens": null,
+            "cache_creation_input_tokens": null,
+            "total_tokens": null,
+            "duration_ms": null
+          }
+        },
+        {
+          "agent": "claude-leverage:git-committer-quick",
+          "tier": "haiku",
+          "tokens": 6080,
+          "input_tokens": 4,
+          "output_tokens": 25,
+          "cache_read_input_tokens": 5833,
+          "cache_creation_input_tokens": 218,
+          "duration_ms": 12617,
+          "_raw": {
+            "ts": "2026-05-23T19:13:58Z",
+            "subagent": "claude-leverage:git-committer-quick",
+            "tier": "haiku",
+            "input_tokens": 4,
+            "output_tokens": 25,
+            "cache_read_input_tokens": 5833,
+            "cache_creation_input_tokens": 218,
+            "total_tokens": 6080,
+            "duration_ms": 12617
+          }
+        }
+      ]
+    }
+  ],
+  "updated_at": "2026-05-23T19:14:27Z",
+  "total_cost_usd_so_far": 2.2977,
+  "finished_at": "2026-05-23T19:14:27Z"
+}

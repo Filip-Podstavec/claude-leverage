@@ -459,12 +459,106 @@ def test_divide_by_zero_raises():
     run(["git", "push", "-q", "-u", "origin", "main"], out)
 
 
+# ---------------------------------------------------------------------------
+# W1: warm-session - one combined fixture used by the warm-cache benchmark.
+# A developer-realistic single-session workspace: same Python service as T1/T2
+# plus a README typo to commit. The warm benchmark runs 4 distinct prompts
+# against this fixture in ONE claude -p session so the system-prompt cache
+# is reused after the first turn.
+# ---------------------------------------------------------------------------
+
+def build_w1(out: Path) -> None:
+    reset_dir(out)
+    write_python_service(out)
+
+    # README with a deliberate typo to give turn 3 something to commit.
+    write(out / "README.md", """# example-service
+
+Small HTTP service used as a benchmark fixture for claude-leverage.
+
+Endpoints:
+- `GET /status` - returns uptime + version, requires auth
+- `GET /users?id=...` - returns user record by ID, requires auth
+
+## Liscence
+
+MIT
+""")
+    init_git(out)
+
+    # Stage the same SQL-injection-style diff as T1.
+    stage_diff(out, {
+        "service/routes/users.py": """\"\"\"User routes.\"\"\"
+import sqlite3
+
+from service.auth import require_auth
+
+
+_DB = sqlite3.connect(":memory:")
+_DB.execute("CREATE TABLE users (id TEXT PRIMARY KEY, name TEXT)")
+_DB.execute("INSERT INTO users VALUES ('1', 'alice'), ('2', 'bob')")
+
+
+@require_auth
+def get_user(request):
+    user_id = request.query.get("id")
+    # Look up user from store. Construct query inline for now.
+    query = f"SELECT id, name FROM users WHERE id = '{user_id}'"
+    row = _DB.execute(query).fetchone()
+    if row is None:
+        return {"status": 404, "body": {"error": "not found"}}
+    return {"status": 200, "body": {"id": row[0], "name": row[1]}}
+""",
+        "service/validator.py": """\"\"\"Input validation helpers.\"\"\"
+import re
+
+_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,32}$")
+
+
+def is_valid_id(value: str) -> bool:
+    \"\"\"Return True if `value` is a valid user-id token.\"\"\"
+    if value is None:
+        return False
+    return bool(_ID_PATTERN.match(value))
+""",
+        "tests/test_users.py": """from service.routes.users import get_user
+
+
+class _Req:
+    def __init__(self, auth=None, qid=None):
+        self.headers = {"Authorization": auth} if auth else {}
+        self.query = {"id": qid} if qid else {}
+
+
+def test_get_user_requires_auth():
+    resp = get_user(_Req(auth=None, qid="1"))
+    assert resp["status"] == 401
+
+
+def test_get_user_returns_known_user():
+    resp = get_user(_Req(auth="Bearer test", qid="1"))
+    assert resp["status"] == 200
+    assert resp["body"]["name"] == "alice"
+""",
+    })
+
+    # Local bare remote so a `git push` would not error if attempted.
+    bare = out.parent / "_remotes" / f"{out.name}.git"
+    if bare.exists():
+        shutil.rmtree(bare, ignore_errors=True)
+    bare.parent.mkdir(parents=True, exist_ok=True)
+    run(["git", "init", "--bare", "-q", "-b", "main", str(bare)], out.parent)
+    run(["git", "remote", "add", "origin", str(bare)], out)
+    run(["git", "push", "-q", "-u", "origin", "main"], out)
+
+
 def main() -> int:
     targets = {
         "code-review-medium": build_t1,
         "context-gather-feature": build_t2,
         "commit-trivial": build_t3,
         "commit-nontrivial": build_t4,
+        "warm-session": build_w1,
     }
     for name, builder in targets.items():
         out = FIXTURES / name
