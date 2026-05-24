@@ -10,26 +10,19 @@ guidance that pair with specific skills or subagents from this stack.
 that paired with the retired token-savings era agents are frozen in
 [`../bench/archive-token-savings-thesis/claude-md-snippets/`](../bench/archive-token-savings-thesis/claude-md-snippets/).
 
-New snippets land here per phase as the v1.0.0 plan rolls out (see
-`docs/specs/2026-05-24-pivot/06-roadmap.md`). When they do, the
-`/install-snippets` slash command picks them up automatically.
-
-## Install
-
-Use the `/install-snippets` slash command for idempotent installs with
-update-in-place when a snippet drifts. See
-[`../commands/install-snippets.md`](../commands/install-snippets.md).
-
-Manual install: copy the block between the `<!-- claude-leverage:<name> START -->`
-and `<!-- claude-leverage:<name> END -->` markers into your target file.
+New snippets land here per skill as the need arises (e.g. "auto-route
+security review when touching auth paths"). When they do, the
+[`/init-repo`](../skills/init-repo/SKILL.md) skill picks them up
+automatically — its interactive flow lets the user opt-in per snippet
+per project.
 
 ## Why snippets aren't auto-installed by the plugin
 
 Claude Code plugins install agents, commands, hooks, and skills — but
-**not** CLAUDE.md content. (Open feature request: there's no platform hook
-to auto-append guidance to the user's `CLAUDE.md`.) `/install-snippets` is
-the workaround.
+**not** CLAUDE.md content. (There's no platform hook to auto-append
+guidance to the user's `CLAUDE.md`.) `/init-repo` is the workaround at
+project scope; for `~/.claude/CLAUDE.md` you copy manually.
 
 For Codex, the equivalent is `scripts/install-codex.sh` — it appends an
-`@<repo>/AGENTS.md` reference to `~/.codex/AGENTS.md`. Per-snippet install
-would be added later if Codex ends up needing it.
+`@<repo>/AGENTS.md` reference to `~/.codex/AGENTS.md`. Per-snippet
+install would be added later if Codex ends up needing it.

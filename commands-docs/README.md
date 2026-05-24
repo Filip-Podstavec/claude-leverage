@@ -8,6 +8,11 @@ it) because Claude Code's plugin loader registers every `*.md` under
 `commands/` as a slash command — a `README.md` inside `commands/` would
 become a phantom `/README` command. Same pattern as `agents-docs/`.
 
+In v1.0.0 the **primary user-facing surface is `skills/`**, not this
+directory. Slash commands are reserved for Claude-Code-only workflows that
+need the `Bash(... :*)` preamble or `argument-hint` features that the
+cross-tool SKILL.md spec does not currently expose.
+
 ## Install
 
 The plugin install registers these automatically. For manual / standalone:
@@ -28,24 +33,14 @@ reload without restarting.
 ## Available commands
 
 - [`commit-smart.md`](../commands/commit-smart.md) — Inline secret scan +
-  Conventional Commits message + push, all in the main session. No subagent
-  dispatch (the v0.x benchmark verdict on inline-vs-delegate for commits).
+  Conventional Commits message + push, all in the main session. The bash
+  preamble computes diff stats before the model wakes up, which a skill
+  can't currently do. Hard rules: refuse `.env` / API key commits, never
+  force push, never `--no-verify`, never amend / rebase, never write code.
 - [`flaky-test.md`](../commands/flaky-test.md) — Delegates to the
   `flaky-test-isolator` subagent with target, run count, and timeout.
   Validates inputs and applies caps before delegation.
-- [`install-snippets.md`](../commands/install-snippets.md) — Interactive
-  installer for any CLAUDE.md routing snippets in `claude-md-snippets/`.
-  Idempotent — detects drift, offers update-in-place. (Default install ships
-  no snippets in v1.0.0.)
-- [`leverage-stats.md`](../commands/leverage-stats.md) — Read-only viewer
-  over `~/.claude/claude-leverage-stats.jsonl` (written by the
-  `track-delegations` hook). Shows lifetime totals, tier breakdown, last-7d
-  activity. Useful to see whether subagents are actually getting invoked.
 
-## Coming in later phases (per docs/specs/2026-05-24-pivot/)
-
-- `/security-review` — paired with `agents/security-reviewer.md`.
-- `/repo-map`, `/process-diagram` — mermaid generators.
-- `/stack-check` — 30-day stack-freshness check.
-- The above will land as skills (cross-tool portable via `agentskills.io`
-  SKILL.md spec) under `skills/`, not as additional `.md` files here.
+Anything else (security review, repo map, process diagrams, stack check,
+init-repo, log-structured, explain-diff, codex-sandbox) lives in
+[`../skills/`](../skills/) as cross-tool skills.

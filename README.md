@@ -23,27 +23,40 @@ it across machines. **Complements skills-based plugins like the official
 
 ## What you get
 
-- **Security hooks** (always-on, deterministic): `block-secrets-precommit`,
-  `block-dangerous-git`, `track-delegations`. Run on every Bash tool call,
-  cannot be bypassed by prompt injection.
+- **Security hooks** (always-on, deterministic): `block-secrets-precommit`
+  and `block-dangerous-git`. Run on every Bash tool call, cannot be
+  bypassed by prompt injection.
 - **`/security-review`** skill + read-only `security-reviewer` subagent
-  (Sonnet) for OWASP-Top-10-shaped audits of the current diff.
-  Self-contained — no dependency on any other plugin.
+  (Sonnet) for OWASP-Top-10-shaped audits of the current diff, plus
+  `package.json`/`requirements.txt` typosquatting heuristic. Self-contained
+  — no dependency on any other plugin.
 - **`/repo-map`** and **`/process-diagram`** skills — generate/update
-  mermaid blocks in markdown between idempotent markers.
+  mermaid blocks in markdown between idempotent markers. `/repo-map`
+  optionally appends a dep-graph block when `madge` or `pydeps` is installed.
 - **`/stack-check`** skill + 30-day **`stack-freshness`** SessionStart hook
-  — local-only timestamp nudge; explicit user-run check actually queries
-  versions.
+  — local-only timestamp nudge; explicit user-run check verifies tool
+  versions, walks repos for stale AIDEV-TODO/QUESTION anchors, and sanity-
+  checks AGENTS.md size against Codex's 32 KiB cap.
+- **`/init-repo`** — bootstrap a new project: drop an AGENTS.md from the
+  per-language template, add the right `.gitignore` patterns, optionally
+  install a structured-logging template (Python / TypeScript / Go / Rust).
+- **`/log-structured`** — find non-structured logging in a codebase and
+  suggest spec-compliant replacements per the JSON-lines logging convention.
+- **`/explain-diff`** — plain-English 3–5 bullet narration of the current
+  diff. Useful before opening a PR or asking a teammate for review.
+- **`/codex-sandbox`** — interactive helper to configure per-project
+  `.codex/config.toml` sandbox + approval modes.
 - **`/commit-smart`** — inline secret scan + Conventional Commits message
-  + push. All in the main session, no subagent dispatch (benchmark verdict).
+  + push. All in the main session, no subagent dispatch.
 - **Portable statusline** — Python-based, no `jq` dep, Windows-friendly.
   Shows 5h/7d rate limits, context %, model, branch, session $ estimate.
 - **AI-first code conventions** documented in `AGENTS.md`: AIDEV-NOTE
   anchors, JSON-lines logging spec, per-directory AGENTS.md template.
 - **Dual-tool by design**: same `AGENTS.md` for Claude Code (via
   `@AGENTS.md` import in `CLAUDE.md`) and Codex (native read). Hook scripts
-  shared via `scripts/hooks/`; agents authored in MD + auto-generated to
-  TOML for Codex.
+  shared via `scripts/hooks/`; skills installed to `~/.agents/skills/` by
+  the Codex installer; agents authored in MD + auto-generated to TOML for
+  Codex.
 
 ## Install — Claude Code
 
@@ -52,10 +65,7 @@ it across machines. **Complements skills-based plugins like the official
 /plugin install claude-leverage@filip-podstavec
 ```
 
-That's it for the plugin. To enable any optional CLAUDE.md routing snippets,
-run `/install-snippets` (default install ships no snippets).
-
-For the statusline:
+That's it for the plugin. For the statusline:
 ```bash
 # Copy into ~/.claude/ — only overwrites if you have no statusline configured
 cp statusline/statusline-command.sh ~/.claude/statusline-command.sh
@@ -91,9 +101,12 @@ The installer:
 2. Appends `@<repo-path>/AGENTS.md` to `~/.codex/AGENTS.md` so the canonical
    guidance loads on every Codex session.
 3. Copies `.codex/agents/*.toml` to `~/.codex/agents/`.
+4. Copies `skills/*` to `~/.agents/skills/claude-leverage/` so `/security-review`,
+   `/repo-map`, `/process-diagram`, `/stack-check`, `/init-repo`,
+   `/log-structured`, `/explain-diff`, and `/codex-sandbox` work in Codex.
 
 Idempotent: re-running detects existing install via marker comments and
-updates in place.
+overwrites in place.
 
 ## What's inside
 
@@ -110,6 +123,7 @@ updates in place.
 | [`scripts/`](scripts/) | Installers (`install-codex.{sh,ps1}`), version checks, generators |
 | [`statusline/`](statusline/) | Portable statusline script |
 | [`claude-md-snippets/`](claude-md-snippets/) | Opt-in CLAUDE.md routing rules (none in default install) |
+| [`templates/`](templates/) | Drop-in templates: per-language AGENTS.md examples, structured-logging starter kits, sample Codex config |
 | [`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/) | Frozen evidence of the v0.x experiment that motivated the v1.0 pivot |
 | [`docs/specs/`](docs/specs/) | Design specs (current and historical) |
 
@@ -183,9 +197,28 @@ keeps them in sync.
 /plugin uninstall claude-leverage@filip-podstavec
 ```
 
-**Codex:** edit `~/.codex/AGENTS.md` and remove the block between the two
-`# claude-leverage: ...` markers; remove `~/.codex/hooks.json` (or replace
-with the `.bak` the installer created).
+**Codex (uninstall):**
+
+```bash
+# Linux / macOS / WSL2
+rm -rf ~/.agents/skills/claude-leverage
+rm    ~/.codex/agents/security-reviewer.toml ~/.codex/agents/flaky-test-isolator.toml
+# restore original ~/.codex/hooks.json (the installer leaves a .bak)
+mv ~/.codex/hooks.json.pre-claude-leverage.bak ~/.codex/hooks.json 2>/dev/null \
+   || rm ~/.codex/hooks.json
+# Edit ~/.codex/AGENTS.md and delete the block between the two
+# "# claude-leverage:" markers.
+```
+
+PowerShell variant:
+```powershell
+Remove-Item -Recurse -Force $env:USERPROFILE\.agents\skills\claude-leverage
+Remove-Item -Force $env:USERPROFILE\.codex\agents\security-reviewer.toml,$env:USERPROFILE\.codex\agents\flaky-test-isolator.toml
+$bak = "$env:USERPROFILE\.codex\hooks.json.pre-claude-leverage.bak"
+if (Test-Path $bak) { Move-Item -Force $bak "$env:USERPROFILE\.codex\hooks.json" }
+else { Remove-Item -Force "$env:USERPROFILE\.codex\hooks.json" }
+# Then edit ~/.codex/AGENTS.md and remove the marker block.
+```
 
 ## Honest history
 

@@ -58,6 +58,8 @@ When you add/remove/rename any agent, command, skill, hook, or top-level dir:
 1. Update top-level `README.md` — architecture block, install sections, what's-inside table.
 2. Update the matching per-dir doc: `agents-docs/README.md`, `commands-docs/README.md`,
    `skills/README.md`, `hooks/README.md`, or `claude-md-snippets/README.md`.
+3. Re-run `/repo-map` so the README architecture diagram stays current (the
+   block has marker comments — re-running only rewrites between them).
 
 ### Plugin marketplace
 
@@ -123,8 +125,9 @@ boundaries (W3C traceparent header).
 
 When a module has non-obvious public surface or gotchas, add an `AGENTS.md` at
 its root. Codex merges nested AGENTS.md files from git root down to cwd
-automatically; Claude Code picks them up when an agent Reads the file. Template:
-`templates/AGENTS.md.example` (lands v1.1).
+automatically; Claude Code picks them up when an agent Reads the file. Use
+`/init-repo` to drop one into a fresh project, or copy
+[`templates/AGENTS.md.example`](templates/AGENTS.md.example) directly.
 
 ### Module organization
 
@@ -158,18 +161,20 @@ crosses the threshold.
 | Command | What it does |
 |---------|--------------|
 | `/commit-smart` | Inline: secret scan + Conventional Commits message + push |
-| `/security-review` | Audit current diff for OWASP-Top-10-shaped issues (built-in subagent, no external skill dep) |
+| `/security-review` | Audit current diff for OWASP-Top-10-shaped issues |
 | `/repo-map` | Generate/update mermaid architecture block in README between markers |
 | `/process-diagram <name>` | Generate sequence/flowchart for a named workflow |
-| `/stack-check` | Verify Claude Code, Codex, plugin, and CLI deps vs `stack.toml` |
-| `/install-snippets` | Add CLAUDE.md routing snippets (none default) |
-| `/leverage-stats` | Observability over the `track-delegations` hook log |
+| `/stack-check` | Verify Claude Code, Codex, plugin, and CLI deps vs `stack.toml`; also flags stale AIDEV-TODO/QUESTION anchors and AGENTS.md sanity |
+| `/init-repo` | Bootstrap a new repo with AGENTS.md + .gitignore patterns + optional structured-logging template |
+| `/log-structured` | Find non-structured logging in a codebase and suggest spec-compliant replacements |
+| `/explain-diff` | Plain-English 3–5 bullet narration of the current diff |
+| `/codex-sandbox` | Interactive helper for `.codex/config.toml` sandbox + approval modes |
 | `/flaky-test` | Run a single test N times, group failures by signature |
 
 ## Build / test
 
 ```bash
-pytest tests/ -v                          # frontmatter + stats aggregator tests
+pytest tests/ -v                          # frontmatter + codex-parity tests
 python scripts/check_version_sync.py       # plugin.json == marketplace.json
 shellcheck scripts/hooks/*.sh              # CI runs this; install locally to match
 python scripts/gen-codex-agents.py --check # ensure .codex/agents/*.toml matches agents/

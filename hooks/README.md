@@ -11,13 +11,14 @@ their respective hook configs:
 ## What hooks are
 
 Hooks are shell scripts executed by the host (Claude Code or Codex) at
-lifecycle events — primarily `PreToolUse` (fires before a tool call runs)
-and `PostToolUse` (fires after). A hook can inspect the pending or completed
-call and block it by exiting with code 2. Unlike subagents and slash
-commands, hooks don't involve the LLM — they are deterministic shell logic.
-This is why hooks are the right primary layer for security guardrails: they
-work in the main session, inside subagents, and even when the LLM is told
-otherwise.
+lifecycle events — primarily `PreToolUse` (fires before a tool call runs),
+`PostToolUse` (fires after), `SessionStart` (every new session), and `Stop`
+(after the agent finishes responding). A hook can inspect the pending or
+completed call and block it by exiting with code 2. Unlike subagents and
+slash commands, hooks don't involve the LLM — they are deterministic shell
+logic. This is why hooks are the right primary layer for security
+guardrails: they work in the main session, inside subagents, and even when
+the LLM is told otherwise.
 
 ## Three layers of defense
 
@@ -35,42 +36,43 @@ Use hooks for security, prompts for workflow.
 
 Scripts in `../scripts/hooks/`:
 
-- `block-secrets-precommit.sh` — Scans staged diff before `git commit` for
-  API keys, tokens, and private keys. Blocks commit if found. Per-line
-  allowlist via the `claude-leverage-allow-secret` marker comment.
-- `block-dangerous-git.sh` — Blocks force push, `--no-verify` commits, and
-  hard reset on protected branches (`main`/`master`).
-- `track-delegations.sh` — PostToolUse observability hook (non-blocking).
-  Logs every subagent delegation to `~/.claude/claude-leverage-stats.jsonl`
-  including real token usage extracted from `tool_response.usage.*`. Prints
-  a one-line stderr note after each delegation.
-- `leverage_stats_agg.py` — Helper Python script (not itself a hook). Reads
-  the JSONL log emitted by `track-delegations.sh` and prints pipe-separated
-  tier aggregates. The `/leverage-stats` slash command uses inline copy of
-  this same logic; the two must stay in sync. Direct invocation:
-  `STATS_FILE=~/.claude/claude-leverage-stats.jsonl python3 scripts/hooks/leverage_stats_agg.py`
-- `json_parse.sh` — Helper shell library (not itself a hook). Sourced by
-  all three security/observability hooks. Provides `read_stdin`,
-  `has_parser`, and `get_field` with a `jq` → `python3` → `python` fallback
-  chain.
+- **`block-secrets-precommit.sh`** (PreToolUse, matcher `Bash`) — Scans
+  staged diff before `git commit` for API keys, tokens, and private keys.
+  Blocks commit if found. Per-line allowlist via the
+  `claude-leverage-allow-secret` marker comment.
+- **`block-dangerous-git.sh`** (PreToolUse, matcher `Bash`) — Blocks force
+  push, `--no-verify` commits, and hard reset on protected branches
+  (`main` / `master`).
+- **`ai-first-nudge.sh`** (PostToolUse, matcher `Write|Edit|MultiEdit`) —
+  Non-blocking. Prints a one-liner suggestion when ≥50 net-new LOC ship
+  in a single non-test file without an `AIDEV-NOTE:` anchor. Frequency-
+  capped to once per file per day. Ignores tests, fixtures, generated
+  code, and the bench archive.
+- **`security-nudge.sh`** (Stop) — Non-blocking. Suggests `/security-review`
+  when net-new code (`git diff HEAD`) crosses 80 LOC AND at least one
+  changed file matches a sensitive-path pattern (auth, crypto, routes,
+  payment, templates, `.env*`, …). Once per branch per day.
+- **`stack-freshness.sh`** (SessionStart) — Network-free. Reads only the
+  local `~/.local/state/claude-leverage/.last-stack-check` timestamp; if
+  >30 days old, prints a one-liner suggesting `/stack-check`. Override
+  via `CLAUDE_LEVERAGE_FRESHNESS_DAYS` env var (`=0` disables).
+- **`json_parse.sh`** — Helper shell library (not itself a hook). Sourced
+  by the security hooks. Provides `read_stdin`, `has_parser`, and
+  `get_field` with a `jq` → `python3` → `python` fallback chain.
 
 ## Known limits
 
 - **JSON parser dependency, fail-open posture.** Hooks need a JSON parser
   to inspect the host's hook input. They try `jq` first, then `python3`,
   then `python`. If none are on PATH, the security hooks
-  (`block-secrets-precommit`, `block-dangerous-git`) print a loud warning to
-  stderr and exit 0 (allow). This is intentional — blocking every Bash call
-  when no parser is available would break unrelated work — but the trade-off
-  is that until at least one parser is installed, **the security guardrails
-  are not enforced.** Most macOS/Linux systems already have `python3`
-  preinstalled. Windows users typically need to install one explicitly
-  (`winget install jqlang.jq` for jq, or python.org / Microsoft Store for
-  Python).
-- **`track-delegations` degrades gracefully.** The observability hook still
-  logs an anonymous record (`subagent="unknown"`, `tier="unknown"`) when no
-  parser is available — total delegation counts remain accurate, only the
-  per-agent breakdown is missing.
+  (`block-secrets-precommit`, `block-dangerous-git`) print a loud warning
+  to stderr and exit 0 (allow). This is intentional — blocking every Bash
+  call when no parser is available would break unrelated work — but the
+  trade-off is that until at least one parser is installed, **the security
+  guardrails are not enforced.** Most macOS/Linux systems already have
+  `python3` preinstalled. Windows users typically need to install one
+  explicitly (`winget install jqlang.jq` for jq, or python.org / Microsoft
+  Store for Python).
 - **Pattern-based detection has false negatives.** Secret patterns are
   heuristics; custom or novel formats may slip through. Hooks are
   defense-in-depth, not a substitute for CI-side secret scanning
@@ -98,8 +100,8 @@ guarantees in Codex sessions as in Claude Code.
 
 ```bash
 mkdir -p ~/.claude/hooks
-cp scripts/hooks/*.sh scripts/hooks/leverage_stats_agg.py ~/.claude/hooks/
-chmod +x ~/.claude/hooks/*.sh ~/.claude/hooks/leverage_stats_agg.py
+cp scripts/hooks/*.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/*.sh
 ```
 
 Then add to `~/.claude/settings.json`:
@@ -107,6 +109,9 @@ Then add to `~/.claude/settings.json`:
 ```json
 {
   "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "$HOME/.claude/hooks/stack-freshness.sh" }] }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -118,23 +123,27 @@ Then add to `~/.claude/settings.json`:
     ],
     "PostToolUse": [
       {
-        "matcher": "Task",
+        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "$HOME/.claude/hooks/track-delegations.sh" }
+          { "type": "command", "command": "$HOME/.claude/hooks/ai-first-nudge.sh" }
         ]
       }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "$HOME/.claude/hooks/security-nudge.sh" }] }
     ]
   }
 }
 ```
 
-Restart Claude Code or run `/hooks` in an active session to pick up changes.
+Restart Claude Code or run `/hooks` in an active session to pick up
+changes.
 
 ## Permissions as a complementary layer
 
-`permissions.deny` in `settings.json` is a declarative complement to hooks.
-Hooks handle logic (regex matching, conditional checks). Permissions handle
-static deny lists for specific files and patterns.
+`permissions.deny` in `settings.json` is a declarative complement to
+hooks. Hooks handle logic (regex matching, conditional checks).
+Permissions handle static deny lists for specific files and patterns.
 
 ```json
 {
@@ -167,11 +176,14 @@ git rm --cached test-secret.txt && rm test-secret.txt
 When a hook blocks a legitimate commit:
 
 - **Simplest:** run the commit manually outside the agent
-- **Per-line:** add `claude-leverage-allow-secret` comment to the offending
-  line
+- **Per-line:** add `claude-leverage-allow-secret` comment to the
+  offending line
 - **Temporary:** remove the hook entry from `settings.json` /
   `~/.codex/hooks.json`, restart session
 - **Permanent exception:** fork the hook script and adjust patterns
+- **Disable a single nudge category:** the AI-first and stack-freshness
+  hooks honor env vars (`CLAUDE_LEVERAGE_NUDGE_LOC=0`,
+  `CLAUDE_LEVERAGE_FRESHNESS_DAYS=0`, `CLAUDE_LEVERAGE_SECURITY_NUDGE_LOC=0`)
 
 ## Platform notes
 

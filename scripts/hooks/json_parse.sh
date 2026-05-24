@@ -63,7 +63,8 @@ has_parser() {
 # if the source JSON contains them. Callers that write the value to logs,
 # terminals, or shell-interpolate it MUST strip control characters themselves
 # (e.g. `tr -d '\000-\037\177'`) to prevent log injection (CWE-116) or
-# terminal escape attacks. See track-delegations.sh for an example.
+# terminal escape attacks. See ai-first-nudge.sh and security-nudge.sh for
+# examples of how the hooks in this repo sanitize before emitting output.
 get_field() {
   local query="$1"
   local result=""
