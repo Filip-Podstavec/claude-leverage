@@ -46,18 +46,69 @@ FIXTURE_NAME = "warm-session"
 # Quality check is substrings that must all appear in the final output.
 TASKS = [
     {
-        "id": "A.test-runner",
-        "baseline_prompt": "Run python -m pytest tests/ -v and tell me which tests pass and which fail. Give me a structured per-test summary.",
-        "leveraged_natural_prompt": "Run python -m pytest tests/ -v and tell me which tests pass and which fail. Give me a structured per-test summary.",
-        "leveraged_forced_prompt": "Use the test-runner subagent to run python -m pytest tests/ -v and give me a structured per-test summary.",
-        "expected_substrings": ["test_status", "test_users"],
+        "id": "G.context-gatherer",
+        "baseline_prompt": (
+            "I want to add a /healthz endpoint to this service. It must return the same "
+            "uptime+version JSON as /status but without authentication. Before I start "
+            "coding, gather the implementation context I'll need: which files I should "
+            "read, which existing patterns to follow, which tests already cover this area. "
+            "Do not write code yet — just the context package."
+        ),
+        "leveraged_natural_prompt": (
+            "I want to add a /healthz endpoint to this service. It must return the same "
+            "uptime+version JSON as /status but without authentication. Before I start "
+            "coding, gather the implementation context I'll need: which files I should "
+            "read, which existing patterns to follow, which tests already cover this area. "
+            "Do not write code yet — just the context package."
+        ),
+        "leveraged_forced_prompt": (
+            "Use the context-gatherer subagent to pre-fetch the implementation context "
+            "for: adding a /healthz endpoint that mirrors /status but without authentication. "
+            "Return its structured package as-is."
+        ),
+        "expected_substrings": ["status.py", "require_auth", "VERSION"],
     },
     {
-        "id": "C.code-reviewer",
-        "baseline_prompt": "Review the staged changes (git diff --cached) for bugs, security issues, and quality problems. Organize findings by severity (Critical, Important, Nice to have). Be specific - file and line number.",
-        "leveraged_natural_prompt": "Review the staged changes (git diff --cached) for bugs, security issues, and quality problems. Organize findings by severity (Critical, Important, Nice to have). Be specific - file and line number.",
-        "leveraged_forced_prompt": "Use the code-reviewer subagent to review the staged changes (git diff --cached). Critical/Important/Nice to have format.",
-        "expected_substrings": ["users.py", "Critical"],
+        "id": "D.output-digester",
+        "baseline_prompt": (
+            "Run: pip install --dry-run --quiet --no-deps requests urllib3 cryptography "
+            "pytest pytest-asyncio black mypy ruff pyyaml flask django fastapi sqlalchemy "
+            "pydantic alembic celery redis. Tell me what would be installed (list package "
+            "names and versions) and whether anything would conflict."
+        ),
+        "leveraged_natural_prompt": (
+            "Run: pip install --dry-run --quiet --no-deps requests urllib3 cryptography "
+            "pytest pytest-asyncio black mypy ruff pyyaml flask django fastapi sqlalchemy "
+            "pydantic alembic celery redis. Tell me what would be installed (list package "
+            "names and versions) and whether anything would conflict."
+        ),
+        "leveraged_forced_prompt": (
+            "Use the output-digester subagent to run: pip install --dry-run --quiet --no-deps "
+            "requests urllib3 cryptography pytest pytest-asyncio black mypy ruff pyyaml flask "
+            "django fastapi sqlalchemy pydantic alembic celery redis. Return its structured "
+            "digest as-is."
+        ),
+        "expected_substrings": ["requests", "cryptography"],
+    },
+    {
+        "id": "I.impact-mapper",
+        "baseline_prompt": (
+            "I'm thinking about removing the `require_auth` decorator from service/auth.py. "
+            "Before I do, list every place in this repo that uses it: each call site with "
+            "file:line, plus any tests that depend on it. Don't propose a refactor — I just "
+            "want the impact map so I can decide."
+        ),
+        "leveraged_natural_prompt": (
+            "I'm thinking about removing the `require_auth` decorator from service/auth.py. "
+            "Before I do, list every place in this repo that uses it: each call site with "
+            "file:line, plus any tests that depend on it. Don't propose a refactor — I just "
+            "want the impact map so I can decide."
+        ),
+        "leveraged_forced_prompt": (
+            "Use the impact-mapper subagent to map all call sites of `require_auth` in this "
+            "repo. Return its structured report as-is."
+        ),
+        "expected_substrings": ["status.py", "users.py", "auth.py"],
     },
 ]
 
