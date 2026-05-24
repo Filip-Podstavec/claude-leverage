@@ -37,6 +37,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/security-nudge.sh"
+          }
+        ]
+      }
     ]
   }
 }
