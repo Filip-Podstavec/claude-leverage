@@ -1,0 +1,197 @@
+{
+  "cell": "warm__leveraged__r2",
+  "condition": "leveraged",
+  "run_idx": 2,
+  "runid": "2026-05-24_v0.11.0-warm-opus47",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 161.2,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:git-committer-quick",
+    "claude-leverage:git-committer",
+    "claude-leverage:test-runner",
+    "claude-leverage:context-gatherer"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "total_cost_usd": 0.3862867,
+  "total_tokens": 217953,
+  "duration_ms": 160007,
+  "num_internal_turns": 12,
+  "session_usage": {
+    "input": 139,
+    "output": 2797,
+    "cache_read": 190960,
+    "cache_creation": 24057
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 139,
+      "outputTokens": 2797,
+      "cacheReadInputTokens": 190960,
+      "cacheCreationInputTokens": 24057,
+      "webSearchRequests": 0,
+      "costUSD": 0.31645625,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-sonnet-4-6": {
+      "inputTokens": 6,
+      "outputTokens": 1913,
+      "cacheReadInputTokens": 15420,
+      "cacheCreationInputTokens": 3655,
+      "webSearchRequests": 0,
+      "costUSD": 0.04704525,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 44,
+      "outputTokens": 2191,
+      "cacheReadInputTokens": 30387,
+      "cacheCreationInputTokens": 6998,
+      "webSearchRequests": 0,
+      "costUSD": 0.0227852,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "n_turns_quality_passed": 4,
+  "n_turns_expected": 4,
+  "turns": [
+    {
+      "turn_id": "W1.code-review",
+      "turn_idx": 0,
+      "approx_cost_usd": 0.035436,
+      "turn_tokens": 27093,
+      "usage": {
+        "input": 10,
+        "output": 199,
+        "cache_read": 21989,
+        "cache_creation": 4895
+      },
+      "n_assistant_text_events": 6,
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql']"
+      ],
+      "final_text_len": 2657
+    },
+    {
+      "turn_id": "W2.context-gather",
+      "turn_idx": 1,
+      "approx_cost_usd": 0.071397,
+      "turn_tokens": 54588,
+      "usage": {
+        "input": 30,
+        "output": 52,
+        "cache_read": 46267,
+        "cache_creation": 8239
+      },
+      "n_assistant_text_events": 6,
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /status\\.py/",
+        "OK required: /require_auth/",
+        "OK required: /VERSION/"
+      ],
+      "final_text_len": 7629
+    },
+    {
+      "turn_id": "W3.tiny-commit",
+      "turn_idx": 2,
+      "approx_cost_usd": 0.043752,
+      "turn_tokens": 33451,
+      "usage": {
+        "input": 40,
+        "output": 6,
+        "cache_read": 30235,
+        "cache_creation": 3170
+      },
+      "n_assistant_text_events": 6,
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK commits_added=1",
+        "OK subject: \"docs: fix 'Liscence' typo to 'License' in README\"",
+        "OK files_changed=1"
+      ],
+      "final_text_len": 2816
+    },
+    {
+      "turn_id": "W4.final-review",
+      "turn_idx": 3,
+      "approx_cost_usd": 0.235702,
+      "turn_tokens": 180210,
+      "usage": {
+        "input": 133,
+        "output": 149,
+        "cache_read": 174300,
+        "cache_creation": 5628
+      },
+      "n_assistant_text_events": 8,
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /README/"
+      ],
+      "final_text_len": 7718
+    }
+  ],
+  "delegations": [
+    {
+      "agent": "claude-leverage:code-reviewer",
+      "tier": "sonnet",
+      "tokens": 6941,
+      "input_tokens": 1,
+      "output_tokens": 1201,
+      "cache_read_input_tokens": 4909,
+      "cache_creation_input_tokens": 830,
+      "duration_ms": 45240,
+      "_raw": {
+        "ts": "2026-05-24T09:56:12Z",
+        "subagent": "claude-leverage:code-reviewer",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 1201,
+        "cache_read_input_tokens": 4909,
+        "cache_creation_input_tokens": 830,
+        "total_tokens": 6941,
+        "duration_ms": 45240
+      }
+    },
+    {
+      "agent": "claude-leverage:context-gatherer",
+      "tier": "haiku",
+      "tokens": 8098,
+      "input_tokens": 7,
+      "output_tokens": 1093,
+      "cache_read_input_tokens": 6268,
+      "cache_creation_input_tokens": 730,
+      "duration_ms": 23857,
+      "_raw": {
+        "ts": "2026-05-24T09:57:03Z",
+        "subagent": "claude-leverage:context-gatherer",
+        "tier": "haiku",
+        "input_tokens": 7,
+        "output_tokens": 1093,
+        "cache_read_input_tokens": 6268,
+        "cache_creation_input_tokens": 730,
+        "total_tokens": 8098,
+        "duration_ms": 23857
+      }
+    }
+  ]
+}

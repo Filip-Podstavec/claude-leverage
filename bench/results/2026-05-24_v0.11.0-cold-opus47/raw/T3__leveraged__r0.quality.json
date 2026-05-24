@@ -1,0 +1,8 @@
+{
+  "pass": true,
+  "reasons": [
+    "OK commits_added=1",
+    "OK subject: 'fix: correct typo in README License heading'",
+    "OK files_changed=1"
+  ]
+}

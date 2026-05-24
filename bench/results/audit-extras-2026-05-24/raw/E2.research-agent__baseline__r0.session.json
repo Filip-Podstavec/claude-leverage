@@ -1,0 +1,31 @@
+{
+  "cell": "E2.research-agent__baseline__r0",
+  "task": "E2.research-agent",
+  "condition": "baseline",
+  "run_idx": 0,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 26.25,
+  "total_cost_usd": 0.08953749999999999,
+  "total_tokens": 51245,
+  "tokens": {
+    "input": 5,
+    "output": 1103,
+    "cache_read": 43725,
+    "cache_creation": 6412
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 5,
+      "outputTokens": 1103,
+      "cacheReadInputTokens": 43725,
+      "cacheCreationInputTokens": 6412,
+      "webSearchRequests": 0,
+      "costUSD": 0.08953749999999999,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 1771
+}

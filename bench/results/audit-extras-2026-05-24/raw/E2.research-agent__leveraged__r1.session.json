@@ -1,0 +1,31 @@
+{
+  "cell": "E2.research-agent__leveraged__r1",
+  "task": "E2.research-agent",
+  "condition": "leveraged",
+  "run_idx": 1,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 34.2,
+  "total_cost_usd": 0.09186625,
+  "total_tokens": 52867,
+  "tokens": {
+    "input": 5,
+    "output": 1099,
+    "cache_read": 45070,
+    "cache_creation": 6693
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 5,
+      "outputTokens": 1099,
+      "cacheReadInputTokens": 45070,
+      "cacheCreationInputTokens": 6693,
+      "webSearchRequests": 0,
+      "costUSD": 0.09186625,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 1722
+}

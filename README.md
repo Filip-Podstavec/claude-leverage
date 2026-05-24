@@ -2,7 +2,7 @@
 
 Not every task in a coding session needs the most capable model. This repo orchestrates Claude Code subagents so that research, code review, test runs, and trivial commits are handled by cost-efficient models — while implementation and architecture stay on the latest Opus.
 
-> **Honest benchmark update (2026-05-24).** Across four benchmark stages — cold-cache 1-task mini-suite, cold-cache trimmed, warm-cache 4-turn workflow, **warm-cache 12-turn day-in-the-life** — claude-leverage v0.11 is consistently more expensive than vanilla Claude Code: +89 % to +102 % on cold-cache short, +26 % to +59 % on warm 4-turn, **+64 % on warm 12-turn**. The 12-turn data is the most damning: the gap *grows* over the session (delegation overhead is a per-turn tax, not a one-time startup tax), so longer sessions make the plugin relatively *more* expensive, not less. Multiple rounds of agent trimming, extras-removal, and routing changes did not move the needle. See [Benchmarks](#benchmarks) for charts, per-turn data, methodology, and the structural reason why ('Task tool dispatch per-invocation overhead exceeds per-token Sonnet/Haiku savings').
+> **Honest benchmark update (2026-05-24, latest CC Opus 4.7).** Re-ran the full four-stage benchmark on the current Claude Code default model (`claude-opus-4-7[1m]`, upgraded from 4.6) plus an audit of the agents we moved to `extras/`. Updated numbers: +73 % on cold-cache mini-suite, +63 % on warm 4-turn workflow, **+117 % on warm 12-turn day-in-the-life** (worse than +64 % on Opus 4.6 — the newer model favors baseline more). The **uncomfortable structural finding holds**: claude-leverage in its current form is more expensive than vanilla Claude Code in every scenario we've measured. **Why** — vanilla Claude Code already orchestrates Opus + Haiku via built-in `Explore` and `general-purpose` agents, and our plugin's `Task`-tool dispatch overhead (each subagent session re-pays its own cache_creation) exceeds the marginal cost savings from delegating to Sonnet/Haiku that baseline isn't already capturing. The audit confirmed that even the `repo-explorer` and `research-agent` we moved to `extras/` would have made things measurably worse, not better. See [Benchmarks](#benchmarks) for charts, per-turn data, the audit results, and the implication.
 
 [![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -182,17 +182,35 @@ A typical development cycle using claude-leverage:
 
 ## Benchmarks
 
-Real headless `claude -p` runs, baseline (vanilla Claude Code) vs leveraged (with `claude-leverage` plugin), N=3 sessions per cell, full reproducible methodology in [`bench/`](bench/). Three measurement stages, designed to span the worst case (cold cache, isolated tasks) to a production-realistic case (warm cache, one session that does four things).
+Real headless `claude -p` runs, baseline (vanilla Claude Code) vs leveraged (with `claude-leverage` plugin), N=2-3 sessions per cell, full reproducible methodology in [`bench/`](bench/). All numbers on the current Claude Code default model (`claude-opus-4-7[1m]`).
 
-![cost across three stages](bench/results/2026-05-23_combined/summary.png)
+![cost across three stages](bench/results/2026-05-24_v0.11.0-opus47_combined/summary.png)
 
-| Stage | Baseline | Leveraged | Delta |
+| Stage | Baseline | Leveraged | Delta | Run |
+|---|---:|---:|---:|---|
+| Cold cache, pre-trim (Opus 4.6, v0.10 baseline reference) | $0.361 | $0.728 | +102 % | `2026-05-21_v0.10.0` |
+| Cold cache, post-trim (Opus 4.7, v0.11 latest) | $0.369 | $0.638 | **+73 %** | `2026-05-24_v0.11.0-cold-opus47` |
+| Warm cache, 4-turn workflow (Opus 4.7) | $0.237 | $0.386 | **+63 %** | `2026-05-24_v0.11.0-warm-opus47` |
+| Warm cache, 12-turn day-in-the-life (Opus 4.7) | $0.511 | $1.107 | **+117 %** | `2026-05-24_v0.11.0-long-opus47` |
+
+**The structural finding.** The plugin is consistently more expensive than vanilla Claude Code across every scenario, and the gap *grows* with session length rather than amortizing. The fundamental reason is **vanilla CC already orchestrates** — it has built-in `Explore` (Haiku) and `general-purpose` agents that the main session uses for free. Adding `claude-leverage` introduces a parallel orchestration layer that:
+
+1. Pays a per-session system-prompt tax for plugin scaffolding (~$0.10).
+2. Routes work to *our* subagents instead of CC's free built-ins for the same task category.
+3. Each Task-tool dispatch pays its own cache_creation in the subagent session — a *per-invocation* tax, not amortized by warm cache.
+
+On a 12-turn workflow with ~4 delegations, the cumulative delegation tax overwhelms any per-token savings from running work on Sonnet/Haiku instead of Opus. The gap doesn't close with session length — it widens.
+
+**Audit of moved agents.** We separately tested `repo-explorer` (Haiku) and `research-agent` (Sonnet) — the two extras agents most likely to add value, since they target use cases the main session genuinely needs. Result for both: **adding them back to the default install made things measurably worse, not better.**
+
+| Audit task | Baseline | Leveraged (no extras) | Leveraged + extras agent |
 |---|---:|---:|---:|
-| Cold cache, pre-trim (4 separate sessions) | $0.361 | $0.728 | **+102 %** |
-| Cold cache, post-trim (4 separate sessions) | $0.374 | $0.706 | **+89 %** |
-| Warm cache, post-trim (1 session × 4 turns) | $0.308 | $0.388 | **+26 %** |
+| Find every file that uses `require_auth` | $0.051 | $0.086 | **$0.120** |
+| Explain the auth flow end-to-end | $0.090 | $0.128 | **$0.156** |
 
-**The story in one sentence.** The plugin still costs more than running on bare Claude Code, but the gap collapses by 4× when you measure it the way real developers actually use Claude Code — long sessions with a warm system-prompt cache. **Cold→warm savings on the leveraged condition: $0.706 → $0.388 (−45 %).** The plugin loading tax is paid once per session, not per task.
+Verdict for both: **keep in extras**. They lose to baseline + leveraged because (a) they compete with CC built-ins at the same tier (`repo-explorer` is Haiku → competes with Haiku `Explore`; `research-agent` is Sonnet → competes with `general-purpose`) and (b) adding them to the default install only adds load tax without behavioral improvement.
+
+Full audit data: [`bench/results/audit-extras-2026-05-24/`](bench/results/audit-extras-2026-05-24/).
 
 **Per-task cost + tier breakdown** for cold post-trim — bar height is USD cost per session, stack colors are which model produced the cost. T2 was the biggest win from this round of changes: switching `context-gatherer` from Sonnet to Haiku (matching what Claude Code's built-in `Explore` already does) cut the regression from +36 % (pre-trim) to +15 %.
 
@@ -221,21 +239,21 @@ Net: the v0.11.0 release is **structural cleanup, not measurable cost optimizati
 
 ### Long-session benchmark: 12-turn developer-day workflow
 
-The 4-turn warm-cache stage closed most of the cold-cache gap (+102 % → +26 %). The natural follow-up hypothesis: **at session length N, leveraged becomes net-cheaper than baseline** as cache amortization compounds. We tested it with a 12-turn benchmark designed to simulate a real developer day — mixing inline Opus work (orientation, small edits, fixes, architectural reasoning) with explicit subagent delegations (test-runner ×2, git-committer ×2, code-reviewer ×1). Full prompts and methodology in [`bench/results/2026-05-24_v0.11.0-long/long-report.md`](bench/results/2026-05-24_v0.11.0-long/long-report.md).
+The natural hypothesis was that as session length grows, leveraged would become net-cheaper than baseline because the plugin's one-time loading tax gets amortized across many delegations. We tested it with a 12-turn benchmark simulating a real developer day — mixing inline Opus work (orientation, small edits, fixes, architectural reasoning) with explicit subagent delegations (`test-runner` ×2, `git-committer` ×2, `code-reviewer` ×1).
 
-![long-session cumulative cost](bench/results/2026-05-24_v0.11.0-long/cumulative.png)
+![long-session cumulative cost](bench/results/2026-05-24_v0.11.0-long-opus47/cumulative.png)
 
-**Result: no crossover in 12 turns.** Cumulative cost at turn 12 (median across N=2 runs):
+**Result: no crossover in 12 turns, and the gap widens.** Cumulative cost at turn 12 (median across N=2 runs on Opus 4.7):
 
 | Metric | Baseline | Leveraged | Delta |
 |---|---:|---:|---:|
-| Cost at turn 12 | $0.745 | $1.220 | **+64 %** |
-| Cost at turn 1 (startup) | $0.040 | $0.080 | +100 % |
-| Cost at turn 6 (mid-session) | $0.255 | $0.513 | +101 % |
+| Cost at turn 12 | $0.511 | $1.107 | **+117 %** |
+| Cost at turn 1 (startup) | $0.04 | $0.08 | +100 % |
+| Cost at turn 6 (mid-session) | $0.22 | $0.48 | +117 % |
 
-![per-turn savings](bench/results/2026-05-24_v0.11.0-long/per-turn.png)
+![per-turn savings](bench/results/2026-05-24_v0.11.0-long-opus47/per-turn.png)
 
-The per-turn savings chart reveals **the gap doesn't amortize — it accumulates**. Only 2 of 12 turns (turn 4 and turn 7, both Opus-inline-without-delegation) show leveraged marginally cheaper. The other 10 turns are net-negative, with the delegation-heavy turns (3, 5, 6, 9, 10, 12) being the most expensive. Each delegation pays its own subagent cache_creation, so delegations behave as a per-turn tax, not a one-time startup tax.
+The per-turn savings chart reveals **the gap doesn't amortize — it accumulates**. Each delegation pays its own subagent cache_creation, so delegations behave as a per-turn tax, not a one-time startup tax. Newer Opus 4.7 actually widened the gap vs the previous Opus 4.6 measurement (+117 % vs +64 %) because the newer model favors fewer, deeper turns over delegation round-trips. Full per-turn detail in [`bench/results/2026-05-24_v0.11.0-long-opus47/long-report.md`](bench/results/2026-05-24_v0.11.0-long-opus47/long-report.md).
 
 **The honest implication.** The plugin's "warm-cache savings" we saw on the 4-turn benchmark were partly real (system prompt amortizes) and partly artifacts of a short workflow with one big delegation. As the session grows, the cumulative cost of delegation overhead overwhelms the cache savings. **Under this benchmark, claude-leverage in its current form does not save tokens on real developer workflows — it costs more.**
 
@@ -277,7 +295,7 @@ python bench/harness/report_combined.py \
     --out-name  <date>_combined
 ```
 
-Last benchmarked: **2026-05-24** · plugin **v0.11.0** · Claude Code **2.1.89** (resolved in headless subprocess) · models **claude-opus-4-6[1m]**, **claude-sonnet-4-6**, **claude-haiku-4-5-20251001**. Primary 3-stage chart raw data: [`bench/results/2026-05-23_combined/`](bench/results/2026-05-23_combined/). v0.11 follow-up: [`bench/results/2026-05-23_v0.11.0-cold-reverted/`](bench/results/2026-05-23_v0.11.0-cold-reverted/) + [`-warm-reverted/`](bench/results/2026-05-23_v0.11.0-warm-reverted/). Long-session (12-turn): [`bench/results/2026-05-24_v0.11.0-long/`](bench/results/2026-05-24_v0.11.0-long/).
+Last benchmarked: **2026-05-24** · plugin **v0.11.0** · Claude Code **2.1.89** · models **claude-opus-4-7[1m]** (CC default upgraded from 4.6 since v0.10 benchmark), **claude-sonnet-4-6**, **claude-haiku-4-5-20251001**. Primary 3-stage chart: [`bench/results/2026-05-24_v0.11.0-opus47_combined/`](bench/results/2026-05-24_v0.11.0-opus47_combined/). Per-stage raw: [`-cold-opus47/`](bench/results/2026-05-24_v0.11.0-cold-opus47/), [`-warm-opus47/`](bench/results/2026-05-24_v0.11.0-warm-opus47/), [`-long-opus47/`](bench/results/2026-05-24_v0.11.0-long-opus47/). Audit of moved agents: [`audit-extras-2026-05-24/`](bench/results/audit-extras-2026-05-24/).
 
 ## Quick install (recommended)
 

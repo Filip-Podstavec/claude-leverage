@@ -1,0 +1,942 @@
+{
+  "runid": "2026-05-24_v0.11.0-warm-opus47",
+  "mode": "warm",
+  "started_at": "2026-05-24T09:47:13Z",
+  "plugin_dir": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+  "claude_code_version": "2.1.89 (Claude Code)",
+  "plugin_version": "0.11.0",
+  "n_runs": 3,
+  "fixture": "warm-session",
+  "turns": [
+    "W1.code-review",
+    "W2.context-gather",
+    "W3.tiny-commit",
+    "W4.final-review"
+  ],
+  "conditions": [
+    "baseline",
+    "leveraged"
+  ],
+  "cells": [
+    {
+      "cell": "warm__baseline__r0",
+      "condition": "baseline",
+      "run_idx": 0,
+      "runid": "2026-05-24_v0.11.0-warm-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 131.38,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "total_cost_usd": 0.3008833,
+      "total_tokens": 203486,
+      "duration_ms": 130252,
+      "num_internal_turns": 11,
+      "session_usage": {
+        "input": 45,
+        "output": 2239,
+        "cache_read": 190650,
+        "cache_creation": 10552
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 45,
+          "outputTokens": 2239,
+          "cacheReadInputTokens": 190650,
+          "cacheCreationInputTokens": 10552,
+          "webSearchRequests": 0,
+          "costUSD": 0.217475,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 81,
+          "outputTokens": 4314,
+          "cacheReadInputTokens": 343548,
+          "cacheCreationInputTokens": 21922,
+          "webSearchRequests": 0,
+          "costUSD": 0.0834083,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 4,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.058605,
+          "turn_tokens": 122838,
+          "usage": {
+            "input": 34,
+            "output": 79,
+            "cache_read": 104012,
+            "cache_creation": 18713
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 7981
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.066978,
+          "turn_tokens": 140387,
+          "usage": {
+            "input": 42,
+            "output": 388,
+            "cache_read": 136199,
+            "cache_creation": 3758
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /status\\.py/",
+            "OK required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 2941
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.074513,
+          "turn_tokens": 156182,
+          "usage": {
+            "input": 28,
+            "output": 309,
+            "cache_read": 152815,
+            "cache_creation": 3030
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: \"fix: correct 'Liscence' typo to 'License' in README\"",
+            "OK files_changed=1"
+          ],
+          "final_text_len": 2905
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.100788,
+          "turn_tokens": 211254,
+          "usage": {
+            "input": 45,
+            "output": 298,
+            "cache_read": 205545,
+            "cache_creation": 5366
+          },
+          "n_assistant_text_events": 10,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 10037
+        }
+      ],
+      "delegations": []
+    },
+    {
+      "cell": "warm__baseline__r1",
+      "condition": "baseline",
+      "run_idx": 1,
+      "runid": "2026-05-24_v0.11.0-warm-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 61.24,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "total_cost_usd": 0.17666875,
+      "total_tokens": 168051,
+      "duration_ms": 60121,
+      "num_internal_turns": 9,
+      "session_usage": {
+        "input": 11,
+        "output": 1795,
+        "cache_read": 157790,
+        "cache_creation": 8455
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 11,
+          "outputTokens": 1795,
+          "cacheReadInputTokens": 157790,
+          "cacheCreationInputTokens": 8455,
+          "webSearchRequests": 0,
+          "costUSD": 0.17666875,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "n_turns_quality_passed": 3,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.042157,
+          "turn_tokens": 35875,
+          "usage": {
+            "input": 2,
+            "output": 45,
+            "cache_read": 33594,
+            "cache_creation": 2234
+          },
+          "n_assistant_text_events": 2,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 5183
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.043969,
+          "turn_tokens": 37417,
+          "usage": {
+            "input": 2,
+            "output": 61,
+            "cache_read": 36916,
+            "cache_creation": 438
+          },
+          "n_assistant_text_events": 2,
+          "quality_pass": false,
+          "quality_reasons": [
+            "MISSING required: /status\\.py/",
+            "MISSING required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 518
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.044744,
+          "turn_tokens": 38077,
+          "usage": {
+            "input": 2,
+            "output": 103,
+            "cache_read": 37719,
+            "cache_creation": 253
+          },
+          "n_assistant_text_events": 2,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: \"fix: correct 'Liscence' typo to 'License' in README\"",
+            "OK files_changed=1"
+          ],
+          "final_text_len": 223
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.045799,
+          "turn_tokens": 38975,
+          "usage": {
+            "input": 2,
+            "output": 2,
+            "cache_read": 38286,
+            "cache_creation": 685
+          },
+          "n_assistant_text_events": 2,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 1147
+        }
+      ],
+      "delegations": []
+    },
+    {
+      "cell": "warm__baseline__r2",
+      "condition": "baseline",
+      "run_idx": 2,
+      "runid": "2026-05-24_v0.11.0-warm-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 100.6,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide"
+      ],
+      "plugins": [],
+      "is_error": false,
+      "total_cost_usd": 0.23678225000000006,
+      "total_tokens": 157328,
+      "duration_ms": 99365,
+      "num_internal_turns": 9,
+      "session_usage": {
+        "input": 43,
+        "output": 2064,
+        "cache_read": 145385,
+        "cache_creation": 9836
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 43,
+          "outputTokens": 2064,
+          "cacheReadInputTokens": 145385,
+          "cacheCreationInputTokens": 9836,
+          "webSearchRequests": 0,
+          "costUSD": 0.18598250000000002,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 62,
+          "outputTokens": 3491,
+          "cacheReadInputTokens": 223165,
+          "cacheCreationInputTokens": 8773,
+          "webSearchRequests": 0,
+          "costUSD": 0.05079975,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 3,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.046042,
+          "turn_tokens": 91698,
+          "usage": {
+            "input": 27,
+            "output": 10,
+            "cache_read": 85559,
+            "cache_creation": 6102
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 7679
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.050778,
+          "turn_tokens": 101131,
+          "usage": {
+            "input": 35,
+            "output": 6,
+            "cache_read": 97108,
+            "cache_creation": 3982
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": false,
+          "quality_reasons": [
+            "OK required: /status\\.py/",
+            "OK required: /require_auth/",
+            "MISSING required: /VERSION/"
+          ],
+          "final_text_len": 3328
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.058093,
+          "turn_tokens": 115700,
+          "usage": {
+            "input": 28,
+            "output": 12,
+            "cache_read": 112140,
+            "cache_creation": 3520
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: \"fix: correct 'Liscence' typo to 'License' in README\"",
+            "OK files_changed=1"
+          ],
+          "final_text_len": 2846
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.08187,
+          "turn_tokens": 163054,
+          "usage": {
+            "input": 47,
+            "output": 155,
+            "cache_read": 158328,
+            "cache_creation": 4524
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 7138
+        }
+      ],
+      "delegations": []
+    },
+    {
+      "cell": "warm__leveraged__r0",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "runid": "2026-05-24_v0.11.0-warm-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 106.84,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:test-runner",
+        "claude-leverage:git-committer",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:code-reviewer"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "total_cost_usd": 0.4062827000000001,
+      "total_tokens": 48677,
+      "duration_ms": 20043,
+      "num_internal_turns": 2,
+      "session_usage": {
+        "input": 4,
+        "output": 690,
+        "cache_read": 45543,
+        "cache_creation": 2440
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 20,
+          "outputTokens": 3132,
+          "cacheReadInputTokens": 280819,
+          "cacheCreationInputTokens": 24511,
+          "webSearchRequests": 0,
+          "costUSD": 0.37200325,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 4146,
+          "outputTokens": 2827,
+          "cacheReadInputTokens": 54722,
+          "cacheCreationInputTokens": 8421,
+          "webSearchRequests": 0,
+          "costUSD": 0.034279449999999996,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 3,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.073772,
+          "turn_tokens": 56365,
+          "usage": {
+            "input": 3,
+            "output": 51,
+            "cache_read": 53776,
+            "cache_creation": 2535
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql', 'injection', 'f-?string']"
+          ],
+          "final_text_len": 5527
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.076879,
+          "turn_tokens": 58739,
+          "usage": {
+            "input": 3,
+            "output": 186,
+            "cache_read": 58019,
+            "cache_creation": 531
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": false,
+          "quality_reasons": [
+            "MISSING required: /status\\.py/",
+            "MISSING required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 425
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.079476,
+          "turn_tokens": 60723,
+          "usage": {
+            "input": 3,
+            "output": 104,
+            "cache_read": 59929,
+            "cache_creation": 687
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: 'docs: fix typo in README heading (Liscence \u00e2\u2020\u2019 License)'",
+            "OK files_changed=1"
+          ],
+          "final_text_len": 456
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.176156,
+          "turn_tokens": 134591,
+          "usage": {
+            "input": 10,
+            "output": 63,
+            "cache_read": 129508,
+            "cache_creation": 5010
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 2990
+        }
+      ],
+      "delegations": [
+        {
+          "agent": "claude-leverage:context-gatherer",
+          "tier": "haiku",
+          "tokens": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cache_read_input_tokens": null,
+          "cache_creation_input_tokens": null,
+          "duration_ms": null,
+          "_raw": {
+            "ts": "2026-05-24T09:52:35Z",
+            "subagent": "claude-leverage:context-gatherer",
+            "tier": "haiku",
+            "input_tokens": null,
+            "output_tokens": null,
+            "cache_read_input_tokens": null,
+            "cache_creation_input_tokens": null,
+            "total_tokens": null,
+            "duration_ms": null
+          }
+        }
+      ]
+    },
+    {
+      "cell": "warm__leveraged__r1",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "runid": "2026-05-24_v0.11.0-warm-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 85.54,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:context-gatherer",
+        "claude-leverage:test-runner",
+        "claude-leverage:git-committer",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:git-committer-quick"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "total_cost_usd": 0.26741955,
+      "total_tokens": 77318,
+      "duration_ms": 84235,
+      "num_internal_turns": 5,
+      "session_usage": {
+        "input": 7,
+        "output": 1857,
+        "cache_read": 53910,
+        "cache_creation": 21544
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 7,
+          "outputTokens": 1857,
+          "cacheReadInputTokens": 53910,
+          "cacheCreationInputTokens": 21544,
+          "webSearchRequests": 0,
+          "costUSD": 0.20806500000000003,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 5,
+          "outputTokens": 1934,
+          "cacheReadInputTokens": 16586,
+          "cacheCreationInputTokens": 6761,
+          "webSearchRequests": 0,
+          "costUSD": 0.059354550000000006,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 1,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.108211,
+          "turn_tokens": 37294,
+          "usage": {
+            "input": 3,
+            "output": 41,
+            "cache_read": 34783,
+            "cache_creation": 2467
+          },
+          "n_assistant_text_events": 2,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql']"
+          ],
+          "final_text_len": 2430
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.027443,
+          "turn_tokens": 9458,
+          "usage": {
+            "input": 4,
+            "output": 2,
+            "cache_read": 0,
+            "cache_creation": 9452
+          },
+          "n_assistant_text_events": 2,
+          "quality_pass": false,
+          "quality_reasons": [
+            "MISSING required: /status\\.py/",
+            "OK required: /require_auth/",
+            "MISSING required: /VERSION/"
+          ],
+          "final_text_len": 1030
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.033072,
+          "turn_tokens": 11398,
+          "usage": {
+            "input": 2,
+            "output": 8,
+            "cache_read": 9452,
+            "cache_creation": 1936
+          },
+          "n_assistant_text_events": 2,
+          "quality_pass": false,
+          "quality_reasons": [
+            "FAIL commits_added=0, expected 1",
+            "FAIL: no commit was created"
+          ],
+          "final_text_len": 1000
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.098694,
+          "turn_tokens": 34014,
+          "usage": {
+            "input": 3,
+            "output": 135,
+            "cache_read": 30515,
+            "cache_creation": 3361
+          },
+          "n_assistant_text_events": 3,
+          "quality_pass": false,
+          "quality_reasons": [
+            "MISSING required: /README/"
+          ],
+          "final_text_len": 7768
+        }
+      ],
+      "delegations": [
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": 7982,
+          "input_tokens": 1,
+          "output_tokens": 1220,
+          "cache_read_input_tokens": 6166,
+          "cache_creation_input_tokens": 595,
+          "duration_ms": 43226,
+          "_raw": {
+            "ts": "2026-05-24T09:55:06Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 1220,
+            "cache_read_input_tokens": 6166,
+            "cache_creation_input_tokens": 595,
+            "total_tokens": 7982,
+            "duration_ms": 43226
+          }
+        }
+      ]
+    },
+    {
+      "cell": "warm__leveraged__r2",
+      "condition": "leveraged",
+      "run_idx": 2,
+      "runid": "2026-05-24_v0.11.0-warm-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 161.2,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "agents_available": [
+        "general-purpose",
+        "statusline-setup",
+        "Explore",
+        "Plan",
+        "claude-code-guide",
+        "claude-leverage:code-reviewer",
+        "claude-leverage:git-committer-quick",
+        "claude-leverage:git-committer",
+        "claude-leverage:test-runner",
+        "claude-leverage:context-gatherer"
+      ],
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "total_cost_usd": 0.3862867,
+      "total_tokens": 217953,
+      "duration_ms": 160007,
+      "num_internal_turns": 12,
+      "session_usage": {
+        "input": 139,
+        "output": 2797,
+        "cache_read": 190960,
+        "cache_creation": 24057
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 139,
+          "outputTokens": 2797,
+          "cacheReadInputTokens": 190960,
+          "cacheCreationInputTokens": 24057,
+          "webSearchRequests": 0,
+          "costUSD": 0.31645625,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 6,
+          "outputTokens": 1913,
+          "cacheReadInputTokens": 15420,
+          "cacheCreationInputTokens": 3655,
+          "webSearchRequests": 0,
+          "costUSD": 0.04704525,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        },
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 44,
+          "outputTokens": 2191,
+          "cacheReadInputTokens": 30387,
+          "cacheCreationInputTokens": 6998,
+          "webSearchRequests": 0,
+          "costUSD": 0.0227852,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_quality_passed": 4,
+      "n_turns_expected": 4,
+      "turns": [
+        {
+          "turn_id": "W1.code-review",
+          "turn_idx": 0,
+          "approx_cost_usd": 0.035436,
+          "turn_tokens": 27093,
+          "usage": {
+            "input": 10,
+            "output": 199,
+            "cache_read": 21989,
+            "cache_creation": 4895
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /users\\.py/",
+            "OK any-of matched: ['sql']"
+          ],
+          "final_text_len": 2657
+        },
+        {
+          "turn_id": "W2.context-gather",
+          "turn_idx": 1,
+          "approx_cost_usd": 0.071397,
+          "turn_tokens": 54588,
+          "usage": {
+            "input": 30,
+            "output": 52,
+            "cache_read": 46267,
+            "cache_creation": 8239
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /status\\.py/",
+            "OK required: /require_auth/",
+            "OK required: /VERSION/"
+          ],
+          "final_text_len": 7629
+        },
+        {
+          "turn_id": "W3.tiny-commit",
+          "turn_idx": 2,
+          "approx_cost_usd": 0.043752,
+          "turn_tokens": 33451,
+          "usage": {
+            "input": 40,
+            "output": 6,
+            "cache_read": 30235,
+            "cache_creation": 3170
+          },
+          "n_assistant_text_events": 6,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK commits_added=1",
+            "OK subject: \"docs: fix 'Liscence' typo to 'License' in README\"",
+            "OK files_changed=1"
+          ],
+          "final_text_len": 2816
+        },
+        {
+          "turn_id": "W4.final-review",
+          "turn_idx": 3,
+          "approx_cost_usd": 0.235702,
+          "turn_tokens": 180210,
+          "usage": {
+            "input": 133,
+            "output": 149,
+            "cache_read": 174300,
+            "cache_creation": 5628
+          },
+          "n_assistant_text_events": 8,
+          "quality_pass": true,
+          "quality_reasons": [
+            "OK required: /README/"
+          ],
+          "final_text_len": 7718
+        }
+      ],
+      "delegations": [
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": 6941,
+          "input_tokens": 1,
+          "output_tokens": 1201,
+          "cache_read_input_tokens": 4909,
+          "cache_creation_input_tokens": 830,
+          "duration_ms": 45240,
+          "_raw": {
+            "ts": "2026-05-24T09:56:12Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 1201,
+            "cache_read_input_tokens": 4909,
+            "cache_creation_input_tokens": 830,
+            "total_tokens": 6941,
+            "duration_ms": 45240
+          }
+        },
+        {
+          "agent": "claude-leverage:context-gatherer",
+          "tier": "haiku",
+          "tokens": 8098,
+          "input_tokens": 7,
+          "output_tokens": 1093,
+          "cache_read_input_tokens": 6268,
+          "cache_creation_input_tokens": 730,
+          "duration_ms": 23857,
+          "_raw": {
+            "ts": "2026-05-24T09:57:03Z",
+            "subagent": "claude-leverage:context-gatherer",
+            "tier": "haiku",
+            "input_tokens": 7,
+            "output_tokens": 1093,
+            "cache_read_input_tokens": 6268,
+            "cache_creation_input_tokens": 730,
+            "total_tokens": 8098,
+            "duration_ms": 23857
+          }
+        }
+      ]
+    }
+  ],
+  "updated_at": "2026-05-24T09:58:02Z",
+  "total_cost_usd_so_far": 1.7743,
+  "finished_at": "2026-05-24T09:58:02Z"
+}

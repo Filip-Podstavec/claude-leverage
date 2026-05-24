@@ -1,0 +1,34 @@
+[
+  {
+    "turn_id": "W1.code-review",
+    "pass": true,
+    "reasons": [
+      "OK required: /users\\.py/",
+      "OK any-of matched: ['sql']"
+    ]
+  },
+  {
+    "turn_id": "W2.context-gather",
+    "pass": false,
+    "reasons": [
+      "MISSING required: /status\\.py/",
+      "OK required: /require_auth/",
+      "MISSING required: /VERSION/"
+    ]
+  },
+  {
+    "turn_id": "W3.tiny-commit",
+    "pass": false,
+    "reasons": [
+      "FAIL commits_added=0, expected 1",
+      "FAIL: no commit was created"
+    ]
+  },
+  {
+    "turn_id": "W4.final-review",
+    "pass": false,
+    "reasons": [
+      "MISSING required: /README/"
+    ]
+  }
+]

@@ -1,0 +1,792 @@
+{
+  "runid": "2026-05-24_v0.11.0-long-opus47",
+  "mode": "long",
+  "started_at": "2026-05-24T09:58:27Z",
+  "plugin_dir": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+  "plugin_version": "0.11.0",
+  "n_runs": 2,
+  "fixture": "long-session",
+  "n_turns": 12,
+  "turns": [
+    "look around. what is this service?",
+    "add a /health endpoint that returns {\"status\":\"ok\",\"version\":\"0.1\"} to the status routes",
+    "run the tests",
+    "add a test for the new /health endpoint matching the existing test style",
+    "commit what we have so far using /commit-smart if available, otherwise just commit normally",
+    "the validator module looks suspicious. review it for bugs and security issues",
+    "fix the issues the reviewer flagged",
+    "add a POST /users endpoint that creates a user. validate the email with a regex in the validator. follow the existing route style and patterns",
+    "write tests for POST /users covering happy path and invalid email",
+    "run all tests",
+    "the auth module is a stub. what would real token validation look like here? don't implement, just describe the shape in 5-7 lines",
+    "commit the user endpoint + tests as one commit with a good conventional message"
+  ],
+  "conditions": [
+    "baseline",
+    "leveraged"
+  ],
+  "cells": [
+    {
+      "cell": "long__baseline__r0",
+      "condition": "baseline",
+      "run_idx": 0,
+      "runid": "2026-05-24_v0.11.0-long-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 167.27,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "plugins": [],
+      "is_error": false,
+      "total_cost_usd": 0.5740275000000001,
+      "total_tokens": 444952,
+      "duration_ms": 166101,
+      "num_internal_turns": 29,
+      "session_usage": {
+        "input": 55,
+        "output": 6170,
+        "cache_read": 423046,
+        "cache_creation": 15681
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 64,
+          "outputTokens": 7140,
+          "cacheReadInputTokens": 455340,
+          "cacheCreationInputTokens": 26806,
+          "webSearchRequests": 0,
+          "costUSD": 0.5740275000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "n_turns_expected": 12,
+      "turns": [
+        {
+          "turn_idx": 0,
+          "prompt_preview": "look around. what is this service?",
+          "approx_cost_usd": 0.033941,
+          "turn_tokens": 34104,
+          "n_assistant_text_events": 2,
+          "final_text_len": 136
+        },
+        {
+          "turn_idx": 1,
+          "prompt_preview": "add a /health endpoint that returns {\"status\":\"ok\",\"version\"",
+          "approx_cost_usd": 0.034649,
+          "turn_tokens": 34816,
+          "n_assistant_text_events": 2,
+          "final_text_len": 354
+        },
+        {
+          "turn_idx": 2,
+          "prompt_preview": "run the tests",
+          "approx_cost_usd": 0.034649,
+          "turn_tokens": 34816,
+          "n_assistant_text_events": 2,
+          "final_text_len": 640
+        },
+        {
+          "turn_idx": 3,
+          "prompt_preview": "add a test for the new /health endpoint matching the existin",
+          "approx_cost_usd": 0.036057,
+          "turn_tokens": 36230,
+          "n_assistant_text_events": 2,
+          "final_text_len": 188
+        },
+        {
+          "turn_idx": 4,
+          "prompt_preview": "commit what we have so far using /commit-smart if available,",
+          "approx_cost_usd": 0.036057,
+          "turn_tokens": 36230,
+          "n_assistant_text_events": 2,
+          "final_text_len": 912
+        },
+        {
+          "turn_idx": 5,
+          "prompt_preview": "the validator module looks suspicious. review it for bugs an",
+          "approx_cost_usd": 0.038919,
+          "turn_tokens": 39106,
+          "n_assistant_text_events": 2,
+          "final_text_len": 2033
+        },
+        {
+          "turn_idx": 6,
+          "prompt_preview": "fix the issues the reviewer flagged",
+          "approx_cost_usd": 0.041247,
+          "turn_tokens": 41445,
+          "n_assistant_text_events": 2,
+          "final_text_len": 2930
+        },
+        {
+          "turn_idx": 7,
+          "prompt_preview": "add a POST /users endpoint that creates a user. validate the",
+          "approx_cost_usd": 0.042323,
+          "turn_tokens": 42526,
+          "n_assistant_text_events": 2,
+          "final_text_len": 2168
+        },
+        {
+          "turn_idx": 8,
+          "prompt_preview": "write tests for POST /users covering happy path and invalid ",
+          "approx_cost_usd": 0.044838,
+          "turn_tokens": 45054,
+          "n_assistant_text_events": 2,
+          "final_text_len": 493
+        },
+        {
+          "turn_idx": 9,
+          "prompt_preview": "run all tests",
+          "approx_cost_usd": 0.04619,
+          "turn_tokens": 46412,
+          "n_assistant_text_events": 2,
+          "final_text_len": 1736
+        },
+        {
+          "turn_idx": 10,
+          "prompt_preview": "the auth module is a stub. what would real token validation ",
+          "approx_cost_usd": 0.048231,
+          "turn_tokens": 48463,
+          "n_assistant_text_events": 2,
+          "final_text_len": 493
+        },
+        {
+          "turn_idx": 11,
+          "prompt_preview": "commit the user endpoint + tests as one commit with a good c",
+          "approx_cost_usd": 0.136927,
+          "turn_tokens": 137585,
+          "n_assistant_text_events": 6,
+          "final_text_len": 5894
+        }
+      ],
+      "delegations": []
+    },
+    {
+      "cell": "long__baseline__r1",
+      "condition": "baseline",
+      "run_idx": 1,
+      "runid": "2026-05-24_v0.11.0-long-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 146.64,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "plugins": [],
+      "is_error": false,
+      "total_cost_usd": 0.4482137500000001,
+      "total_tokens": 359897,
+      "duration_ms": 145203,
+      "num_internal_turns": 23,
+      "session_usage": {
+        "input": 19,
+        "output": 5075,
+        "cache_read": 341145,
+        "cache_creation": 13658
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 27,
+          "outputTokens": 6086,
+          "cacheReadInputTokens": 371445,
+          "cacheCreationInputTokens": 17633,
+          "webSearchRequests": 0,
+          "costUSD": 0.4482137500000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "n_turns_expected": 12,
+      "turns": [
+        {
+          "turn_idx": 0,
+          "prompt_preview": "look around. what is this service?",
+          "approx_cost_usd": 0.01719,
+          "turn_tokens": 16978,
+          "n_assistant_text_events": 1,
+          "final_text_len": 38
+        },
+        {
+          "turn_idx": 1,
+          "prompt_preview": "add a /health endpoint that returns {\"status\":\"ok\",\"version\"",
+          "approx_cost_usd": 0.01719,
+          "turn_tokens": 16978,
+          "n_assistant_text_events": 1,
+          "final_text_len": 253
+        },
+        {
+          "turn_idx": 2,
+          "prompt_preview": "run the tests",
+          "approx_cost_usd": 0.017541,
+          "turn_tokens": 17325,
+          "n_assistant_text_events": 1,
+          "final_text_len": 148
+        },
+        {
+          "turn_idx": 3,
+          "prompt_preview": "add a test for the new /health endpoint matching the existin",
+          "approx_cost_usd": 0.017541,
+          "turn_tokens": 17325,
+          "n_assistant_text_events": 1,
+          "final_text_len": 99
+        },
+        {
+          "turn_idx": 4,
+          "prompt_preview": "commit what we have so far using /commit-smart if available,",
+          "approx_cost_usd": 0.017541,
+          "turn_tokens": 17325,
+          "n_assistant_text_events": 1,
+          "final_text_len": 434
+        },
+        {
+          "turn_idx": 5,
+          "prompt_preview": "the validator module looks suspicious. review it for bugs an",
+          "approx_cost_usd": 0.017541,
+          "turn_tokens": 17325,
+          "n_assistant_text_events": 1,
+          "final_text_len": 204
+        },
+        {
+          "turn_idx": 6,
+          "prompt_preview": "fix the issues the reviewer flagged",
+          "approx_cost_usd": 0.017541,
+          "turn_tokens": 17325,
+          "n_assistant_text_events": 1,
+          "final_text_len": 415
+        },
+        {
+          "turn_idx": 7,
+          "prompt_preview": "add a POST /users endpoint that creates a user. validate the",
+          "approx_cost_usd": 0.017541,
+          "turn_tokens": 17325,
+          "n_assistant_text_events": 1,
+          "final_text_len": 495
+        },
+        {
+          "turn_idx": 8,
+          "prompt_preview": "write tests for POST /users covering happy path and invalid ",
+          "approx_cost_usd": 0.018975,
+          "turn_tokens": 18741,
+          "n_assistant_text_events": 1,
+          "final_text_len": 1243
+        },
+        {
+          "turn_idx": 9,
+          "prompt_preview": "run all tests",
+          "approx_cost_usd": 0.019667,
+          "turn_tokens": 19424,
+          "n_assistant_text_events": 1,
+          "final_text_len": 247
+        },
+        {
+          "turn_idx": 10,
+          "prompt_preview": "the auth module is a stub. what would real token validation ",
+          "approx_cost_usd": 0.020252,
+          "turn_tokens": 20002,
+          "n_assistant_text_events": 1,
+          "final_text_len": 2588
+        },
+        {
+          "turn_idx": 11,
+          "prompt_preview": "commit the user endpoint + tests as one commit with a good c",
+          "approx_cost_usd": 0.249692,
+          "turn_tokens": 246612,
+          "n_assistant_text_events": 11,
+          "final_text_len": 8176
+        }
+      ],
+      "delegations": []
+    },
+    {
+      "cell": "long__leveraged__r0",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "runid": "2026-05-24_v0.11.0-long-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 371.06,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "total_cost_usd": 1.04329045,
+      "total_tokens": 34811,
+      "duration_ms": 7096,
+      "num_internal_turns": 1,
+      "session_usage": {
+        "input": 3,
+        "output": 140,
+        "cache_read": 33071,
+        "cache_creation": 1597
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 36,
+          "outputTokens": 7905,
+          "cacheReadInputTokens": 627935,
+          "cacheCreationInputTokens": 34668,
+          "webSearchRequests": 0,
+          "costUSD": 0.7284475000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 45,
+          "outputTokens": 9373,
+          "cacheReadInputTokens": 197639,
+          "cacheCreationInputTokens": 30619,
+          "webSearchRequests": 0,
+          "costUSD": 0.31484295,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_expected": 12,
+      "turns": [
+        {
+          "turn_idx": 0,
+          "prompt_preview": "look around. what is this service?",
+          "approx_cost_usd": 0.074242,
+          "turn_tokens": 70760,
+          "n_assistant_text_events": 4,
+          "final_text_len": 582
+        },
+        {
+          "turn_idx": 1,
+          "prompt_preview": "add a /health endpoint that returns {\"status\":\"ok\",\"version\"",
+          "approx_cost_usd": 0.075056,
+          "turn_tokens": 71536,
+          "n_assistant_text_events": 4,
+          "final_text_len": 1491
+        },
+        {
+          "turn_idx": 2,
+          "prompt_preview": "run the tests",
+          "approx_cost_usd": 0.080979,
+          "turn_tokens": 77181,
+          "n_assistant_text_events": 4,
+          "final_text_len": 1646
+        },
+        {
+          "turn_idx": 3,
+          "prompt_preview": "add a test for the new /health endpoint matching the existin",
+          "approx_cost_usd": 0.088566,
+          "turn_tokens": 84413,
+          "n_assistant_text_events": 4,
+          "final_text_len": 2481
+        },
+        {
+          "turn_idx": 4,
+          "prompt_preview": "commit what we have so far using /commit-smart if available,",
+          "approx_cost_usd": 0.095237,
+          "turn_tokens": 90771,
+          "n_assistant_text_events": 4,
+          "final_text_len": 1163
+        },
+        {
+          "turn_idx": 5,
+          "prompt_preview": "the validator module looks suspicious. review it for bugs an",
+          "approx_cost_usd": 0.083437,
+          "turn_tokens": 79524,
+          "n_assistant_text_events": 4,
+          "final_text_len": 1605
+        },
+        {
+          "turn_idx": 6,
+          "prompt_preview": "fix the issues the reviewer flagged",
+          "approx_cost_usd": 0.049,
+          "turn_tokens": 46702,
+          "n_assistant_text_events": 4,
+          "final_text_len": 2842
+        },
+        {
+          "turn_idx": 7,
+          "prompt_preview": "add a POST /users endpoint that creates a user. validate the",
+          "approx_cost_usd": 0.107979,
+          "turn_tokens": 102915,
+          "n_assistant_text_events": 4,
+          "final_text_len": 608
+        },
+        {
+          "turn_idx": 8,
+          "prompt_preview": "write tests for POST /users covering happy path and invalid ",
+          "approx_cost_usd": 0.018015,
+          "turn_tokens": 17170,
+          "n_assistant_text_events": 4,
+          "final_text_len": 2126
+        },
+        {
+          "turn_idx": 9,
+          "prompt_preview": "run all tests",
+          "approx_cost_usd": 0.046003,
+          "turn_tokens": 43846,
+          "n_assistant_text_events": 4,
+          "final_text_len": 10928
+        },
+        {
+          "turn_idx": 10,
+          "prompt_preview": "the auth module is a stub. what would real token validation ",
+          "approx_cost_usd": 0.077424,
+          "turn_tokens": 73793,
+          "n_assistant_text_events": 4,
+          "final_text_len": 3378
+        },
+        {
+          "turn_idx": 11,
+          "prompt_preview": "commit the user endpoint + tests as one commit with a good c",
+          "approx_cost_usd": 0.247353,
+          "turn_tokens": 235753,
+          "n_assistant_text_events": 14,
+          "final_text_len": 8526
+        }
+      ],
+      "delegations": [
+        {
+          "agent": "claude-leverage:test-runner",
+          "tier": "sonnet",
+          "tokens": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cache_read_input_tokens": null,
+          "cache_creation_input_tokens": null,
+          "duration_ms": null,
+          "_raw": {
+            "ts": "2026-05-24T10:04:21Z",
+            "subagent": "claude-leverage:test-runner",
+            "tier": "sonnet",
+            "input_tokens": null,
+            "output_tokens": null,
+            "cache_read_input_tokens": null,
+            "cache_creation_input_tokens": null,
+            "total_tokens": null,
+            "duration_ms": null
+          }
+        },
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cache_read_input_tokens": null,
+          "cache_creation_input_tokens": null,
+          "duration_ms": null,
+          "_raw": {
+            "ts": "2026-05-24T10:04:38Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": null,
+            "output_tokens": null,
+            "cache_read_input_tokens": null,
+            "cache_creation_input_tokens": null,
+            "total_tokens": null,
+            "duration_ms": null
+          }
+        },
+        {
+          "agent": "claude-leverage:test-runner",
+          "tier": "sonnet",
+          "tokens": 8297,
+          "input_tokens": 1,
+          "output_tokens": 214,
+          "cache_read_input_tokens": 7418,
+          "cache_creation_input_tokens": 664,
+          "duration_ms": 20380,
+          "_raw": {
+            "ts": "2026-05-24T10:05:45Z",
+            "subagent": "claude-leverage:test-runner",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 214,
+            "cache_read_input_tokens": 7418,
+            "cache_creation_input_tokens": 664,
+            "total_tokens": 8297,
+            "duration_ms": 20380
+          }
+        },
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": 8488,
+          "input_tokens": 1,
+          "output_tokens": 2101,
+          "cache_read_input_tokens": 6237,
+          "cache_creation_input_tokens": 149,
+          "duration_ms": 60080,
+          "_raw": {
+            "ts": "2026-05-24T10:07:30Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 2101,
+            "cache_read_input_tokens": 6237,
+            "cache_creation_input_tokens": 149,
+            "total_tokens": 8488,
+            "duration_ms": 60080
+          }
+        },
+        {
+          "agent": "claude-leverage:test-runner",
+          "tier": "sonnet",
+          "tokens": 8137,
+          "input_tokens": 1,
+          "output_tokens": 185,
+          "cache_read_input_tokens": 7262,
+          "cache_creation_input_tokens": 689,
+          "duration_ms": 13796,
+          "_raw": {
+            "ts": "2026-05-24T10:08:06Z",
+            "subagent": "claude-leverage:test-runner",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 185,
+            "cache_read_input_tokens": 7262,
+            "cache_creation_input_tokens": 689,
+            "total_tokens": 8137,
+            "duration_ms": 13796
+          }
+        },
+        {
+          "agent": "claude-leverage:git-committer",
+          "tier": "sonnet",
+          "tokens": 9750,
+          "input_tokens": 1,
+          "output_tokens": 234,
+          "cache_read_input_tokens": 9271,
+          "cache_creation_input_tokens": 244,
+          "duration_ms": 54396,
+          "_raw": {
+            "ts": "2026-05-24T10:09:33Z",
+            "subagent": "claude-leverage:git-committer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 234,
+            "cache_read_input_tokens": 9271,
+            "cache_creation_input_tokens": 244,
+            "total_tokens": 9750,
+            "duration_ms": 54396
+          }
+        }
+      ]
+    },
+    {
+      "cell": "long__leveraged__r1",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "runid": "2026-05-24_v0.11.0-long-opus47",
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 404.31,
+      "resolved_model": "claude-opus-4-6[1m]",
+      "plugins": [
+        {
+          "name": "claude-leverage",
+          "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+          "source": "claude-leverage@inline"
+        }
+      ],
+      "is_error": false,
+      "total_cost_usd": 1.1702179000000004,
+      "total_tokens": 1052861,
+      "duration_ms": 402690,
+      "num_internal_turns": 45,
+      "session_usage": {
+        "input": 41,
+        "output": 10983,
+        "cache_read": 1004337,
+        "cache_creation": 37500
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 41,
+          "outputTokens": 10983,
+          "cacheReadInputTokens": 1004337,
+          "cacheCreationInputTokens": 37500,
+          "webSearchRequests": 0,
+          "costUSD": 1.0113235,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        },
+        "claude-sonnet-4-6": {
+          "inputTokens": 24,
+          "outputTokens": 4933,
+          "cacheReadInputTokens": 114458,
+          "cacheCreationInputTokens": 13464,
+          "webSearchRequests": 0,
+          "costUSD": 0.1588944,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000
+        }
+      },
+      "n_turns_expected": 12,
+      "turns": [
+        {
+          "turn_idx": 0,
+          "prompt_preview": "look around. what is this service?",
+          "approx_cost_usd": 0.081649,
+          "turn_tokens": 88873,
+          "n_assistant_text_events": 5,
+          "final_text_len": 999
+        },
+        {
+          "turn_idx": 1,
+          "prompt_preview": "add a /health endpoint that returns {\"status\":\"ok\",\"version\"",
+          "approx_cost_usd": 0.085328,
+          "turn_tokens": 92877,
+          "n_assistant_text_events": 5,
+          "final_text_len": 2289
+        },
+        {
+          "turn_idx": 2,
+          "prompt_preview": "run the tests",
+          "approx_cost_usd": 0.077117,
+          "turn_tokens": 83940,
+          "n_assistant_text_events": 5,
+          "final_text_len": 680
+        },
+        {
+          "turn_idx": 3,
+          "prompt_preview": "add a test for the new /health endpoint matching the existin",
+          "approx_cost_usd": 0.035905,
+          "turn_tokens": 39082,
+          "n_assistant_text_events": 5,
+          "final_text_len": 1508
+        },
+        {
+          "turn_idx": 4,
+          "prompt_preview": "commit what we have so far using /commit-smart if available,",
+          "approx_cost_usd": 0.083426,
+          "turn_tokens": 90807,
+          "n_assistant_text_events": 5,
+          "final_text_len": 3118
+        },
+        {
+          "turn_idx": 5,
+          "prompt_preview": "the validator module looks suspicious. review it for bugs an",
+          "approx_cost_usd": 0.122125,
+          "turn_tokens": 132930,
+          "n_assistant_text_events": 5,
+          "final_text_len": 2361
+        },
+        {
+          "turn_idx": 6,
+          "prompt_preview": "fix the issues the reviewer flagged",
+          "approx_cost_usd": 0.043394,
+          "turn_tokens": 47233,
+          "n_assistant_text_events": 5,
+          "final_text_len": 3537
+        },
+        {
+          "turn_idx": 7,
+          "prompt_preview": "add a POST /users endpoint that creates a user. validate the",
+          "approx_cost_usd": 0.050545,
+          "turn_tokens": 55017,
+          "n_assistant_text_events": 5,
+          "final_text_len": 8747
+        },
+        {
+          "turn_idx": 8,
+          "prompt_preview": "write tests for POST /users covering happy path and invalid ",
+          "approx_cost_usd": 0.144791,
+          "turn_tokens": 157602,
+          "n_assistant_text_events": 5,
+          "final_text_len": 1651
+        },
+        {
+          "turn_idx": 9,
+          "prompt_preview": "run all tests",
+          "approx_cost_usd": 0.153708,
+          "turn_tokens": 167308,
+          "n_assistant_text_events": 5,
+          "final_text_len": 979
+        },
+        {
+          "turn_idx": 10,
+          "prompt_preview": "the auth module is a stub. what would real token validation ",
+          "approx_cost_usd": 0.083761,
+          "turn_tokens": 91172,
+          "n_assistant_text_events": 5,
+          "final_text_len": 625
+        },
+        {
+          "turn_idx": 11,
+          "prompt_preview": "commit the user endpoint + tests as one commit with a good c",
+          "approx_cost_usd": 0.208469,
+          "turn_tokens": 226913,
+          "n_assistant_text_events": 7,
+          "final_text_len": 5927
+        }
+      ],
+      "delegations": [
+        {
+          "agent": "claude-leverage:test-runner",
+          "tier": "sonnet",
+          "tokens": 9607,
+          "input_tokens": 1,
+          "output_tokens": 167,
+          "cache_read_input_tokens": 8783,
+          "cache_creation_input_tokens": 656,
+          "duration_ms": 45225,
+          "_raw": {
+            "ts": "2026-05-24T10:11:51Z",
+            "subagent": "claude-leverage:test-runner",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 167,
+            "cache_read_input_tokens": 8783,
+            "cache_creation_input_tokens": 656,
+            "total_tokens": 9607,
+            "duration_ms": 45225
+          }
+        },
+        {
+          "agent": "claude-leverage:code-reviewer",
+          "tier": "sonnet",
+          "tokens": 8803,
+          "input_tokens": 1,
+          "output_tokens": 1693,
+          "cache_read_input_tokens": 6370,
+          "cache_creation_input_tokens": 739,
+          "duration_ms": 51839,
+          "_raw": {
+            "ts": "2026-05-24T10:13:48Z",
+            "subagent": "claude-leverage:code-reviewer",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 1693,
+            "cache_read_input_tokens": 6370,
+            "cache_creation_input_tokens": 739,
+            "total_tokens": 8803,
+            "duration_ms": 51839
+          }
+        },
+        {
+          "agent": "claude-leverage:test-runner",
+          "tier": "sonnet",
+          "tokens": 8414,
+          "input_tokens": 1,
+          "output_tokens": 214,
+          "cache_read_input_tokens": 7532,
+          "cache_creation_input_tokens": 667,
+          "duration_ms": 32782,
+          "_raw": {
+            "ts": "2026-05-24T10:15:45Z",
+            "subagent": "claude-leverage:test-runner",
+            "tier": "sonnet",
+            "input_tokens": 1,
+            "output_tokens": 214,
+            "cache_read_input_tokens": 7532,
+            "cache_creation_input_tokens": 667,
+            "total_tokens": 8414,
+            "duration_ms": 32782
+          }
+        }
+      ]
+    }
+  ],
+  "updated_at": "2026-05-24T10:16:37Z",
+  "total_cost_usd_so_far": 3.2357,
+  "finished_at": "2026-05-24T10:16:37Z"
+}

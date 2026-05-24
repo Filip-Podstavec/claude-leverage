@@ -1,0 +1,165 @@
+{
+  "cell": "warm__leveraged__r1",
+  "condition": "leveraged",
+  "run_idx": 1,
+  "runid": "2026-05-24_v0.11.0-warm-opus47",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 85.54,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:context-gatherer",
+    "claude-leverage:test-runner",
+    "claude-leverage:git-committer",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:git-committer-quick"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "total_cost_usd": 0.26741955,
+  "total_tokens": 77318,
+  "duration_ms": 84235,
+  "num_internal_turns": 5,
+  "session_usage": {
+    "input": 7,
+    "output": 1857,
+    "cache_read": 53910,
+    "cache_creation": 21544
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 7,
+      "outputTokens": 1857,
+      "cacheReadInputTokens": 53910,
+      "cacheCreationInputTokens": 21544,
+      "webSearchRequests": 0,
+      "costUSD": 0.20806500000000003,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-sonnet-4-6": {
+      "inputTokens": 5,
+      "outputTokens": 1934,
+      "cacheReadInputTokens": 16586,
+      "cacheCreationInputTokens": 6761,
+      "webSearchRequests": 0,
+      "costUSD": 0.059354550000000006,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "n_turns_quality_passed": 1,
+  "n_turns_expected": 4,
+  "turns": [
+    {
+      "turn_id": "W1.code-review",
+      "turn_idx": 0,
+      "approx_cost_usd": 0.108211,
+      "turn_tokens": 37294,
+      "usage": {
+        "input": 3,
+        "output": 41,
+        "cache_read": 34783,
+        "cache_creation": 2467
+      },
+      "n_assistant_text_events": 2,
+      "quality_pass": true,
+      "quality_reasons": [
+        "OK required: /users\\.py/",
+        "OK any-of matched: ['sql']"
+      ],
+      "final_text_len": 2430
+    },
+    {
+      "turn_id": "W2.context-gather",
+      "turn_idx": 1,
+      "approx_cost_usd": 0.027443,
+      "turn_tokens": 9458,
+      "usage": {
+        "input": 4,
+        "output": 2,
+        "cache_read": 0,
+        "cache_creation": 9452
+      },
+      "n_assistant_text_events": 2,
+      "quality_pass": false,
+      "quality_reasons": [
+        "MISSING required: /status\\.py/",
+        "OK required: /require_auth/",
+        "MISSING required: /VERSION/"
+      ],
+      "final_text_len": 1030
+    },
+    {
+      "turn_id": "W3.tiny-commit",
+      "turn_idx": 2,
+      "approx_cost_usd": 0.033072,
+      "turn_tokens": 11398,
+      "usage": {
+        "input": 2,
+        "output": 8,
+        "cache_read": 9452,
+        "cache_creation": 1936
+      },
+      "n_assistant_text_events": 2,
+      "quality_pass": false,
+      "quality_reasons": [
+        "FAIL commits_added=0, expected 1",
+        "FAIL: no commit was created"
+      ],
+      "final_text_len": 1000
+    },
+    {
+      "turn_id": "W4.final-review",
+      "turn_idx": 3,
+      "approx_cost_usd": 0.098694,
+      "turn_tokens": 34014,
+      "usage": {
+        "input": 3,
+        "output": 135,
+        "cache_read": 30515,
+        "cache_creation": 3361
+      },
+      "n_assistant_text_events": 3,
+      "quality_pass": false,
+      "quality_reasons": [
+        "MISSING required: /README/"
+      ],
+      "final_text_len": 7768
+    }
+  ],
+  "delegations": [
+    {
+      "agent": "claude-leverage:code-reviewer",
+      "tier": "sonnet",
+      "tokens": 7982,
+      "input_tokens": 1,
+      "output_tokens": 1220,
+      "cache_read_input_tokens": 6166,
+      "cache_creation_input_tokens": 595,
+      "duration_ms": 43226,
+      "_raw": {
+        "ts": "2026-05-24T09:55:06Z",
+        "subagent": "claude-leverage:code-reviewer",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 1220,
+        "cache_read_input_tokens": 6166,
+        "cache_creation_input_tokens": 595,
+        "total_tokens": 7982,
+        "duration_ms": 43226
+      }
+    }
+  ]
+}

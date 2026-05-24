@@ -1,0 +1,134 @@
+{
+  "cell": "long__baseline__r1",
+  "condition": "baseline",
+  "run_idx": 1,
+  "runid": "2026-05-24_v0.11.0-long-opus47",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 146.64,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "plugins": [],
+  "is_error": false,
+  "total_cost_usd": 0.4482137500000001,
+  "total_tokens": 359897,
+  "duration_ms": 145203,
+  "num_internal_turns": 23,
+  "session_usage": {
+    "input": 19,
+    "output": 5075,
+    "cache_read": 341145,
+    "cache_creation": 13658
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 27,
+      "outputTokens": 6086,
+      "cacheReadInputTokens": 371445,
+      "cacheCreationInputTokens": 17633,
+      "webSearchRequests": 0,
+      "costUSD": 0.4482137500000001,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "n_turns_expected": 12,
+  "turns": [
+    {
+      "turn_idx": 0,
+      "prompt_preview": "look around. what is this service?",
+      "approx_cost_usd": 0.01719,
+      "turn_tokens": 16978,
+      "n_assistant_text_events": 1,
+      "final_text_len": 38
+    },
+    {
+      "turn_idx": 1,
+      "prompt_preview": "add a /health endpoint that returns {\"status\":\"ok\",\"version\"",
+      "approx_cost_usd": 0.01719,
+      "turn_tokens": 16978,
+      "n_assistant_text_events": 1,
+      "final_text_len": 253
+    },
+    {
+      "turn_idx": 2,
+      "prompt_preview": "run the tests",
+      "approx_cost_usd": 0.017541,
+      "turn_tokens": 17325,
+      "n_assistant_text_events": 1,
+      "final_text_len": 148
+    },
+    {
+      "turn_idx": 3,
+      "prompt_preview": "add a test for the new /health endpoint matching the existin",
+      "approx_cost_usd": 0.017541,
+      "turn_tokens": 17325,
+      "n_assistant_text_events": 1,
+      "final_text_len": 99
+    },
+    {
+      "turn_idx": 4,
+      "prompt_preview": "commit what we have so far using /commit-smart if available,",
+      "approx_cost_usd": 0.017541,
+      "turn_tokens": 17325,
+      "n_assistant_text_events": 1,
+      "final_text_len": 434
+    },
+    {
+      "turn_idx": 5,
+      "prompt_preview": "the validator module looks suspicious. review it for bugs an",
+      "approx_cost_usd": 0.017541,
+      "turn_tokens": 17325,
+      "n_assistant_text_events": 1,
+      "final_text_len": 204
+    },
+    {
+      "turn_idx": 6,
+      "prompt_preview": "fix the issues the reviewer flagged",
+      "approx_cost_usd": 0.017541,
+      "turn_tokens": 17325,
+      "n_assistant_text_events": 1,
+      "final_text_len": 415
+    },
+    {
+      "turn_idx": 7,
+      "prompt_preview": "add a POST /users endpoint that creates a user. validate the",
+      "approx_cost_usd": 0.017541,
+      "turn_tokens": 17325,
+      "n_assistant_text_events": 1,
+      "final_text_len": 495
+    },
+    {
+      "turn_idx": 8,
+      "prompt_preview": "write tests for POST /users covering happy path and invalid ",
+      "approx_cost_usd": 0.018975,
+      "turn_tokens": 18741,
+      "n_assistant_text_events": 1,
+      "final_text_len": 1243
+    },
+    {
+      "turn_idx": 9,
+      "prompt_preview": "run all tests",
+      "approx_cost_usd": 0.019667,
+      "turn_tokens": 19424,
+      "n_assistant_text_events": 1,
+      "final_text_len": 247
+    },
+    {
+      "turn_idx": 10,
+      "prompt_preview": "the auth module is a stub. what would real token validation ",
+      "approx_cost_usd": 0.020252,
+      "turn_tokens": 20002,
+      "n_assistant_text_events": 1,
+      "final_text_len": 2588
+    },
+    {
+      "turn_idx": 11,
+      "prompt_preview": "commit the user endpoint + tests as one commit with a good c",
+      "approx_cost_usd": 0.249692,
+      "turn_tokens": 246612,
+      "n_assistant_text_events": 11,
+      "final_text_len": 8176
+    }
+  ],
+  "delegations": []
+}

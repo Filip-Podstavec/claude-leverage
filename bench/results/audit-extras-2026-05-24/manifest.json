@@ -1,0 +1,383 @@
+{
+  "runid": "audit-extras-2026-05-24",
+  "n_runs": 2,
+  "fixture": "warm-session",
+  "tasks": [
+    "E1.repo-explorer",
+    "E2.research-agent"
+  ],
+  "cells": [
+    {
+      "cell": "E1.repo-explorer__baseline__r0",
+      "task": "E1.repo-explorer",
+      "condition": "baseline",
+      "run_idx": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 8.86,
+      "total_cost_usd": 0.05114275,
+      "total_tokens": 32865,
+      "tokens": {
+        "input": 4,
+        "output": 178,
+        "cache_read": 27408,
+        "cache_creation": 5275
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 178,
+          "cacheReadInputTokens": 27408,
+          "cacheCreationInputTokens": 5275,
+          "webSearchRequests": 0,
+          "costUSD": 0.05114275,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 220
+    },
+    {
+      "cell": "E1.repo-explorer__baseline__r1",
+      "task": "E1.repo-explorer",
+      "condition": "baseline",
+      "run_idx": 1,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 6.59,
+      "total_cost_usd": 0.050149,
+      "total_tokens": 32802,
+      "tokens": {
+        "input": 4,
+        "output": 146,
+        "cache_read": 27408,
+        "cache_creation": 5244
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 146,
+          "cacheReadInputTokens": 27408,
+          "cacheCreationInputTokens": 5244,
+          "webSearchRequests": 0,
+          "costUSD": 0.050149,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 220
+    },
+    {
+      "cell": "E1.repo-explorer__leveraged__r0",
+      "task": "E1.repo-explorer",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 12.18,
+      "total_cost_usd": 0.053020250000000005,
+      "total_tokens": 33936,
+      "tokens": {
+        "input": 4,
+        "output": 168,
+        "cache_read": 28213,
+        "cache_creation": 5551
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 168,
+          "cacheReadInputTokens": 28213,
+          "cacheCreationInputTokens": 5551,
+          "webSearchRequests": 0,
+          "costUSD": 0.053020250000000005,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 214
+    },
+    {
+      "cell": "E1.repo-explorer__leveraged__r1",
+      "task": "E1.repo-explorer",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 5.59,
+      "total_cost_usd": 0.1186565,
+      "total_tokens": 33887,
+      "tokens": {
+        "input": 4,
+        "output": 146,
+        "cache_read": 16673,
+        "cache_creation": 17064
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 146,
+          "cacheReadInputTokens": 16673,
+          "cacheCreationInputTokens": 17064,
+          "webSearchRequests": 0,
+          "costUSD": 0.1186565,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 220
+    },
+    {
+      "cell": "E1.repo-explorer__extras-on__r0",
+      "task": "E1.repo-explorer",
+      "condition": "extras-on",
+      "run_idx": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 13.37,
+      "total_cost_usd": 0.12019225000000001,
+      "total_tokens": 34111,
+      "tokens": {
+        "input": 4,
+        "output": 179,
+        "cache_read": 16757,
+        "cache_creation": 17171
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 179,
+          "cacheReadInputTokens": 16757,
+          "cacheCreationInputTokens": 17171,
+          "webSearchRequests": 0,
+          "costUSD": 0.12019225000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 245
+    },
+    {
+      "cell": "E1.repo-explorer__extras-on__r1",
+      "task": "E1.repo-explorer",
+      "condition": "extras-on",
+      "run_idx": 1,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 9.61,
+      "total_cost_usd": 0.11997350000000001,
+      "total_tokens": 34109,
+      "tokens": {
+        "input": 4,
+        "output": 168,
+        "cache_read": 16757,
+        "cache_creation": 17180
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 4,
+          "outputTokens": 168,
+          "cacheReadInputTokens": 16757,
+          "cacheCreationInputTokens": 17180,
+          "webSearchRequests": 0,
+          "costUSD": 0.11997350000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 214
+    },
+    {
+      "cell": "E2.research-agent__baseline__r0",
+      "task": "E2.research-agent",
+      "condition": "baseline",
+      "run_idx": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 26.25,
+      "total_cost_usd": 0.08953749999999999,
+      "total_tokens": 51245,
+      "tokens": {
+        "input": 5,
+        "output": 1103,
+        "cache_read": 43725,
+        "cache_creation": 6412
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 1103,
+          "cacheReadInputTokens": 43725,
+          "cacheCreationInputTokens": 6412,
+          "webSearchRequests": 0,
+          "costUSD": 0.08953749999999999,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 1771
+    },
+    {
+      "cell": "E2.research-agent__baseline__r1",
+      "task": "E2.research-agent",
+      "condition": "baseline",
+      "run_idx": 1,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 25.68,
+      "total_cost_usd": 0.09033749999999999,
+      "total_tokens": 51277,
+      "tokens": {
+        "input": 5,
+        "output": 1135,
+        "cache_read": 43725,
+        "cache_creation": 6412
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 1135,
+          "cacheReadInputTokens": 43725,
+          "cacheCreationInputTokens": 6412,
+          "webSearchRequests": 0,
+          "costUSD": 0.09033749999999999,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 1991
+    },
+    {
+      "cell": "E2.research-agent__leveraged__r0",
+      "task": "E2.research-agent",
+      "condition": "leveraged",
+      "run_idx": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 28.05,
+      "total_cost_usd": 0.16366424999999998,
+      "total_tokens": 70266,
+      "tokens": {
+        "input": 6,
+        "output": 1018,
+        "cache_read": 51231,
+        "cache_creation": 18011
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 6,
+          "outputTokens": 1018,
+          "cacheReadInputTokens": 51231,
+          "cacheCreationInputTokens": 18011,
+          "webSearchRequests": 0,
+          "costUSD": 0.16366424999999998,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 1698
+    },
+    {
+      "cell": "E2.research-agent__leveraged__r1",
+      "task": "E2.research-agent",
+      "condition": "leveraged",
+      "run_idx": 1,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 34.2,
+      "total_cost_usd": 0.09186625,
+      "total_tokens": 52867,
+      "tokens": {
+        "input": 5,
+        "output": 1099,
+        "cache_read": 45070,
+        "cache_creation": 6693
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 1099,
+          "cacheReadInputTokens": 45070,
+          "cacheCreationInputTokens": 6693,
+          "webSearchRequests": 0,
+          "costUSD": 0.09186625,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 1722
+    },
+    {
+      "cell": "E2.research-agent__extras-on__r0",
+      "task": "E2.research-agent",
+      "condition": "extras-on",
+      "run_idx": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 27.76,
+      "total_cost_usd": 0.14773150000000002,
+      "total_tokens": 52314,
+      "tokens": {
+        "input": 5,
+        "output": 780,
+        "cache_read": 33713,
+        "cache_creation": 17816
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 5,
+          "outputTokens": 780,
+          "cacheReadInputTokens": 33713,
+          "cacheCreationInputTokens": 17816,
+          "webSearchRequests": 0,
+          "costUSD": 0.14773150000000002,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 1566
+    },
+    {
+      "cell": "E2.research-agent__extras-on__r1",
+      "task": "E2.research-agent",
+      "condition": "extras-on",
+      "run_idx": 1,
+      "exit_code": 0,
+      "timed_out": false,
+      "wallclock_s": 25.85,
+      "total_cost_usd": 0.16452725,
+      "total_tokens": 70727,
+      "tokens": {
+        "input": 6,
+        "output": 995,
+        "cache_read": 51507,
+        "cache_creation": 18219
+      },
+      "model_usage": {
+        "claude-opus-4-6[1m]": {
+          "inputTokens": 6,
+          "outputTokens": 995,
+          "cacheReadInputTokens": 51507,
+          "cacheCreationInputTokens": 18219,
+          "webSearchRequests": 0,
+          "costUSD": 0.16452725,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000
+        }
+      },
+      "quality_pass": true,
+      "final_text_len": 1668
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "cell": "T3__leveraged__r1",
+  "task": "T3",
+  "task_name": "commit-trivial",
+  "condition": "leveraged",
+  "run_idx": 1,
+  "runid": "2026-05-24_v0.11.0-cold-opus47",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 23.97,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:git-committer-quick",
+    "claude-leverage:git-committer",
+    "claude-leverage:test-runner",
+    "claude-leverage:context-gatherer",
+    "claude-leverage:code-reviewer"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 6,
+    "output": 541,
+    "cache_read": 52054,
+    "cache_creation": 18100,
+    "total": 70701
+  },
+  "total_cost_usd": 0.152707,
+  "duration_ms": 22830,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 6,
+      "outputTokens": 541,
+      "cacheReadInputTokens": 52054,
+      "cacheCreationInputTokens": 18100,
+      "webSearchRequests": 0,
+      "costUSD": 0.152707,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "delegations": [],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK commits_added=1",
+    "OK subject: 'fix: correct typo in README License heading'",
+    "OK files_changed=1"
+  ],
+  "final_text_len": 80
+}

@@ -1,0 +1,61 @@
+{
+  "cell": "T1__leveraged__r2",
+  "task": "T1",
+  "task_name": "code-review-medium",
+  "condition": "leveraged",
+  "run_idx": 2,
+  "runid": "2026-05-24_v0.11.0-cold-opus47",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 25.36,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "agents_available": [
+    "general-purpose",
+    "statusline-setup",
+    "Explore",
+    "Plan",
+    "claude-code-guide",
+    "claude-leverage:git-committer",
+    "claude-leverage:code-reviewer",
+    "claude-leverage:git-committer-quick",
+    "claude-leverage:test-runner",
+    "claude-leverage:context-gatherer"
+  ],
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "error_message": "",
+  "tokens": {
+    "input": 3,
+    "output": 904,
+    "cache_read": 16666,
+    "cache_creation": 17684,
+    "total": 35257
+  },
+  "total_cost_usd": 0.14147300000000002,
+  "duration_ms": 24054,
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 3,
+      "outputTokens": 904,
+      "cacheReadInputTokens": 16666,
+      "cacheCreationInputTokens": 17684,
+      "webSearchRequests": 0,
+      "costUSD": 0.14147300000000002,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "delegations": [],
+  "quality_pass": true,
+  "quality_reasons": [
+    "OK required: /users\\.py/",
+    "OK any-of matched: ['sql', 'injection', 'f-?string']"
+  ],
+  "final_text_len": 2604
+}

@@ -1,0 +1,31 @@
+{
+  "cell": "E1.repo-explorer__extras-on__r1",
+  "task": "E1.repo-explorer",
+  "condition": "extras-on",
+  "run_idx": 1,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 9.61,
+  "total_cost_usd": 0.11997350000000001,
+  "total_tokens": 34109,
+  "tokens": {
+    "input": 4,
+    "output": 168,
+    "cache_read": 16757,
+    "cache_creation": 17180
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 4,
+      "outputTokens": 168,
+      "cacheReadInputTokens": 16757,
+      "cacheCreationInputTokens": 17180,
+      "webSearchRequests": 0,
+      "costUSD": 0.11997350000000001,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 214
+}

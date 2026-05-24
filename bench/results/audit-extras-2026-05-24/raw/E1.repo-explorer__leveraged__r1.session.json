@@ -1,0 +1,31 @@
+{
+  "cell": "E1.repo-explorer__leveraged__r1",
+  "task": "E1.repo-explorer",
+  "condition": "leveraged",
+  "run_idx": 1,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 5.59,
+  "total_cost_usd": 0.1186565,
+  "total_tokens": 33887,
+  "tokens": {
+    "input": 4,
+    "output": 146,
+    "cache_read": 16673,
+    "cache_creation": 17064
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 4,
+      "outputTokens": 146,
+      "cacheReadInputTokens": 16673,
+      "cacheCreationInputTokens": 17064,
+      "webSearchRequests": 0,
+      "costUSD": 0.1186565,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 220
+}
