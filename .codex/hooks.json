@@ -27,6 +27,15 @@
             "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/track-delegations.sh"
           }
         ]
+      },
+      {
+        "matcher": "^Write$|^Edit$|^MultiEdit$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/ai-first-nudge.sh"
+          }
+        ]
       }
     ]
   }

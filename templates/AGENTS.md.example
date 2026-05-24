@@ -1,0 +1,107 @@
+# AGENTS.md
+
+> **Drop this into the root of any project where you want claude-leverage's
+> conventions to apply.** Edit the "Project" section first; the rest of the
+> template is meant to be kept as-is.
+
+## Project
+
+<!-- One paragraph: what this repo is, who runs it, what tech stack. Keep it under 5 lines. -->
+
+`<project-name>` is `<one-line purpose>`. Stack: `<languages, primary frameworks>`.
+Primary runtime: `<production env if relevant>`.
+
+## Repo layout
+
+<!-- 5–15 lines max. Top-level dirs only. Add per-directory AGENTS.md inside
+     non-trivial modules instead of expanding this list. -->
+
+```
+src/                 Main code
+src/<module>/        <one-line purpose per non-trivial module>
+tests/               Test suite (or co-located *_test.py, see "Module organization")
+scripts/             Build, deploy, one-off ops
+docs/                Long-form docs / design specs
+```
+
+## Build / test commands
+
+<!-- Anything an agent can't infer from the manifest files. -->
+
+```bash
+<install-cmd>                 # e.g. npm ci / poetry install / cargo fetch
+<test-cmd>                    # e.g. pytest tests/ -v
+<lint-cmd>                    # e.g. ruff check . / eslint .
+<build-cmd>                   # e.g. npm run build / cargo build --release
+```
+
+## Code conventions
+
+These are the conventions claude-leverage documents and enforces (see the
+`AGENTS.md` of the claude-leverage repo for the full rationale).
+
+### AIDEV-* anchor comments
+
+Three grep-able prefixes for load-bearing facts in code:
+
+- `AIDEV-NOTE:` — why this constraint exists / non-obvious invariant
+- `AIDEV-TODO:` — known follow-up with enough context to resume
+- `AIDEV-QUESTION:` — genuine unknown for the next person (or agent)
+
+Rules: ≤120 chars per line, all-caps prefix. **Before editing a module, run
+`grep -rn 'AIDEV-' <module>` first.** Do not silently remove anchors —
+removing one requires an explicit decision in the commit / PR message.
+
+The `ai-first-nudge` PostToolUse hook from claude-leverage prints a
+non-blocking suggestion when ≥50 net-new LOC ship in a single file without
+any anchor.
+
+### Structured JSON-lines logging
+
+When code emits logs that an agent will later read:
+
+```json
+{"ts":"2026-01-01T12:00:00.000Z","level":"info","trace_id":"a1b2","span_id":"4d5e","service":"<svc>","event":"<snake_case>","attrs":{"<key>":"<value>"}}
+```
+
+Required fields: `ts`, `level`, `trace_id`, `span_id`, `service`, `event`,
+`attrs`. **Do not interpolate values into messages**: put `user_id` in
+`attrs.user_id`, not in the `message` string.
+
+### Per-directory AGENTS.md
+
+For modules with non-obvious public surface or gotchas, drop an `AGENTS.md`
+at the module root with: what lives here, public surface, gotchas, test
+command. Codex merges nested AGENTS.md from git root down to cwd
+automatically.
+
+### Module organization
+
+- Co-locate tests with code (`foo.py` next to `foo_test.py`) where the
+  language/framework supports it.
+- One concept per module, thin entrypoint exporting the public surface.
+- Predictable file layout, documented above in "Repo layout".
+
+## Security
+
+<!-- Project-specific guardrails. Always-on hooks from claude-leverage cover
+     secrets in staged diffs and dangerous git operations independently. -->
+
+- Never commit secrets, including in test fixtures. Use placeholder
+  strings the `block-secrets-precommit` hook recognizes as safe (or add
+  the `claude-leverage-allow-secret` marker comment per line if you must).
+- Run `/security-review` before committing changes in:
+  `<list sensitive paths: auth/, crypto/, routes/, payment/, templates/, …>`.
+
+## Tool-specific notes
+
+<!-- Optional. Most guidance should be tool-agnostic; put per-tool tips
+     here only when truly necessary. -->
+
+### Claude Code
+
+<!-- e.g. "Use plan mode for migrations that span 3+ files." -->
+
+### Codex
+
+<!-- e.g. "approval mode = 'on-request' for this repo (set in .codex/config.toml)." -->

@@ -24,6 +24,15 @@
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/track-delegations.sh"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/ai-first-nudge.sh"
+          }
+        ]
       }
     ]
   }
