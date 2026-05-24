@@ -3,13 +3,16 @@ name: stack-check
 description: |
   Verify that Claude Code, Codex CLI, this plugin, and the CLI deps
   required by claude-leverage hooks/skills are at their expected minimum
-  versions per stack.toml. Read-only — reports status and update commands;
-  never installs anything. Touches the freshness timestamp on success so
-  the SessionStart `stack-freshness` hook stays quiet for the next
-  N days (default 30).
+  versions per stack.toml. Also flags stale AIDEV-TODO/QUESTION anchors
+  and sanity-checks AGENTS.md size + structure in the current repo.
+  Read-only — reports status and update commands; never installs anything.
+  Touches the freshness timestamp on success so the SessionStart
+  `stack-freshness` hook stays quiet for the next N days (default 30).
 allowed-tools:
   - Read
   - Write
+  - Grep
+  - Glob
   - Bash(claude --version)
   - Bash(codex --version)
   - Bash(git --version)
@@ -25,6 +28,9 @@ allowed-tools:
   - Bash(date:*)
   - Bash(test:*)
   - Bash(mkdir:*)
+  - Bash(git rev-parse:*)
+  - Bash(wc:*)
+  - Bash(stat:*)
   - WebFetch
 ---
 
@@ -88,14 +94,68 @@ quiet for the next N days.
      `min_version` in stack.toml is hand-maintained: bump it when this
      plugin starts depending on a feature only present in a newer CC.
 
-5. **Emit the Markdown table.** Tier the rows: required first, then
-   optional. Required-failing rows go in bold; required-ok rows plain.
+5. **Walk the current repo for AIDEV anchor health** (if cwd is inside
+   a git repo). Grep `git rev-parse --show-toplevel` for
+   `AIDEV-(TODO|QUESTION):` matches, group by age:
+   - "fresh" (anchor on a file modified in the last 30 days)
+   - "aging" (30–90 days)
+   - "stale" (>90 days)
+   Use `git log -1 --format=%cI -- <file>` for last-modified
+   timestamps. Cap walk at 5000 files; skip the bench archive, vendor
+   dirs, node_modules, __pycache__, .git.
 
-6. **Reset the timestamp.** Only if no row failed with an *error*
+   Reported after the version table:
+
+   ```markdown
+   ## AIDEV anchors (current repo: <name>)
+
+   - 14 AIDEV-TODO total: 3 fresh, 8 aging, **3 stale (>90d)**
+   - 5 AIDEV-QUESTION total: 1 fresh, 2 aging, **2 stale (>90d)**
+
+   Stale anchors (consider resolving or removing):
+   - `src/billing/charge.py:47` — AIDEV-TODO (last touched 2025-12-03)
+   - `src/auth/middleware.py:89` — AIDEV-QUESTION (last touched 2025-11-15)
+     ...
+   ```
+
+   If not in a git repo, skip this section silently.
+
+6. **Sanity-check AGENTS.md** (if present in cwd or repo root):
+   - File size: warn if > 32 KiB (Codex hard cap; content beyond is
+     silently dropped).
+   - Broken `@<path>` imports: grep for `^@` lines, verify each
+     referenced file exists relative to the importer.
+   - Stale file references: extract `path/to/file.ext`-shaped strings
+     from the body and check existence (best-effort; lots of false
+     positives, so report only the obvious ones — e.g. when AGENTS.md
+     mentions `scripts/foo.sh` and `scripts/foo.sh` does not exist).
+   Per-directory AGENTS.md files (`**/AGENTS.md`, depth ≤ 3) get the
+   same size check.
+
+   Reported after the anchors section:
+
+   ```markdown
+   ## AGENTS.md sanity
+
+   - `AGENTS.md` — 4.2 KiB, ok
+   - `src/billing/AGENTS.md` — 1.1 KiB, ok
+   - `src/api/AGENTS.md` — **38.4 KiB, over Codex 32 KiB cap** (Codex
+     will silently drop content beyond byte 32768; consider splitting)
+   - Broken imports: _none_
+   - Possibly stale references: 1 (`scripts/old_runner.sh` mentioned
+     but not found)
+   ```
+
+7. **Emit the Markdown report** combining version table + anchors +
+   AGENTS.md sanity. Tier the version rows: required first, then
+   optional. Required-failing rows in bold.
+
+8. **Reset the timestamp.** Only if no row failed with an *error*
    (process crashed, network exception). A failure status (outdated /
-   missing) is information, not an error — reset the timestamp.
-   `touch <state_dir>/.last-stack-check` writes mtime; we write the
-   epoch into the file body too (the hook reads from the body).
+   missing / stale anchors / oversized AGENTS.md) is information, not
+   an error — reset the timestamp. `touch <state_dir>/.last-stack-check`
+   writes mtime; we write the epoch into the file body too (the hook
+   reads from the body).
 
 ## Hard rules
 
@@ -118,6 +178,12 @@ quiet for the next N days.
 - `CLAUDE_LEVERAGE_FRESHNESS_DAYS=0` — disable the SessionStart nudge
   entirely.
 - `CLAUDE_LEVERAGE_STATE_DIR=<path>` — override the state directory.
+- `CLAUDE_LEVERAGE_ANCHOR_STALE_DAYS=N` — change the "stale" threshold
+  for AIDEV-TODO/QUESTION (default 90).
+- `CLAUDE_LEVERAGE_SKIP_ANCHOR_AUDIT=1` — skip the AIDEV anchor walk
+  entirely (useful when running outside any project repo).
+- `CLAUDE_LEVERAGE_SKIP_AGENTS_MD_AUDIT=1` — skip the AGENTS.md
+  sanity pass.
 
 ## Codex parity
 
