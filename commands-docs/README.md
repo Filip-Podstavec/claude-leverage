@@ -1,31 +1,51 @@
 # Commands
 
-Slash commands are `.md` files that define reusable prompts invoked with `/<command-name>` in Claude Code.
+Claude Code slash commands shipped by `claude-leverage`. Each command is a
+`.md` file invoked with `/<name>` in any Claude Code session.
+
+This `commands-docs/` directory exists as a sibling of `commands/` (not inside
+it) because Claude Code's plugin loader registers every `*.md` under
+`commands/` as a slash command — a `README.md` inside `commands/` would
+become a phantom `/README` command. Same pattern as `agents-docs/`.
 
 ## Install
+
+The plugin install registers these automatically. For manual / standalone:
 
 ```bash
 # User scope (available in all projects)
 mkdir -p ~/.claude/commands
-cp <command-file>.md ~/.claude/commands/
+cp commands/*.md ~/.claude/commands/
 
-# Project scope (committed to repo)
+# Project scope
 mkdir -p .claude/commands
-cp <command-file>.md .claude/commands/
+cp commands/*.md .claude/commands/
 ```
 
-After installing, the command is available as `/<filename>` in any session. Run `/commands` to reload without restarting.
+After install, the command is available as `/<filename>`. Run `/commands` to
+reload without restarting.
 
-## Available commands (default install)
+## Available commands
 
-- [`commit-smart.md`](commit-smart.md) - Three-tier commit routing: ultra-trivial → Haiku `git-committer-quick`, trivial → main session inline, non-trivial → Sonnet `git-committer` subagent. Falls through gracefully if cheaper tiers not installed.
-- [`code-review.md`](code-review.md) - Scope-conditional review delegation. Non-trivial scope (3+ files OR 50+ lines) → `code-reviewer` subagent (Sonnet); trivial scope → inline review. Optionally passes session decisions to subagent so review does not re-litigate settled choices. Requires `code-reviewer` agent.
-- [`test.md`](test.md) - Delegates test execution to the `test-runner` subagent and orchestrates user-confirmed fixes in the main session. Requires `test-runner` agent.
-- [`gather-context.md`](gather-context.md) - Pre-fetches implementation context via the `context-gatherer` subagent (Haiku) before non-trivial implementation. Returns structured package; main session uses it to begin coding without exploring itself. Requires `context-gatherer` agent.
-- [`install-snippets.md`](install-snippets.md) - Interactive installer for the CLAUDE.md routing snippets in `claude-md-snippets/`. Closes the gap that Claude Code plugins do not auto-install CLAUDE.md content. Appends selected snippets to user-level or project CLAUDE.md with marker comments for duplicate detection.
-- [`leverage-stats.md`](leverage-stats.md) - Reads the `track-delegations` log at `~/.claude/claude-leverage-stats.jsonl` and prints lifetime totals, breakdown by tier (Sonnet/Haiku/other) and subagent, plus last-7-days activity. Read-only observability — answers "did the routing actually save anything?".
+- [`commit-smart.md`](../commands/commit-smart.md) — Inline secret scan +
+  Conventional Commits message + push, all in the main session. No subagent
+  dispatch (the v0.x benchmark verdict on inline-vs-delegate for commits).
+- [`flaky-test.md`](../commands/flaky-test.md) — Delegates to the
+  `flaky-test-isolator` subagent with target, run count, and timeout.
+  Validates inputs and applies caps before delegation.
+- [`install-snippets.md`](../commands/install-snippets.md) — Interactive
+  installer for any CLAUDE.md routing snippets in `claude-md-snippets/`.
+  Idempotent — detects drift, offers update-in-place. (Default install ships
+  no snippets in v1.0.0.)
+- [`leverage-stats.md`](../commands/leverage-stats.md) — Read-only viewer
+  over `~/.claude/claude-leverage-stats.jsonl` (written by the
+  `track-delegations` hook). Shows lifetime totals, tier breakdown, last-7d
+  activity. Useful to see whether subagents are actually getting invoked.
 
-## Extras (opt-in) — see [`../extras/`](../extras/README.md)
+## Coming in later phases (per docs/specs/2026-05-24-pivot/)
 
-- `/flaky-test` (`extras/commands/flaky-test.md`) - requires `flaky-test-isolator` extra
-- `/docs-sync` (`extras/commands/docs-sync.md`) - requires `docs-updater` extra
+- `/security-review` — paired with `agents/security-reviewer.md`.
+- `/repo-map`, `/process-diagram` — mermaid generators.
+- `/stack-check` — 30-day stack-freshness check.
+- The above will land as skills (cross-tool portable via `agentskills.io`
+  SKILL.md spec) under `skills/`, not as additional `.md` files here.

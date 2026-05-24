@@ -104,8 +104,8 @@ print(FENCE)
 print("")
 print("_Heuristic vs all-Opus baseline (Sonnet ~5x, Haiku ~25x cheaper output). Counterfactual unknowable - directional signal only._")
 print("")
-print("Raw breakdown: " + BT + "STATS_FILE=~/.claude/claude-leverage-stats.jsonl python3 hooks/leverage_stats_agg.py" + BT)
-' 2>/dev/null || echo "(python error - try: STATS_FILE=$F python3 hooks/leverage_stats_agg.py for raw data)"; else echo "**No JSON parser available.** Install python3 or jq to see savings."; fi`
+print("Raw breakdown: " + BT + "STATS_FILE=~/.claude/claude-leverage-stats.jsonl python3 scripts/hooks/leverage_stats_agg.py" + BT)
+' 2>/dev/null || echo "(python error - try: STATS_FILE=$F python3 scripts/hooks/leverage_stats_agg.py for raw data)"; else echo "**No JSON parser available.** Install python3 or jq to see savings."; fi`
 
 ## Output
 

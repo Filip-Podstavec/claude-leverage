@@ -27,7 +27,7 @@ import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-AGG_SCRIPT = REPO_ROOT / "hooks" / "leverage_stats_agg.py"
+AGG_SCRIPT = REPO_ROOT / "scripts" / "hooks" / "leverage_stats_agg.py"
 
 
 def run_agg(stats_path: Path | None) -> tuple[int, str, str]:

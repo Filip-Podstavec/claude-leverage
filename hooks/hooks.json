@@ -6,11 +6,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/block-secrets-precommit.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/block-secrets-precommit.sh"
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/block-dangerous-git.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/block-dangerous-git.sh"
           }
         ]
       }
@@ -21,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/track-delegations.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/track-delegations.sh"
           }
         ]
       }

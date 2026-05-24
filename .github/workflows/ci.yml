@@ -8,18 +8,18 @@ on:
 
 jobs:
   shellcheck:
-    name: Shellcheck (hooks)
+    name: Shellcheck (scripts/hooks)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Run shellcheck
         uses: ludeeus/action-shellcheck@master
         with:
-          scandir: hooks
+          scandir: scripts/hooks
           severity: warning
 
   pytest:
-    name: Pytest (hooks/leverage_stats_agg.py)
+    name: Pytest (scripts/hooks/leverage_stats_agg.py + frontmatter)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

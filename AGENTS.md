@@ -1,0 +1,197 @@
+# AGENTS.md
+
+Canonical instruction set for any coding agent working in this repo. **Read this
+first**, before touching any file.
+
+- **Claude Code** loads this via the `@AGENTS.md` import in `CLAUDE.md`.
+- **Codex CLI** reads `AGENTS.md` natively (no import needed).
+
+Both tools see identical guidance. Tool-specific additions live in `CLAUDE.md`
+(below the `@AGENTS.md` import) — keep them short.
+
+## Project
+
+`claude-leverage` is Filip Podstavec's personal **Claude Code + Codex dev stack**:
+security hooks, AI-first code conventions, `/security-review`, `/repo-map`,
+`/process-diagram`, `/stack-check`, plus a portable statusline.
+
+It is installed:
+- **In Claude Code** as a plugin (`/plugin install claude-leverage@filip-podstavec`).
+- **In Codex** via `bash scripts/install-codex.sh` (or `.ps1` on Windows) — Codex
+  has no plugin marketplace.
+
+Distinct from the official `obra/superpowers-marketplace` plugin (the well-known
+`superpowers` Claude Code plugin); this stack is **complementary** to it, not a
+replacement. Plugin description deliberately avoids the `superpowers` keyword.
+
+## Repo layout
+
+```
+agents/                       Claude Code subagents (Markdown + YAML frontmatter)
+.codex/agents/                Codex subagents (TOML; generated from agents/)
+skills/                       Cross-tool skills (SKILL.md, agentskills.io spec)
+commands/                     Claude Code slash commands
+hooks/hooks.json              Claude Code hook config — paths point at scripts/hooks/
+.codex/hooks.json             Codex hook config (template; install-codex resolves paths)
+.codex/config.toml            Codex sandbox/approval policy
+scripts/hooks/                Hook shell scripts, shared by both tools
+scripts/                      Installers, generators, version checks
+statusline/                   Portable statusline script
+claude-md-snippets/           Opt-in CLAUDE.md routing rules (none in default install)
+templates/                    Per-repo AGENTS.md templates (v1.1 candidate)
+agents-docs/, commands-docs/  Per-dir docs that can't live inside agents/ or
+                              commands/ because Claude Code's plugin loader
+                              registers every *.md as a phantom — see
+                              tests/test_agent_command_frontmatter.py
+docs/specs/                   Design specs (current and historical)
+bench/archive-token-savings-thesis/
+                              Frozen evidence of the v0.x token-savings experiment
+                              that motivated the v1.0 pivot. Don't delete.
+```
+
+## Maintenance rules
+
+### README / per-dir docs
+
+When you add/remove/rename any agent, command, skill, hook, or top-level dir:
+
+1. Update top-level `README.md` — architecture block, install sections, what's-inside table.
+2. Update the matching per-dir doc: `agents-docs/README.md`, `commands-docs/README.md`,
+   `skills/README.md`, `hooks/README.md`, or `claude-md-snippets/README.md`.
+
+### Plugin marketplace
+
+When you change version or hook configuration:
+
+1. Bump `version` in BOTH `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.
+   They must match — CI fails on drift via `scripts/check_version_sync.py`.
+2. Hook scripts use `${CLAUDE_PLUGIN_ROOT}/scripts/hooks/...` in `hooks/hooks.json`.
+   Never `~` or `$HOME`.
+3. `.codex/hooks.json` is a template using `__CLAUDE_LEVERAGE_DIR__` placeholder.
+   `scripts/install-codex.sh` resolves it at install time when writing to
+   `~/.codex/hooks.json`.
+
+### Subagent parity (Claude → Codex)
+
+Any subagent in `agents/*.md` MUST have a paired `.codex/agents/*.toml`. After
+modifying any agent, run:
+
+```bash
+python scripts/gen-codex-agents.py
+```
+
+CI fails if generator output drifts from committed TOML.
+
+## Code conventions
+
+These apply to code you ship in this repo AND are the conventions this stack
+documents for other repos (via `templates/AGENTS.md.example` once it lands).
+
+### AIDEV-* anchor comments
+
+Three grep-able prefixes for load-bearing facts in code:
+
+- `AIDEV-NOTE:` — why this constraint exists / non-obvious invariant
+- `AIDEV-TODO:` — known follow-up with enough context to resume
+- `AIDEV-QUESTION:` — genuine unknown for the next person (or agent)
+
+Rules: ≤120 chars per line, all-caps prefix. **Before editing a module, run
+`grep -rn 'AIDEV-' <module>` first.** Do not silently remove anchors — removing
+one requires an explicit decision in the commit/PR message.
+
+Add anchors at non-obvious decision points (regulatory carve-outs, performance
+workarounds, ordering dependencies, idempotency tricks). Do NOT decorate every
+function — that's clutter. The PostToolUse `ai-first-nudge` hook prints a
+non-blocking suggestion when ≥50 net-new LOC ship without any anchor.
+
+### Structured JSON-lines logging
+
+For application code that emits logs an agent will later need to read:
+
+```json
+{"ts":"2026-05-24T12:34:56.789Z","level":"info","trace_id":"a1b2c3","span_id":"4d5e6f","service":"billing","event":"invoice_paid","attrs":{"invoice_id":"inv_789","amount_cents":4900}}
+```
+
+Required fields: `ts` (ISO-8601 UTC), `level`, `trace_id`, `span_id`, `service`,
+`event` (snake_case), `attrs` (typed object).
+
+**Do not interpolate values into messages.** Put `user_id` in `attrs.user_id`,
+not in the `message` string. Propagate `trace_id` across process/HTTP/queue
+boundaries (W3C traceparent header).
+
+### Per-directory AGENTS.md for non-trivial modules
+
+When a module has non-obvious public surface or gotchas, add an `AGENTS.md` at
+its root. Codex merges nested AGENTS.md files from git root down to cwd
+automatically; Claude Code picks them up when an agent Reads the file. Template:
+`templates/AGENTS.md.example` (lands v1.1).
+
+### Module organization
+
+- Co-locate tests with code (`foo.py` next to `foo_test.py`)
+- One concept per module, thin entrypoint exporting the public surface
+- Predictable file layout, documented here in AGENTS.md
+- Reference canonical examples by path ("see `agents/flaky-test-isolator.md`
+  for the read-only-subagent pattern") rather than restating conventions
+
+## Security guardrails
+
+These hooks run on every Bash tool call regardless of which agent invoked them:
+
+- `block-secrets-precommit` — scans staged diff for API keys/tokens/private
+  keys; blocks `git commit` if found. Per-line allowlist via the
+  `claude-leverage-allow-secret` marker comment.
+- `block-dangerous-git` — blocks force push, `--no-verify`, hard reset on
+  protected branches (`main`/`master`).
+
+**Never bypass these hooks.** If a legitimate need arises (e.g., a test fixture
+containing a fake-looking token), use the per-line allowlist marker, not
+`--no-verify`.
+
+After significant net-new code in security-sensitive paths (auth, crypto,
+routes, payment, templates), run `/security-review` before committing. The
+`security-nudge` Stop hook will suggest this automatically when the diff
+crosses the threshold.
+
+## Commands available in this stack
+
+| Command | What it does |
+|---------|--------------|
+| `/commit-smart` | Inline: secret scan + Conventional Commits message + push |
+| `/security-review` | Audit current diff for OWASP-Top-10-shaped issues (built-in subagent, no external skill dep) |
+| `/repo-map` | Generate/update mermaid architecture block in README between markers |
+| `/process-diagram <name>` | Generate sequence/flowchart for a named workflow |
+| `/stack-check` | Verify Claude Code, Codex, plugin, and CLI deps vs `stack.toml` |
+| `/install-snippets` | Add CLAUDE.md routing snippets (none default) |
+| `/leverage-stats` | Observability over the `track-delegations` hook log |
+| `/flaky-test` | Run a single test N times, group failures by signature |
+
+## Build / test
+
+```bash
+pytest tests/ -v                          # frontmatter + stats aggregator tests
+python scripts/check_version_sync.py       # plugin.json == marketplace.json
+shellcheck scripts/hooks/*.sh              # CI runs this; install locally to match
+python scripts/gen-codex-agents.py --check # ensure .codex/agents/*.toml matches agents/
+```
+
+## Design specs
+
+Living design docs in `docs/specs/`:
+
+- `2026-05-24-pivot/` — the v1.0.0 pivot package (this rewrite)
+- `2026-05-21-synthetic-benchmark-design.md` — bench harness design
+- `research/` — supporting research for the pivot
+
+## Honest history
+
+This repo started as `claude-leverage` v0.x — a hypothesis that routing work
+across Sonnet/Haiku via subagents would save tokens vs vanilla Claude Code.
+Three rounds of benchmarking on Opus 4.7 disproved it: the plugin's per-session
+load tax + per-invocation dispatch overhead consistently exceeded the per-token
+savings from delegating execution to cheaper tiers.
+
+The raw evidence is in `bench/archive-token-savings-thesis/`. v1.0.0 pivots to
+what the data still supports: deterministic security hooks (no model needed),
+inline workflow commands (no dispatch tax), and skills loaded on demand (no
+per-session payload tax). The honest pivot is part of the story.

@@ -13,7 +13,9 @@ Project CLAUDE.md exists: !`test -f ./CLAUDE.md && echo "yes" || echo "no"`
 
 ## Why this command exists
 
-Claude Code plugins install agents, commands, and hooks — but **not** CLAUDE.md content. Snippets in `claude-md-snippets/` are routing rules that pair with the plugin's agents and tell the main session when to delegate. Without them, you have to remember to type `/code-review`, `/test`, etc. With them, the main session auto-routes based on scope.
+Claude Code plugins install agents, commands, and hooks — but **not** CLAUDE.md content. Snippets in `claude-md-snippets/` are routing rules that tell the main session when to invoke specific skills or subagents. Without them, you have to remember to type `/security-review`, `/flaky-test`, etc. With them, the main session auto-routes based on scope.
+
+**v1.0.0 ships zero snippets in the default install** — they were paired with the retired token-savings era agents (now in `bench/archive-token-savings-thesis/claude-md-snippets/`). This command stays in the stack because new snippets land per-skill as needed (Phase 1+ of the v1.0.0 plan).
 
 This command installs selected snippets into your CLAUDE.md so the routing rules are loaded at session start, and supports **idempotent re-runs**: after a `/plugin update` ships a revised snippet, running this command again detects the drift and offers to update the block in place — no append duplicates.
 

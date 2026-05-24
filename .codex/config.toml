@@ -1,0 +1,23 @@
+# Codex config snippet for the claude-leverage stack.
+#
+# This file is the project-scoped Codex config (loaded only when Codex CLI
+# runs inside this repo and the project is trusted).
+#
+# For global install (use the stack across ALL Codex projects), run:
+#     bash scripts/install-codex.sh
+# It writes resolved hook paths to ~/.codex/hooks.json and adds an
+# @<absolute-path>/AGENTS.md reference to ~/.codex/AGENTS.md.
+
+# Project document discovery — Codex defaults already include AGENTS.md;
+# this section is here as documentation, not because it overrides defaults.
+[project_doc]
+max_bytes = 32768           # default; explicit so re-tuning is visible
+
+# Sandbox defaults Filip uses with Codex. Tune per-project as needed.
+# Reference: https://developers.openai.com/codex/config
+[sandbox]
+mode = "workspace-write"    # allow writes inside the project dir, deny outside
+
+[approval]
+mode = "on-request"         # Codex asks before risky actions; matches the
+                            # "executing actions with care" guidance in AGENTS.md

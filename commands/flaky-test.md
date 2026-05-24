@@ -59,6 +59,6 @@ You are routing a flaky-test diagnosis. Your job is pre-flight validation and de
 
 ## When NOT to use this command
 
-- Single-run failures where you have a stack trace already → use `/test` (test-runner is the right tool for one-shot diagnosis).
-- "All my tests are flaky" → run `/test` first to identify which specific test, then `/flaky-test <that one>`.
+- Single-run failures where you have a stack trace already → read the trace inline; the `test-runner` subagent that previously paired with this command was retired in v1.0.0 (see `bench/archive-token-savings-thesis/agents/test-runner.md`).
+- "All my tests are flaky" → diagnose framework/env first inline; this command is for one specific test that intermittently fails.
 - CI debugging where you don't have local repro → this command runs locally; for CI flakiness you need CI logs first.

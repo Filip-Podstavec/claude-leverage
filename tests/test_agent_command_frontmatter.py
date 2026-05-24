@@ -19,10 +19,10 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = REPO_ROOT / "agents"
 COMMANDS_DIR = REPO_ROOT / "commands"
-# extras/ holds opt-in components that aren't loaded by the default plugin
-# install but still need to be structurally valid (same maintenance contract).
-EXTRAS_AGENTS_DIR = REPO_ROOT / "extras" / "agents"
-EXTRAS_COMMANDS_DIR = REPO_ROOT / "extras" / "commands"
+# As of v1.0.0 (pivot) there is no extras/ tree. The retired agents and
+# commands from the token-savings era are frozen under
+# bench/archive-token-savings-thesis/ and are NOT discovered here — they
+# are historical artifacts, not active surface.
 # Per-dir READMEs live in *-docs/ siblings (NOT inside agents/ or commands/)
 # because Claude Code's plugin loader registers every *.md under agents/ as a
 # phantom agent (and every *.md under commands/ as a phantom slash command).
@@ -71,8 +71,8 @@ def _md_files(d: Path) -> list[Path]:
     return [p for p in d.glob("*.md") if p.name.lower() != "readme.md"]
 
 
-AGENT_FILES = sorted(_md_files(AGENTS_DIR) + _md_files(EXTRAS_AGENTS_DIR))
-COMMAND_FILES = sorted(_md_files(COMMANDS_DIR) + _md_files(EXTRAS_COMMANDS_DIR))
+AGENT_FILES = sorted(_md_files(AGENTS_DIR))
+COMMAND_FILES = sorted(_md_files(COMMANDS_DIR))
 
 
 # ---------------------------------------------------------------------------

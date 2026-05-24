@@ -1,0 +1,33 @@
+{
+  "_comment": "Template for Codex hooks. scripts/install-codex.sh substitutes __CLAUDE_LEVERAGE_DIR__ with the absolute path of this repo at install time and writes the resolved file to ~/.codex/hooks.json. Do not edit __CLAUDE_LEVERAGE_DIR__ — it's the install-time placeholder.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/block-secrets-precommit.sh",
+            "statusMessage": "Scanning staged diff for secrets"
+          },
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/block-dangerous-git.sh",
+            "statusMessage": "Checking for dangerous git operations"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^Task$|^subagent$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/track-delegations.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

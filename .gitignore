@@ -31,8 +31,16 @@ __pycache__/
 # source of truth and reproduces them. Tracking the generated dirs would
 # (a) treat each as an embedded git repo (they all have inner .git/) and
 # (b) bloat history with regenerable content.
-bench/fixtures/*
-!bench/fixtures/build_fixtures.py
+# Post v1.0.0 pivot path:
+bench/archive-token-savings-thesis/fixtures/*
+!bench/archive-token-savings-thesis/fixtures/build_fixtures.py
+!bench/archive-token-savings-thesis/fixtures/_remotes/
 
 # Per-run benchmark state (checkpoint dirs, log files).
+bench/archive-token-savings-thesis/harness/_state/
+
+# Legacy paths (kept so historical references still resolve as ignored if
+# the archive is moved back temporarily).
+bench/fixtures/*
+!bench/fixtures/build_fixtures.py
 bench/harness/_state/

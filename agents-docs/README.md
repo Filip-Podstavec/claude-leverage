@@ -1,40 +1,66 @@
 # Agents
 
-Subagents are specialized agents spawned by your main Claude Code session. Each runs with its own context window, a restricted set of tools, and an explicitly declared model. The main session delegates work to them and receives a structured result back.
+Claude Code subagents shipped by `claude-leverage`. Each subagent runs with its
+own context window, an explicitly-declared model, and a restricted tool list.
+The main session delegates to them via the `Task` tool and receives a
+structured result back.
+
+This `agents-docs/` directory exists as a sibling of `agents/` (not inside it)
+because Claude Code's plugin loader registers every `*.md` under `agents/` as
+an agent — a `README.md` inside `agents/` would become a phantom agent named
+`README`. The split is documented in `tests/test_agent_command_frontmatter.py`.
 
 ## Install
+
+The plugin install registers these automatically. For manual / standalone:
 
 ```bash
 # User scope (available in all projects)
 mkdir -p ~/.claude/agents
-cp <agent-file>.md ~/.claude/agents/
+cp agents/*.md ~/.claude/agents/
 
-# Project scope (committed to repo)
+# Project scope
 mkdir -p .claude/agents
-cp <agent-file>.md .claude/agents/
+cp agents/*.md .claude/agents/
 ```
 
-After installing, run `/agents` in a running session to pick up changes without restarting.
+Run `/agents` in a running session to pick up changes without restart.
+
+## Codex parity
+
+Each subagent here has a TOML pair under `.codex/agents/` (generated from the
+MD frontmatter by `scripts/gen-codex-agents.py`). The MD form is canonical;
+re-run the generator after editing any agent. CI fails on drift.
+
+## Available agents
+
+- [`security-reviewer.md`](../agents/security-reviewer.md) — Sonnet, read-only.
+  Audits the current diff for OWASP-Top-10-shaped issues. Returns deterministic
+  Critical / Important / Nice schema. Invoked by `/security-review`.
+- [`flaky-test-isolator.md`](../agents/flaky-test-isolator.md) — Sonnet,
+  Bash + read-only. Runs ONE test N times, groups failures by normalized
+  signature, emits stability report. Invoked by `/flaky-test`. Never modifies
+  code; diagnoses, does not fix.
+
+## Why so few
+
+Eleven other subagents shipped in v0.x. The benchmark series in
+[`bench/archive-token-savings-thesis/`](../bench/archive-token-savings-thesis/)
+showed all of them costing more than the inline equivalent on Opus 4.7. v1.0.0
+keeps only the two whose value is **not** cost-driven:
+
+- `security-reviewer` — deterministic output schema; isolated context window
+  reduces risk of "fixing" findings mid-review.
+- `flaky-test-isolator` — statistical signal across N runs that the main
+  session cannot cheaply produce.
+
+The retired agents are frozen in `bench/archive-token-savings-thesis/agents/`.
+If a future model-cost shift makes any of them net-positive, resurrect from
+there.
 
 ## Model strategy
 
-The main session typically runs Opus for orchestration and architecture decisions. Subagents run Sonnet for execution work - code review, implementation, refactoring. Haiku handles cheap exploratory reads and searches. Each subagent declares `model:` explicitly in its frontmatter to avoid inheritance surprises.
-
-Haiku 4.5 has a separate rate pool on Max plans and is significantly faster for pure plumbing tasks (no reasoning, no writing). The `git-committer-quick` agent demonstrates when this trade-off makes sense - for trivial commits where the message can be derived directly from the diff. For commits requiring real understanding of why the code changed, Sonnet remains the right tier.
-
-## Available agents (default install)
-
-- [`git-committer.md`](git-committer.md) - Stage, commit, push for non-trivial commits (Sonnet). Reads diff, writes Conventional Commits message matching repo style. Does not modify code.
-- [`git-committer-quick.md`](git-committer-quick.md) - Speed-optimized variant for trivial commits (Haiku, small inline-friendly diffs). When installed, `/commit-smart` defaults to this for qualifying scope.
-- [`code-reviewer.md`](code-reviewer.md) - Read-only code reviewer (Sonnet). Returns structured findings; never modifies code.
-- [`test-runner.md`](test-runner.md) - Detects framework, runs tests, returns structured failure analysis (Sonnet, read-only). Never modifies code or test files.
-- [`context-gatherer.md`](context-gatherer.md) - Pre-fetches implementation context before coding (Haiku, read-only). Given a task, gathers key files, patterns, dependencies, and constraints into a structured package so the main session does not have to explore itself.
-
-## Extras (opt-in, not in default install)
-
-Four agents live in [`../extras/agents/`](../extras/agents/) because they either duplicate Claude Code built-ins or are too low-frequency to justify their loading tax on every session. See [`extras/README.md`](../extras/README.md) for opt-in install.
-
-- `flaky-test-isolator` (Sonnet) - flaky-test diagnostics; low frequency in real use
-- `docs-updater` (Sonnet) - README/CHANGELOG freshness; low frequency
-- `repo-explorer` (Haiku) - covered by Claude Code built-in `Explore`
-- `research-agent` (Sonnet) - covered by Claude Code built-in `general-purpose`
+The main session typically runs Opus. Subagents in this stack run Sonnet
+(security review, flaky-test analysis — both reasoning-heavy enough that
+Haiku regresses output quality). Each agent declares `model:` explicitly in
+its frontmatter — no implicit inheritance.
