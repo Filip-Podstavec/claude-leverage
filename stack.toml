@@ -6,6 +6,10 @@
 # local-only — it only reads a timestamp file. The network checks
 # (marketplace catalog, latest release, etc.) only happen when the user
 # explicitly runs /stack-check.
+#
+# `update_hint` is the legacy single-string fallback. Per-OS hints in
+# `update_hint_macos` / `update_hint_linux` / `update_hint_windows` take
+# precedence when /stack-check runs on the matching platform.
 
 [plugin]
 name = "claude-leverage"
@@ -13,7 +17,7 @@ marketplace = "filip-podstavec"
 # Manifest version. Bumped when the *shape* of stack.toml changes, not
 # when plugin.json version bumps. Used by /stack-check to refuse loading
 # a stack.toml from a future plugin version it doesn't understand yet.
-manifest_version = 1
+manifest_version = 2  # v2: per-OS update hints
 
 # Host CLIs (Claude Code, Codex). Checked if found on PATH; missing is
 # warned-not-failed for `optional = true`.
@@ -42,7 +46,10 @@ optional = true   # Codex install is opt-in; missing is fine.
 name = "git"
 min_version = "2.40.0"
 check_cmd = "git --version"
-update_hint = "macOS: brew install git | Linux: package manager | Windows: git-scm.com"
+update_hint = "Update git via your package manager."
+update_hint_macos = "brew install git"
+update_hint_linux = "apt install git  # or your distro's equivalent"
+update_hint_windows = "winget install Git.Git  # or download from git-scm.com"
 optional = false
 
 [[deps.tool]]
@@ -50,7 +57,10 @@ name = "rg"
 display_name = "ripgrep"
 min_version = "13.0.0"
 check_cmd = "rg --version"
-update_hint = "macOS: brew install ripgrep | Linux: cargo install ripgrep | Windows: winget install BurntSushi.ripgrep.MSVC"
+update_hint = "Install ripgrep via your package manager."
+update_hint_macos = "brew install ripgrep"
+update_hint_linux = "apt install ripgrep  # or: cargo install ripgrep"
+update_hint_windows = "winget install BurntSushi.ripgrep.MSVC"
 optional = false
 
 [[deps.tool]]
@@ -58,6 +68,9 @@ name = "python"
 min_version = "3.10"
 check_cmd = "python --version"
 update_hint = "python.org or system package manager."
+update_hint_macos = "brew install python@3.12  # or pyenv install 3.12"
+update_hint_linux = "apt install python3  # or pyenv install 3.12"
+update_hint_windows = "winget install Python.Python.3.12  # or python.org"
 optional = false
 
 # Optional dependencies — features degrade gracefully if absent, but
@@ -67,15 +80,19 @@ optional = false
 name = "jq"
 min_version = "1.6"
 check_cmd = "jq --version"
-update_hint = "brew install jq | apt install jq | winget install jqlang.jq"
-optional = true   # Hooks fall back to python if jq is absent.
+update_hint = "Install jq (hooks fall back to python if absent)."
+update_hint_macos = "brew install jq"
+update_hint_linux = "apt install jq  # or dnf/yum/pacman equivalent"
+update_hint_windows = "winget install jqlang.jq"
+optional = true
 
 [[deps.tool]]
 name = "mmdc"
 display_name = "mermaid-cli"
 min_version = "10.0.0"
 check_cmd = "mmdc --version"
-update_hint = "npm i -g @mermaid-js/mermaid-cli (requires Node)"
+update_hint = "npm i -g @mermaid-js/mermaid-cli  # (requires Node)"
+# Same install command on every OS (npm); kept generic.
 optional = true   # /repo-map and /process-diagram skip validation if absent.
 
 [[deps.tool]]
@@ -83,14 +100,20 @@ name = "node"
 display_name = "Node.js"
 min_version = "20.0.0"
 check_cmd = "node --version"
-update_hint = "nodejs.org or nvm."
+update_hint = "nodejs.org or your version manager."
+update_hint_macos = "brew install node@20  # or nvm install 20"
+update_hint_linux = "Install via nvm (https://github.com/nvm-sh/nvm) or your distro"
+update_hint_windows = "winget install OpenJS.NodeJS.LTS  # or nodejs.org"
 optional = true   # Required transitively for mmdc and Codex.
 
 [[deps.tool]]
 name = "shellcheck"
 min_version = "0.8.0"
 check_cmd = "shellcheck --version"
-update_hint = "brew install shellcheck | apt install shellcheck | winget install koalaman.shellcheck"
+update_hint = "Install shellcheck for local hook linting."
+update_hint_macos = "brew install shellcheck"
+update_hint_linux = "apt install shellcheck"
+update_hint_windows = "winget install koalaman.shellcheck  # or scoop install shellcheck"
 optional = true   # Used in CI; nice-to-have locally for hook authoring.
 
 # Freshness defaults — overridable via env vars per the hook implementation.

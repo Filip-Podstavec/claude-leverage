@@ -163,9 +163,16 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--check", action="store_true",
                    help="Exit 1 if any generated file differs from disk. No writes.")
+    p.add_argument("--dry-run", action="store_true",
+                   help="Print what would be written (and the diff vs disk) without writing.")
     p.add_argument("--agent", metavar="NAME",
                    help="Regenerate only the agent with this name (stem of the .md file).")
     args = p.parse_args()
+
+    if args.check and args.dry_run:
+        print("ERROR: --check and --dry-run are mutually exclusive "
+              "(both already imply 'no writes')", file=sys.stderr)
+        return 2
 
     CODEX_OUT.mkdir(parents=True, exist_ok=True)
 
@@ -182,6 +189,7 @@ def main() -> int:
 
     drift = 0
     written = 0
+    would_write = 0
     for src in md_files:
         try:
             out_path, generated = regenerate(src)
@@ -189,30 +197,55 @@ def main() -> int:
             print(f"ERROR processing {src.name}: {e}", file=sys.stderr)
             return 1
         existing = out_path.read_text(encoding="utf-8") if out_path.is_file() else ""
+        rel = out_path.relative_to(REPO_ROOT)
+
         if existing == generated:
-            print(f"OK    {out_path.relative_to(REPO_ROOT)} (no change)")
+            print(f"OK    {rel} (no change)")
             continue
+
         if args.check:
             drift += 1
-            print(f"DRIFT {out_path.relative_to(REPO_ROOT)}", file=sys.stderr)
+            print(f"DRIFT {rel}", file=sys.stderr)
             for line in difflib.unified_diff(
                 existing.splitlines(keepends=True),
                 generated.splitlines(keepends=True),
-                fromfile=str(out_path) + " (on disk)",
-                tofile=str(out_path) + " (generated)",
+                fromfile=str(rel) + " (on disk)",
+                tofile=str(rel) + " (generated)",
                 n=2,
             ):
                 sys.stderr.write(line)
-        else:
-            out_path.write_text(generated, encoding="utf-8")
-            written += 1
-            print(f"WRITE {out_path.relative_to(REPO_ROOT)}")
+            continue
+
+        if args.dry_run:
+            would_write += 1
+            status = "WOULD CREATE" if not existing else "WOULD UPDATE"
+            print(f"{status} {rel}")
+            # Show the diff so the user sees what would change.
+            for line in difflib.unified_diff(
+                existing.splitlines(keepends=True),
+                generated.splitlines(keepends=True),
+                fromfile=str(rel) + " (on disk)",
+                tofile=str(rel) + " (would write)",
+                n=2,
+            ):
+                sys.stdout.write(line)
+            continue
+
+        out_path.write_text(generated, encoding="utf-8")
+        written += 1
+        print(f"WRITE {rel}")
 
     if args.check:
         if drift:
             print(f"\n{drift} file(s) drifted. Re-run without --check to regenerate.", file=sys.stderr)
             return 1
         print("all .codex/agents/*.toml match agents/*.md sources")
+        return 0
+    if args.dry_run:
+        if would_write == 0:
+            print("\nno changes would be written.")
+        else:
+            print(f"\n{would_write} file(s) would be written. Re-run without --dry-run to apply.")
         return 0
     print(f"\ngenerated {written} file(s).")
     return 0

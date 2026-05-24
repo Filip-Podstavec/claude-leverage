@@ -3,6 +3,9 @@
 > **Drop this into the root of any project where you want claude-leverage's
 > conventions to apply.** Edit the "Project" section first; the rest of the
 > template is meant to be kept as-is.
+>
+> `/init-repo` does this automatically, with per-language Build / test
+> commands filled in.
 
 ## Project
 
@@ -26,14 +29,68 @@ docs/                Long-form docs / design specs
 
 ## Build / test commands
 
-<!-- Anything an agent can't infer from the manifest files. -->
+<!-- Anything an agent can't infer from the manifest files. Pick the section
+     for your language; delete the others. /init-repo auto-fills this. -->
+
+### Python
 
 ```bash
-<install-cmd>                 # e.g. npm ci / poetry install / cargo fetch
-<test-cmd>                    # e.g. pytest tests/ -v
-<lint-cmd>                    # e.g. ruff check . / eslint .
-<build-cmd>                   # e.g. npm run build / cargo build --release
+# uv (recommended) or poetry / pip
+uv sync                                # install + lock from pyproject.toml
+pytest -v                              # run tests (co-located or under tests/)
+ruff check . && ruff format --check .  # lint + format gate
+pyright                                # types (or mypy)
 ```
+
+Notes for agents:
+- Prefer `uv run <cmd>` over activating venvs (works without env switches).
+- Use `pytest -x --tb=short` when iterating; the full traceback is rarely
+  needed past the first hit.
+
+### TypeScript / Node.js
+
+```bash
+npm ci                                 # use ci (lockfile-strict) over install
+npm test                               # vitest / jest / node --test
+npm run lint                           # eslint --max-warnings 0
+npm run typecheck                      # tsc --noEmit
+npm run build                          # tsup / vite / next build
+```
+
+Notes for agents:
+- The project uses `<pnpm | npm | yarn | bun>`; use only that one.
+  Mixing package managers corrupts the lockfile.
+- Run tests with `--reporter=dot` for faster CI output.
+
+### Go
+
+```bash
+go mod download                        # fetch deps
+go test ./... -race -count=1           # run with race detector, no cache
+golangci-lint run                      # full lint suite
+go vet ./...                           # standalone vet (covered by golangci, but quick)
+go build ./...                         # ensure everything still compiles
+```
+
+Notes for agents:
+- The race detector matters; never run `go test` without it during dev.
+- `-count=1` disables the test cache (which silently passes after a
+  failing test changes upstream).
+
+### Rust
+
+```bash
+cargo fetch                            # populate registry cache
+cargo test --workspace                 # run all tests in the workspace
+cargo clippy --workspace --all-targets -- -D warnings
+cargo fmt --all -- --check             # format gate (no --check in dev)
+cargo build --release                  # smoke that the release build works
+```
+
+Notes for agents:
+- `cargo check` is much faster than `cargo build`; use during iteration.
+- The workspace flag matters in multi-crate repos; without it you only
+  test/clippy the root crate.
 
 ## Code conventions
 
@@ -54,7 +111,7 @@ removing one requires an explicit decision in the commit / PR message.
 
 The `ai-first-nudge` PostToolUse hook from claude-leverage prints a
 non-blocking suggestion when ≥50 net-new LOC ship in a single file without
-any anchor.
+any anchor. `/stack-check` periodically flags stale anchors (>90 days).
 
 ### Structured JSON-lines logging
 
@@ -68,6 +125,10 @@ Required fields: `ts`, `level`, `trace_id`, `span_id`, `service`, `event`,
 `attrs`. **Do not interpolate values into messages**: put `user_id` in
 `attrs.user_id`, not in the `message` string.
 
+Drop-in starter kits per language:
+[claude-leverage templates/logging/](https://github.com/Filip-Podstavec/claude-leverage/tree/main/templates/logging).
+`/init-repo` can install the matching template into this project.
+
 ### Per-directory AGENTS.md
 
 For modules with non-obvious public surface or gotchas, drop an `AGENTS.md`
@@ -77,8 +138,9 @@ automatically.
 
 ### Module organization
 
-- Co-locate tests with code (`foo.py` next to `foo_test.py`) where the
-  language/framework supports it.
+- Co-locate tests with code (`foo.py` next to `foo_test.py`, `Foo.test.ts`
+  next to `Foo.ts`, `foo_test.go` next to `foo.go`) where the language
+  conventionally tests that way.
 - One concept per module, thin entrypoint exporting the public surface.
 - Predictable file layout, documented above in "Repo layout".
 
@@ -92,6 +154,9 @@ automatically.
   the `claude-leverage-allow-secret` marker comment per line if you must).
 - Run `/security-review` before committing changes in:
   `<list sensitive paths: auth/, crypto/, routes/, payment/, templates/, …>`.
+- For dependency CVE scanning, use the language's standard tool
+  (`npm audit`, `pip-audit`, `cargo audit`, `govulncheck`,
+  `bundle-audit`) in CI; `/security-review` does NOT cover CVEs.
 
 ## Tool-specific notes
 
@@ -104,4 +169,4 @@ automatically.
 
 ### Codex
 
-<!-- e.g. "approval mode = 'on-request' for this repo (set in .codex/config.toml)." -->
+<!-- e.g. "approval mode = 'on-request' for this repo (set via /codex-sandbox)." -->
