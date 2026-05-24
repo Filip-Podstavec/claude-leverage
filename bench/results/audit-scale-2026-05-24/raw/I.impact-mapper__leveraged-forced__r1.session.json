@@ -1,0 +1,41 @@
+{
+  "cell": "I.impact-mapper__leveraged-forced__r1",
+  "task": "I.impact-mapper",
+  "condition": "leveraged-forced",
+  "run_idx": 1,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 27.77,
+  "total_cost_usd": 0.08389155000000001,
+  "total_tokens": 34157,
+  "tokens": {
+    "input": 4,
+    "output": 614,
+    "cache_read": 27687,
+    "cache_creation": 5852
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 4,
+      "outputTokens": 614,
+      "cacheReadInputTokens": 27687,
+      "cacheCreationInputTokens": 5852,
+      "webSearchRequests": 0,
+      "costUSD": 0.0657885,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 24,
+      "outputTokens": 1256,
+      "cacheReadInputTokens": 56603,
+      "cacheCreationInputTokens": 4911,
+      "webSearchRequests": 0,
+      "costUSD": 0.018103050000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 1235
+}

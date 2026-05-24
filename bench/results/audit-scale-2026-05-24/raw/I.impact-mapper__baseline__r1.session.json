@@ -1,0 +1,31 @@
+{
+  "cell": "I.impact-mapper__baseline__r1",
+  "task": "I.impact-mapper",
+  "condition": "baseline",
+  "run_idx": 1,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 21.61,
+  "total_cost_usd": 0.07873749999999999,
+  "total_tokens": 50936,
+  "tokens": {
+    "input": 5,
+    "output": 722,
+    "cache_read": 44025,
+    "cache_creation": 6184
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 5,
+      "outputTokens": 722,
+      "cacheReadInputTokens": 44025,
+      "cacheCreationInputTokens": 6184,
+      "webSearchRequests": 0,
+      "costUSD": 0.07873749999999999,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 1367
+}

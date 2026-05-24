@@ -1,0 +1,31 @@
+{
+  "cell": "I.impact-mapper__leveraged-natural__r1",
+  "task": "I.impact-mapper",
+  "condition": "leveraged-natural",
+  "run_idx": 1,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 22.7,
+  "total_cost_usd": 0.10699725,
+  "total_tokens": 86735,
+  "tokens": {
+    "input": 7,
+    "output": 1018,
+    "cache_read": 78987,
+    "cache_creation": 6723
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 7,
+      "outputTokens": 1018,
+      "cacheReadInputTokens": 78987,
+      "cacheCreationInputTokens": 6723,
+      "webSearchRequests": 0,
+      "costUSD": 0.10699725,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 1166
+}

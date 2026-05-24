@@ -1,0 +1,41 @@
+{
+  "cell": "G.context-gatherer__leveraged-natural__r0",
+  "task": "G.context-gatherer",
+  "condition": "leveraged-natural",
+  "run_idx": 0,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 77.41,
+  "total_cost_usd": 0.19915009999999997,
+  "total_tokens": 35439,
+  "tokens": {
+    "input": 4,
+    "output": 834,
+    "cache_read": 16403,
+    "cache_creation": 18198
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 4,
+      "outputTokens": 834,
+      "cacheReadInputTokens": 16403,
+      "cacheCreationInputTokens": 18198,
+      "webSearchRequests": 0,
+      "costUSD": 0.14280900000000002,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 780,
+      "outputTokens": 3704,
+      "cacheReadInputTokens": 227561,
+      "cacheCreationInputTokens": 11428,
+      "webSearchRequests": 0,
+      "costUSD": 0.05634110000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 1714
+}

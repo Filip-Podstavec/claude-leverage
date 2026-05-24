@@ -39,6 +39,7 @@ sys.path.insert(0, str(HARNESS_DIR))
 from score import parse_transcript  # noqa: E402
 from run import copy_fixture, ts, log  # noqa: E402
 
+# Default fixture; individual tasks can override via TASK["fixture"]
 FIXTURE_NAME = "warm-session"
 
 # Each task defines a baseline prompt, leveraged-natural prompt (often same as
@@ -91,6 +92,31 @@ TASKS = [
         "expected_substrings": ["requests", "cryptography"],
     },
     {
+        "id": "L.code-review-large",
+        "fixture": "code-review-large",
+        "baseline_prompt": (
+            "Review the staged changes (`git diff --cached`) for bugs, security issues, "
+            "race conditions, and quality problems. This is a substantial refactor across "
+            "multiple modules. Organize findings by severity (Critical, Important, Nice to "
+            "have). Be specific — file and line number for each."
+        ),
+        "leveraged_natural_prompt": (
+            "Review the staged changes (`git diff --cached`) for bugs, security issues, "
+            "race conditions, and quality problems. This is a substantial refactor across "
+            "multiple modules. Organize findings by severity (Critical, Important, Nice to "
+            "have). Be specific — file and line number for each."
+        ),
+        "leveraged_forced_prompt": (
+            "Use the code-reviewer subagent to review the staged changes (`git diff --cached`). "
+            "This is a substantial refactor across multiple modules. Return its Critical/"
+            "Important/Nice-to-have findings as-is."
+        ),
+        # Quality check: seeded bugs are SQL injection in tasks.py search_tasks
+        # and unsanitized email logging in audit.py log_action. The audit must
+        # mention at least one of these by name.
+        "expected_substrings": ["tasks.py"],
+    },
+    {
         "id": "I.impact-mapper",
         "baseline_prompt": (
             "I'm thinking about removing the `require_auth` decorator from service/auth.py. "
@@ -122,7 +148,8 @@ def run_one(task: dict, condition: str, run_idx: int, runid: str, out_dir: Path)
     session_path = raw / f"{cell}.session.json"
 
     base_tmp = Path(tempfile.gettempdir()) / f"leverage-audit-default-{runid}" / cell
-    fixture_src = FIXTURES_DIR / FIXTURE_NAME
+    fixture_name = task.get("fixture", FIXTURE_NAME)
+    fixture_src = FIXTURES_DIR / fixture_name
     work_dir = base_tmp / "work"
     copy_fixture(fixture_src, work_dir)
 

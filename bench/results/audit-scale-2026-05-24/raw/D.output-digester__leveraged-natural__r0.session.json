@@ -1,0 +1,31 @@
+{
+  "cell": "D.output-digester__leveraged-natural__r0",
+  "task": "D.output-digester",
+  "condition": "leveraged-natural",
+  "run_idx": 0,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 22.31,
+  "total_cost_usd": 0.076177,
+  "total_tokens": 51197,
+  "tokens": {
+    "input": 5,
+    "output": 584,
+    "cache_read": 44304,
+    "cache_creation": 6304
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 5,
+      "outputTokens": 584,
+      "cacheReadInputTokens": 44304,
+      "cacheCreationInputTokens": 6304,
+      "webSearchRequests": 0,
+      "costUSD": 0.076177,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 724
+}
