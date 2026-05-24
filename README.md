@@ -239,7 +239,7 @@ equivalent verification is:
 
 ```
 /plugin install claude-leverage@filip-podstavec
-/skill list                # confirm 8 skills appear
+/skill list                # confirm 10 skills appear
 /agents                    # confirm security-reviewer + flaky-test-isolator
 echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
 # Ask the agent to commit /tmp/test.txt — block-secrets-precommit should refuse.

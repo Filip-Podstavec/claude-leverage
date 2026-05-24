@@ -28,6 +28,7 @@ the original choice.
 - [0001 — Pivot from token-savings thesis to personal dev stack](0001-pivot-from-token-savings-to-dev-stack.md)
 - [0002 — AGENTS.md canonical; CLAUDE.md is a one-line `@AGENTS.md` import](0002-agents-md-canonical-claude-md-import.md)
 - [0003 — No embedding RAG; hybrid AGENTS.md manifest + on-demand grep](0003-no-embedding-rag-hybrid-manifest-and-grep.md)
+- [0004 — `/adr-new` and `/session-log` are user/agent-invoked, no auto-fire hook](0004-adr-and-session-log-are-user-invoked-no-auto-fire-hook.md)
 
 (Keep this index in sync with the files in this directory; `/adr-new` will
 append to it automatically.)

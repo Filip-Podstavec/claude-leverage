@@ -15,6 +15,11 @@ project's `AGENTS.md` between marker comments, idempotently.
   project mandates it before commit" on diffs touching sensitive paths
   (auth, crypto, payment, templates, etc.). Pairs with the
   `security-nudge` Stop hook and the `security-reviewer` subagent.
+- [`adr-session-log-discipline.md`](adr-session-log-discipline.md) —
+  Codifies the ADR + session-log convention into a project's
+  `AGENTS.md` so the agent remembers to invoke `/adr-new` on
+  load-bearing decisions and `/session-log` at substantial session
+  ends. Includes the recommended "reading order for new agents."
 
 (More snippets land here as patterns emerge from actual use.
 Convention: one routing rule per snippet, with marker comments so

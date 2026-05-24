@@ -5,6 +5,59 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] — 2026-05-24
+
+Discoverability follow-up to v1.3.0. The two new skills (`/adr-new`,
+`/session-log`) shipped with descriptions that explained WHAT they did,
+not WHEN to use them — meaning Claude Code's skill resolver wouldn't
+auto-surface them at the right moment, and v1.3.0 was effectively just
+two new commands users had to remember to type.
+
+### Changed
+
+- **`/adr-new` description** rewritten with explicit `USE WHEN ... / Do
+  NOT use for ...` trigger pattern. Lists concrete examples that warrant
+  an ADR (database choice, framework, auth model, explicit alternative
+  rejection) and what to skip (variable naming, one-off fixes, lint
+  conventions).
+- **`/session-log` description** rewritten same way. Lists trigger
+  signals the model should watch for in conversation (user says
+  "thanks", "tomorrow", "wrap up"; 3+ commits with no log yet today; or
+  explicit summary request) and what NOT to log (quick fixes,
+  pure-exploration sessions).
+- **`AGENTS.md`** gained a new "When to invoke `/adr-new` and
+  `/session-log`" section in "Code conventions". Documents the
+  invocation discipline explicitly so it's visible at session start,
+  not buried in skill descriptions.
+
+### Added
+
+- **`docs/adr/0004-adr-and-session-log-are-user-invoked-no-auto-fire-hook.md`**
+  — records the deliberate decision NOT to auto-fire either skill via a
+  hook (Stop ≠ "user is leaving"; SessionStart is too late for the
+  previous session's log; auto-detecting "load-bearing decision" from a
+  shell hook is infeasible). Future agents proposing a Stop-hook
+  variant will find the rationale here.
+- **`claude-md-snippets/adr-session-log-discipline.md`** — new snippet
+  that carries the convention into adopting projects via `/init-repo`,
+  so agents in client repos also see the discipline at session start.
+  Includes the recommended "reading order for new agents" so adopting
+  projects get progressive-disclosure documentation without
+  hand-authoring it.
+
+### Fixed
+
+- Plugin description in `marketplace.json` was still "8 on-demand
+  skills" from v1.2.x; bumped to "10 on-demand skills" matching the
+  shipped count.
+- README install-verification block said `/skill list # confirm 8
+  skills`; corrected to 10.
+- `scripts/smoke-plugin.sh` skill-count check raised from `>= 8` to
+  `>= 10` so a regression that loses a skill gets caught.
+
+Plugin version → **1.3.1** (patch: discoverability fixes for v1.3.0
+features + one new snippet + one new ADR; no breaking changes).
+
 ## [1.3.0] — 2026-05-24
 
 The "durable memory" release. Adds ADR and session-log conventions plus

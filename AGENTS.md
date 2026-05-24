@@ -202,6 +202,35 @@ automatically; Claude Code picks them up when an agent Reads the file. Use
 `/init-repo` to drop one into a fresh project, or copy
 [`templates/AGENTS.md.example`](templates/AGENTS.md.example) directly.
 
+### When to invoke `/adr-new` and `/session-log`
+
+These two skills are the durable-memory layer (see
+[ADR 0004](docs/adr/0004-adr-and-session-log-are-user-invoked-no-auto-fire-hook.md)
+for why they don't auto-fire). They are **user/agent-invoked**, not hooked
+to a lifecycle event. **The agent working in this repo is expected to
+recognize the moment** and invoke. Specifically:
+
+- **`/adr-new`** — invoke when a load-bearing architectural decision is
+  being made or has just been made in conversation. "Load-bearing" means:
+  someone is likely to propose reverting it in six months ("why didn't we
+  use X?") without seeing the rationale. Examples that warrant an ADR:
+  choosing a database / framework / integration pattern / auth model, OR
+  explicit rejection of an alternative. Three sentences in
+  `docs/adr/NNNN.md` is cheaper than re-arguing later.
+
+- **`/session-log`** — invoke at the END of a substantial working session
+  (commits shipped, multiple non-trivial decisions made, or open
+  questions surfaced worth preserving). Signals to watch for: user says
+  "thanks, that's it for today" / "tomorrow" / "wrap this up"; OR
+  session shipped 3+ commits with no session log yet today; OR user
+  asks for a summary / handoff / status. Distillate, NOT transcript.
+
+Both skills' descriptions follow a `USE WHEN ... / Do NOT use for ...`
+pattern so the Claude Code skill resolver surfaces them when the
+conversation matches the trigger. But the agent **must still recognize
+the moment** — neither skill is fired by a hook. If you forget, the
+plugin won't remind you (per ADR 0004).
+
 ### Module organization
 
 - Co-locate tests with code (`foo.py` next to `foo_test.py`)

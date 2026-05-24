@@ -126,8 +126,8 @@ if CODEX_HOME="$SCRATCH/codex" \
   if [ "$install_ok" -eq 1 ]; then
     # Skill count
     skill_count=$(ls "$SCRATCH/agents/skills/claude-leverage/" 2>/dev/null | wc -l | tr -d ' ')
-    if [ "$skill_count" -lt 8 ]; then
-      say_fail "expected >=8 skills installed; got $skill_count"
+    if [ "$skill_count" -lt 10 ]; then
+      say_fail "expected >=10 skills installed; got $skill_count"
       failed=$((failed + 1))
     else
       say_pass "$skill_count skills installed"
