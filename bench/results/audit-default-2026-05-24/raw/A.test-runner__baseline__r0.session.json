@@ -1,0 +1,31 @@
+{
+  "cell": "A.test-runner__baseline__r0",
+  "task": "A.test-runner",
+  "condition": "baseline",
+  "run_idx": 0,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 30.39,
+  "total_cost_usd": 0.13514524999999997,
+  "total_tokens": 33159,
+  "tokens": {
+    "input": 4,
+    "output": 447,
+    "cache_read": 27391,
+    "cache_creation": 5317
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 9,
+      "outputTokens": 845,
+      "cacheReadInputTokens": 44288,
+      "cacheCreationInputTokens": 14693,
+      "webSearchRequests": 0,
+      "costUSD": 0.13514524999999997,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 494
+}

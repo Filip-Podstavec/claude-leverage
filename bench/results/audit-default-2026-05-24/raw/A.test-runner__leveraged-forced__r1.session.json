@@ -1,0 +1,41 @@
+{
+  "cell": "A.test-runner__leveraged-forced__r1",
+  "task": "A.test-runner",
+  "condition": "leveraged-forced",
+  "run_idx": 1,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 36.13,
+  "total_cost_usd": 0.1733041,
+  "total_tokens": 34235,
+  "tokens": {
+    "input": 4,
+    "output": 369,
+    "cache_read": 16660,
+    "cache_creation": 17202
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 4,
+      "outputTokens": 369,
+      "cacheReadInputTokens": 16660,
+      "cacheCreationInputTokens": 17202,
+      "webSearchRequests": 0,
+      "costUSD": 0.12508750000000002,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-sonnet-4-6": {
+      "inputTokens": 289,
+      "outputTokens": 1250,
+      "cacheReadInputTokens": 43107,
+      "cacheCreationInputTokens": 4178,
+      "webSearchRequests": 0,
+      "costUSD": 0.0482166,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 636
+}
