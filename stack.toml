@@ -1,0 +1,100 @@
+# claude-leverage stack manifest
+#
+# Declarative list of things /stack-check verifies. Bump min_version when
+# this plugin starts requiring a newer release of a dependency (security
+# fix, feature dependency, etc.). The stack-freshness SessionStart hook is
+# local-only — it only reads a timestamp file. The network checks
+# (marketplace catalog, latest release, etc.) only happen when the user
+# explicitly runs /stack-check.
+
+[plugin]
+name = "claude-leverage"
+marketplace = "filip-podstavec"
+# Manifest version. Bumped when the *shape* of stack.toml changes, not
+# when plugin.json version bumps. Used by /stack-check to refuse loading
+# a stack.toml from a future plugin version it doesn't understand yet.
+manifest_version = 1
+
+# Host CLIs (Claude Code, Codex). Checked if found on PATH; missing is
+# warned-not-failed for `optional = true`.
+
+[[host.tool]]
+name = "claude"
+display_name = "Claude Code"
+min_version = "2.1.0"
+check_cmd = "claude --version"
+# Claude Code updates via the app itself, not via package manager.
+update_hint = "Update via the Claude Code app (Settings → Updates) or `claude update`."
+optional = false
+
+[[host.tool]]
+name = "codex"
+display_name = "Codex CLI"
+min_version = "0.40.0"
+check_cmd = "codex --version"
+update_hint = "npm i -g @openai/codex"
+optional = true   # Codex install is opt-in; missing is fine.
+
+# Shared CLI dependencies — hooks, skills, and the install scripts all
+# rely on these being available.
+
+[[deps.tool]]
+name = "git"
+min_version = "2.40.0"
+check_cmd = "git --version"
+update_hint = "macOS: brew install git | Linux: package manager | Windows: git-scm.com"
+optional = false
+
+[[deps.tool]]
+name = "rg"
+display_name = "ripgrep"
+min_version = "13.0.0"
+check_cmd = "rg --version"
+update_hint = "macOS: brew install ripgrep | Linux: cargo install ripgrep | Windows: winget install BurntSushi.ripgrep.MSVC"
+optional = false
+
+[[deps.tool]]
+name = "python"
+min_version = "3.10"
+check_cmd = "python --version"
+update_hint = "python.org or system package manager."
+optional = false
+
+# Optional dependencies — features degrade gracefully if absent, but
+# /stack-check reports them so the user can decide whether to install.
+
+[[deps.tool]]
+name = "jq"
+min_version = "1.6"
+check_cmd = "jq --version"
+update_hint = "brew install jq | apt install jq | winget install jqlang.jq"
+optional = true   # Hooks fall back to python if jq is absent.
+
+[[deps.tool]]
+name = "mmdc"
+display_name = "mermaid-cli"
+min_version = "10.0.0"
+check_cmd = "mmdc --version"
+update_hint = "npm i -g @mermaid-js/mermaid-cli (requires Node)"
+optional = true   # /repo-map and /process-diagram skip validation if absent.
+
+[[deps.tool]]
+name = "node"
+display_name = "Node.js"
+min_version = "20.0.0"
+check_cmd = "node --version"
+update_hint = "nodejs.org or nvm."
+optional = true   # Required transitively for mmdc and Codex.
+
+[[deps.tool]]
+name = "shellcheck"
+min_version = "0.8.0"
+check_cmd = "shellcheck --version"
+update_hint = "brew install shellcheck | apt install shellcheck | winget install koalaman.shellcheck"
+optional = true   # Used in CI; nice-to-have locally for hook authoring.
+
+# Freshness defaults — overridable via env vars per the hook implementation.
+
+[freshness]
+threshold_days = 30
+state_dir = "~/.local/state/claude-leverage"   # falls back to ~/.claude/claude-leverage

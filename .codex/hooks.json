@@ -1,6 +1,16 @@
 {
   "_comment": "Template for Codex hooks. scripts/install-codex.sh substitutes __CLAUDE_LEVERAGE_DIR__ with the absolute path of this repo at install time and writes the resolved file to ~/.codex/hooks.json. Do not edit __CLAUDE_LEVERAGE_DIR__ — it's the install-time placeholder.",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/stack-freshness.sh"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "^Bash$",
