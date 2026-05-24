@@ -73,6 +73,18 @@ with `CLAUDE_LEVERAGE_FRESHNESS_DAYS=N` (`=0` disables).
 | `/process-diagram <name>` | When documenting a non-obvious workflow (commit-smart flow, hook-intercept flow, etc.) | mermaid sequenceDiagram or flowchart, mmdc validation loop, inserted into target markdown between idempotent markers. |
 | `/log-structured` | Onboarding to a legacy codebase, or after AGENTS.md adoption to see baseline | Walks codebase, flags print() / console.log() / interpolated logger.X() calls, suggests spec-compliant replacements per file:line. Read-only. |
 
+### Skills you invoke per-decision and per-session (durable memory)
+
+| Skill | When to invoke | What you get |
+|-------|----------------|--------------|
+| `/adr-new <title>` | When you make a load-bearing architectural decision likely to be re-litigated (e.g., "we use service X not Y because Z", "we don't use embedding RAG because…") | Numbered MADR-flavored ADR file in `docs/adr/`. Immutable status once accepted (`proposed` → `accepted` → `deprecated` / `superseded by NNNN`). Auto-updates the `docs/adr/README.md` index. |
+| `/session-log <topic>` | At the end of a substantial working session (commits shipped, decisions made) | Distilled session log in `docs/sessions/YYYY-MM-DD-<topic>.md`: context, what was done, key decisions (links to relevant ADRs), open questions, next steps. The next session — yours tomorrow or a different agent in a month — reads it to pick up the thread. **Distillate, not transcript.** |
+
+These two are the "durable memory" layer. Without ADRs, the *why* of the
+architecture is forgotten and refactored back. Without session logs, every
+session re-discovers context from cold. The hooks above keep the code
+healthy; these skills keep the *reasoning* about the code healthy.
+
 ### Skills you invoke once per repo (setup)
 
 | Skill | When to invoke | What you get |
@@ -97,7 +109,15 @@ sensitive diff ──►  security-nudge suggests /security-review
                     (you run it; address Critical)
                             │
                             ▼
+load-bearing choice ► /adr-new captures the WHY
+                    (so next agent doesn't propose refactoring it away)
+                            │
+                            ▼
 TODO with deadline ►  AIDEV-TODO(by: 2026-08-01)
+                            │
+                            ▼
+end of session ───►  /session-log distills what happened
+                    (next session picks up where this left off)
                             │
                             ▼
 30 days pass ─────►  stack-freshness nudges /stack-check
@@ -109,7 +129,9 @@ deadline passes ──►  /stack-check flags overdue AIDEV-TODO
 ```
 
 The cumulative effect: maintenance items surface when they're cheap to
-fix, not after they've quietly compounded.
+fix, not after they've quietly compounded. The hooks keep the *code*
+healthy. The skills (`/adr-new`, `/session-log`) keep the *reasoning
+about the code* healthy.
 
 ## Disabling things you don't want
 

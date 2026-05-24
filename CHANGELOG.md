@@ -5,6 +5,77 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-05-24
+
+The "durable memory" release. Adds ADR and session-log conventions plus
+the two skills that make them low-friction to maintain.
+
+### Added
+
+- **`docs/adr/`** — Architecture Decision Records directory with MADR-
+  flavored template, README index, and three seed ADRs documenting the
+  most load-bearing decisions in this repo (the v1.0 pivot, the
+  AGENTS.md-canonical pattern, the no-embedding-RAG choice). New
+  decisions: `/adr-new`.
+- **`docs/sessions/`** — Distilled session-log directory with template
+  and convention README. Format: `YYYY-MM-DD-<topic>.md`. Distillate
+  (context, what was done, key decisions, open questions, next steps),
+  not transcript. New entries: `/session-log`.
+- **`/adr-new`** skill — bootstraps a new numbered ADR. Picks next
+  number, asks for title + context, fills MADR template, appends to
+  index. Immutable status once accepted (`proposed` → `accepted` →
+  `deprecated` / `superseded by NNNN`).
+- **`/session-log`** skill — at end of a working session, distills the
+  current conversation into a journal entry. Pulls branch + recent
+  commits from git, model summarizes the chat. Hard cap on length
+  (~80 lines) so it stays useful instead of becoming dead weight.
+- **AI-specific recommendations section** in `templates/AGENTS.md.example`
+  for projects that ship LLM-backed features: Langfuse/Helicone/Phoenix
+  for LLM observability, Promptfoo or Langfuse evals for regression
+  detection, hard cost caps before LLM calls (not inside), Pydantic/Zod
+  for structured outputs, prompt-injection treatment of external data.
+- **"Reading order for new agents"** section in both `AGENTS.md` and
+  `templates/AGENTS.md.example`: 1) AGENTS.md, 2) docs/adr/, 3) last
+  1–3 session logs, 4) specific specs on demand, 5) code via imports.
+  Progressive disclosure as explicit policy.
+
+### Changed
+
+- Skill count: 8 → **10** (added `/adr-new`, `/session-log`).
+- `templates/AGENTS.md.example` "Project" section now expects a concrete
+  domain product description ("what + for whom"), not a generic
+  one-liner.
+- `templates/AGENTS.md.example` "Repo layout" template now includes the
+  full `docs/` substructure (`adr/`, `sessions/`, `specs/`, `runbooks/`,
+  `architecture/`, `conventions/`) as the recommended convention.
+- `AGENTS.md` (this repo) lists 10 skills, references `/adr-new` and
+  `/session-log` in maintenance rules.
+- `workflows/maintaining-as-it-grows.md` extended with the "Skills you
+  invoke per-decision and per-session (durable memory)" table, plus the
+  maintenance-debt cycle diagram now includes the ADR + session-log
+  steps.
+- `CLAUDE.md` adapter notes how to invoke `/session-log` at session end.
+- Plugin version bumped to **1.3.0** (new skills + new conventions; no
+  breaking changes).
+
+### Motivation
+
+Inspired by an external conversation about AI-first dev practices that
+called out three layers we were under-investing in:
+
+1. **ADRs** as the durable record of *why* the architecture looks the
+   way it does. Already had `docs/specs/` for specs; now also `docs/adr/`
+   for the rationale layer, which is what stops a plausible-but-wrong
+   refactor proposal from a future agent.
+2. **Session logs** as the continuity layer between sessions. Without
+   them, every session re-discovers context from cold. With them
+   (distilled, not raw transcripts), the next agent reads the last 1–3
+   logs and picks up the thread.
+3. **Progressive-disclosure reading order** in AGENTS.md. The agent
+   loads minimum context at session start; fetches deeper docs only when
+   relevant. Explicitly documented now in both this repo and the
+   template for adopting repos.
+
 ## [1.2.1] — 2026-05-24
 
 ### Added

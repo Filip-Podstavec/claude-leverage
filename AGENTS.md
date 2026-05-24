@@ -42,13 +42,15 @@ job easier than the *previous* one's, every time, automatically.
 Concretely:
 - 4 hooks (security guardrails + maintenance nudges, all non-blocking unless
   blocking a real safety issue)
-- 8 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
+- 10 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
   `/stack-check`, `/init-repo`, `/log-structured`, `/explain-diff`,
-  `/codex-sandbox`)
+  `/codex-sandbox`, `/adr-new`, `/session-log`)
 - 2 Claude-only slash commands (`/commit-smart`, `/flaky-test`)
 - 2 subagents (`security-reviewer`, `flaky-test-isolator`)
 - 1 portable statusline
 - Per-language AGENTS.md template + 4 structured-logging starter kits
+- `docs/adr/` and `docs/sessions/` conventions with templates and bootstrap
+  skills (the durable-memory + per-session-continuity layers)
 - Workflow guides showing how to combine all of the above for common tasks
   (`workflows/`)
 
@@ -61,6 +63,24 @@ Distinct from the official `obra/superpowers-marketplace` plugin (the well-known
 `superpowers` Claude Code plugin); this stack is **complementary** to it, not a
 replacement. Plugin description deliberately avoids the `superpowers` keyword.
 
+## Reading order for new agents
+
+If you're an agent opening this repo for the first time, read in this
+order (progressive disclosure: minimum context at session start):
+
+1. **This file** (`AGENTS.md`) — what this repo is and how to work in it.
+2. [`docs/adr/`](docs/adr/) — *why* the architecture looks the way it
+   does. Skim the index; read the ones relevant to what you're about to
+   change. Without these, you'll propose refactors away from
+   load-bearing constraints.
+3. [`docs/sessions/`](docs/sessions/) — the last 1–3 session logs.
+   Where the previous human + agent left off. Often the highest-leverage
+   orientation per token.
+4. Specific [`docs/specs/`](docs/specs/) only when starting on that
+   topic.
+5. The code itself — by following imports from the relevant entrypoint
+   (see "Repo layout" below).
+
 ## Repo layout
 
 ```
@@ -72,15 +92,18 @@ hooks/hooks.json              Claude Code hook config — paths point at scripts
 .codex/hooks.json             Codex hook config (template; install-codex resolves paths)
 .codex/config.toml            Codex sandbox/approval policy
 scripts/hooks/                Hook shell scripts, shared by both tools
-scripts/                      Installers, generators, version checks
+scripts/                      Installers, generators, version checks, smoke-plugin.sh
 statusline/                   Portable statusline script
-claude-md-snippets/           Opt-in CLAUDE.md routing rules (none in default install)
-templates/                    Per-repo AGENTS.md templates (v1.1 candidate)
+claude-md-snippets/           Opt-in CLAUDE.md / AGENTS.md routing rules (installable via /init-repo)
+templates/                    Per-repo AGENTS.md examples + structured-logging starter kits
 agents-docs/, commands-docs/  Per-dir docs that can't live inside agents/ or
                               commands/ because Claude Code's plugin loader
                               registers every *.md as a phantom — see
                               tests/test_agent_command_frontmatter.py
+docs/adr/                     Architecture Decision Records (numbered, immutable; /adr-new bootstraps)
+docs/sessions/                Distilled session logs (/session-log writes one at end of session)
 docs/specs/                   Design specs (current and historical)
+workflows/                    End-to-end prose guides combining skills/hooks/conventions
 bench/archive-token-savings-thesis/
                               Frozen evidence of the v0.x token-savings experiment
                               that motivated the v1.0 pivot. Don't delete.
@@ -219,6 +242,8 @@ crosses the threshold.
 | `/log-structured` | Find non-structured logging in a codebase and suggest spec-compliant replacements |
 | `/explain-diff` | Plain-English 3–5 bullet narration of the current diff |
 | `/codex-sandbox` | Interactive helper for `.codex/config.toml` sandbox + approval modes |
+| `/adr-new` | Bootstrap a new numbered Architecture Decision Record in `docs/adr/` |
+| `/session-log` | Write a distilled session log to `docs/sessions/` at end of session |
 | `/flaky-test` | Run a single test N times, group failures by signature |
 
 ## Build / test

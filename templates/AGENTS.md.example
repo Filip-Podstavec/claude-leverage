@@ -9,10 +9,36 @@
 
 ## Project
 
-<!-- One paragraph: what this repo is, who runs it, what tech stack. Keep it under 5 lines. -->
+<!-- Domain product: what this repo IS and for WHOM. Concrete and short.
+     Examples:
+       "Stripe webhook handler for our SaaS billing — receives Stripe
+        events, validates signatures, projects state into the internal
+        ledger. Operated by the platform team."
+       "Internal admin dashboard for support — read-only view of
+        customer state across the 3 service backends, used by L2 support."
+     Don't write marketing copy. Write the one sentence a new agent
+     needs to know what this is and isn't. -->
 
-`<project-name>` is `<one-line purpose>`. Stack: `<languages, primary frameworks>`.
-Primary runtime: `<production env if relevant>`.
+`<project-name>` is `<one-line concrete description: what + for whom>`.
+**Stack**: `<languages with major version, primary frameworks>`. **Runtime**:
+`<prod env if relevant: container on AWS Fargate, serverless on Vercel, etc.>`.
+
+## Reading order for new agents
+
+If you're an agent opening this repo for the first time, read in this
+order:
+
+1. **This file** (you're here).
+2. [`docs/adr/`](docs/adr/) — the *why* of the architecture. Without
+   this, you'll propose refactors away from load-bearing constraints.
+3. [`docs/sessions/`](docs/sessions/) — the last 1–3 session logs.
+   Where the previous human + agent left off.
+4. Specific `docs/specs/<topic>.md` only when starting on that topic.
+5. The code itself — by following imports from the entrypoint listed in
+   "Repo layout" below, not by reading directories alphabetically.
+
+This ordering is progressive disclosure: minimum context at session
+start, deeper docs on demand.
 
 ## Repo layout
 
@@ -24,7 +50,13 @@ src/                 Main code
 src/<module>/        <one-line purpose per non-trivial module>
 tests/               Test suite (or co-located *_test.py, see "Module organization")
 scripts/             Build, deploy, one-off ops
-docs/                Long-form docs / design specs
+docs/
+  adr/               Architecture Decision Records (numbered, immutable; /adr-new)
+  sessions/          Distilled session logs (/session-log at end of session)
+  specs/             Feature specs / plans before implementation
+  runbooks/          Operations: what to do when X breaks
+  architecture/      High-level overview, C4 diagrams (if any)
+  conventions/       Code conventions, naming, error handling patterns
 ```
 
 ## Build / test commands
@@ -172,6 +204,38 @@ automatically.
 - For dependency CVE scanning, use the language's standard tool
   (`npm audit`, `pip-audit`, `cargo audit`, `govulncheck`,
   `bundle-audit`) in CI; `/security-review` does NOT cover CVEs.
+
+## AI-specific (if this project uses LLMs in production)
+
+<!-- Delete this whole section if the project doesn't ship LLM-backed
+     features. For AI-first products, the failure modes below are easy to
+     miss in standard observability and matter more than usual. -->
+
+**Observability** — application JSON logs alone don't show what an LLM
+saw or how much it cost. Wire a dedicated LLM observability layer:
+- [Langfuse](https://langfuse.com/) (self-hostable, open source) —
+  prompt logs, latency, tokens, cost per request, traces across agents.
+- Alternatives: Helicone, Phoenix (Arize), if self-hosting isn't a fit.
+
+**Evals** — without an eval suite, AI features rot silently: a model
+update or prompt tweak breaks something that was working, and you find
+out from support. Wire one of:
+- [Promptfoo](https://www.promptfoo.dev/) — lowest barrier.
+- Evals inside Langfuse — if you're already there.
+
+**Hard cost caps** — implement a per-user / per-endpoint hard ceiling
+*before* the LLM call, not inside it. A bug + LLM call = drained budget
+in an evening.
+
+**Structured outputs** — never parse model strings by hand. Use Pydantic
+(Python) or Zod (TypeScript) for `response_format=json_schema` or
+equivalent. Same JSON-lines logging convention as above for what gets
+logged about the model's response.
+
+**Prompt injection** — anywhere the model receives external data (user
+input, web fetches, document loads, MCP tool outputs), treat it as
+**data, not instructions**. Document which input boundaries are
+sanitized + how, in `docs/adr/`.
 
 ## Tool-specific notes
 

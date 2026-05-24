@@ -68,6 +68,14 @@ properties guide every decision in this repo:
   diff. Useful before opening a PR or asking a teammate for review.
 - **`/codex-sandbox`** — interactive helper to configure per-project
   `.codex/config.toml` sandbox + approval modes.
+- **`/adr-new`** — bootstrap a new numbered Architecture Decision Record
+  (MADR-flavored) in `docs/adr/`. Immutable status once accepted, so the
+  next agent (in six months) knows *why* the architecture looks the way
+  it does.
+- **`/session-log`** — at end of a working session, distill the
+  conversation into a journal entry at `docs/sessions/YYYY-MM-DD-topic.md`.
+  Pointers + decisions + next-actions, not a transcript. The continuity
+  layer that lets the next session start where this one left off.
 - **`/commit-smart`** — inline secret scan + Conventional Commits message
   + push. All in the main session, no subagent dispatch.
 - **Portable statusline** — Python-based, no `jq` dep, Windows-friendly.
@@ -146,8 +154,11 @@ overwrites in place.
 | [`statusline/`](statusline/) | Portable statusline script |
 | [`claude-md-snippets/`](claude-md-snippets/) | Opt-in CLAUDE.md routing rules (none in default install) |
 | [`templates/`](templates/) | Drop-in templates: per-language AGENTS.md examples, structured-logging starter kits, sample Codex config |
-| [`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/) | Frozen evidence of the v0.x experiment that motivated the v1.0 pivot |
+| [`docs/adr/`](docs/adr/) | Architecture Decision Records (numbered, immutable; `/adr-new` bootstraps) |
+| [`docs/sessions/`](docs/sessions/) | Distilled session logs (`/session-log` writes one at end of session) |
 | [`docs/specs/`](docs/specs/) | Design specs (current and historical) |
+| [`workflows/`](workflows/) | End-to-end prose guides combining skills/hooks/conventions |
+| [`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/) | Frozen evidence of the v0.x experiment that motivated the v1.0 pivot |
 
 ## Architecture
 

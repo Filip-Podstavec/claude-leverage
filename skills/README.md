@@ -21,6 +21,8 @@ skills; users invoke skills, not subagents directly.
 | [`log-structured/`](log-structured/SKILL.md) | Walk a codebase, flag non-structured logging, suggest spec-compliant replacements. Read-only — never auto-rewrites. |
 | [`explain-diff/`](explain-diff/SKILL.md) | Plain-English 3–5 bullet narration of `git diff HEAD` for use before a PR or review request. |
 | [`codex-sandbox/`](codex-sandbox/SKILL.md) | Interactive helper to configure per-project `.codex/config.toml` sandbox + approval modes. |
+| [`adr-new/`](adr-new/SKILL.md) | Bootstrap a new numbered Architecture Decision Record (MADR-flavored) in `docs/adr/`. Immutable status once accepted. |
+| [`session-log/`](session-log/SKILL.md) | Write a distilled session log to `docs/sessions/` at end of a working session — context, decisions, open questions, next steps. The continuity layer between sessions. |
 
 ## Install
 
