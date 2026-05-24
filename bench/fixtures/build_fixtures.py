@@ -552,6 +552,27 @@ def test_get_user_returns_known_user():
     run(["git", "push", "-q", "-u", "origin", "main"], out)
 
 
+# ---------------------------------------------------------------------------
+# L1: long-session - clean Python service for the 12-turn long-session
+# benchmark. No staged diff; the developer-day workflow adds, reviews, fixes,
+# and commits over the course of the session.
+# ---------------------------------------------------------------------------
+
+def build_l1(out: Path) -> None:
+    reset_dir(out)
+    write_python_service(out)
+    init_git(out)
+
+    # Local bare remote so a `git push` from inside the session does not error.
+    bare = out.parent / "_remotes" / f"{out.name}.git"
+    if bare.exists():
+        shutil.rmtree(bare, ignore_errors=True)
+    bare.parent.mkdir(parents=True, exist_ok=True)
+    run(["git", "init", "--bare", "-q", "-b", "main", str(bare)], out.parent)
+    run(["git", "remote", "add", "origin", str(bare)], out)
+    run(["git", "push", "-q", "-u", "origin", "main"], out)
+
+
 def main() -> int:
     targets = {
         "code-review-medium": build_t1,
@@ -559,6 +580,7 @@ def main() -> int:
         "commit-trivial": build_t3,
         "commit-nontrivial": build_t4,
         "warm-session": build_w1,
+        "long-session": build_l1,
     }
     for name, builder in targets.items():
         out = FIXTURES / name

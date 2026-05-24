@@ -2,7 +2,7 @@
 
 Not every task in a coding session needs the most capable model. This repo orchestrates Claude Code subagents so that research, code review, test runs, and trivial commits are handled by cost-efficient models — while implementation and architecture stay on the latest Opus.
 
-> **Honest benchmark update (2026-05-23).** Across three benchmark stages — cold-cache pre-trim → cold-cache post-trim → warm-cache (production-like) — the plugin's cost penalty drops from **+102 %** to **+89 %** to **+26 %**. In a single warm session that handles four distinct workflows (review, context-gather, commit, re-review), the leveraged version costs $0.39 vs $0.31 baseline. Plugin overhead is real but **mostly amortizes once the system-prompt cache is warm**, which is what every multi-hour development session looks like. See [Benchmarks](#benchmarks) for the chart, methodology, raw data, and what's still to do.
+> **Honest benchmark update (2026-05-24).** Across four benchmark stages — cold-cache 1-task mini-suite, cold-cache trimmed, warm-cache 4-turn workflow, **warm-cache 12-turn day-in-the-life** — claude-leverage v0.11 is consistently more expensive than vanilla Claude Code: +89 % to +102 % on cold-cache short, +26 % to +59 % on warm 4-turn, **+64 % on warm 12-turn**. The 12-turn data is the most damning: the gap *grows* over the session (delegation overhead is a per-turn tax, not a one-time startup tax), so longer sessions make the plugin relatively *more* expensive, not less. Multiple rounds of agent trimming, extras-removal, and routing changes did not move the needle. See [Benchmarks](#benchmarks) for charts, per-turn data, methodology, and the structural reason why ('Task tool dispatch per-invocation overhead exceeds per-token Sonnet/Haiku savings').
 
 [![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -219,20 +219,57 @@ Real headless `claude -p` runs, baseline (vanilla Claude Code) vs leveraged (wit
 
 Net: the v0.11.0 release is **structural cleanup, not measurable cost optimization** vs v0.10's post-trim numbers. The actual unlock is going to require something we don't control yet (smaller framework system prompt, on-demand agent loading, or a fundamentally different routing model).
 
+### Long-session benchmark: 12-turn developer-day workflow
+
+The 4-turn warm-cache stage closed most of the cold-cache gap (+102 % → +26 %). The natural follow-up hypothesis: **at session length N, leveraged becomes net-cheaper than baseline** as cache amortization compounds. We tested it with a 12-turn benchmark designed to simulate a real developer day — mixing inline Opus work (orientation, small edits, fixes, architectural reasoning) with explicit subagent delegations (test-runner ×2, git-committer ×2, code-reviewer ×1). Full prompts and methodology in [`bench/results/2026-05-24_v0.11.0-long/long-report.md`](bench/results/2026-05-24_v0.11.0-long/long-report.md).
+
+![long-session cumulative cost](bench/results/2026-05-24_v0.11.0-long/cumulative.png)
+
+**Result: no crossover in 12 turns.** Cumulative cost at turn 12 (median across N=2 runs):
+
+| Metric | Baseline | Leveraged | Delta |
+|---|---:|---:|---:|
+| Cost at turn 12 | $0.745 | $1.220 | **+64 %** |
+| Cost at turn 1 (startup) | $0.040 | $0.080 | +100 % |
+| Cost at turn 6 (mid-session) | $0.255 | $0.513 | +101 % |
+
+![per-turn savings](bench/results/2026-05-24_v0.11.0-long/per-turn.png)
+
+The per-turn savings chart reveals **the gap doesn't amortize — it accumulates**. Only 2 of 12 turns (turn 4 and turn 7, both Opus-inline-without-delegation) show leveraged marginally cheaper. The other 10 turns are net-negative, with the delegation-heavy turns (3, 5, 6, 9, 10, 12) being the most expensive. Each delegation pays its own subagent cache_creation, so delegations behave as a per-turn tax, not a one-time startup tax.
+
+**The honest implication.** The plugin's "warm-cache savings" we saw on the 4-turn benchmark were partly real (system prompt amortizes) and partly artifacts of a short workflow with one big delegation. As the session grows, the cumulative cost of delegation overhead overwhelms the cache savings. **Under this benchmark, claude-leverage in its current form does not save tokens on real developer workflows — it costs more.**
+
+This is the central uncomfortable finding of the benchmark program. We've validated it across:
+- Cold-cache 1-task mini-suite (+89 % to +102 %)
+- Warm-cache 4-turn workflow (+26 % to +59 %)
+- Warm-cache 12-turn day-in-the-life (+64 %)
+
+The plugin is **structurally net-negative on cost** in every scenario we've measured. The fundamental reason: Claude Code's Task tool dispatch has per-invocation overhead (each subagent session pays its own cache_creation), and that overhead per delegation exceeds the per-token savings from running the work on Sonnet/Haiku instead of Opus. This isn't a tuning problem we can solve in agent prompts; it's a property of how the plugin model interacts with the model-call cost curve.
+
+**Where the plugin can still earn its keep** (not measured by this benchmark, but worth naming):
+1. **Context preservation, not dollar savings.** When the main session would otherwise consume thousands of Opus tokens exploring a codebase, delegating to a Haiku/Sonnet subagent keeps the main context window clean — useful for very long sessions where context window pressure matters more than per-session cost.
+2. **Rate-pool separation.** `git-committer-quick` (Haiku) draws from a different rate pool than Opus. If you're rate-limited on Opus, Haiku is still available.
+3. **Security hooks.** `block-secrets-precommit` and `block-dangerous-git` have no baseline equivalent — they prevent classes of mistakes that vanilla Claude Code cannot.
+
+These are real value props, but they are not "save tokens" in the way the project's headline currently implies. We're not adjusting the README claim in this release — the data is in `bench/` for anyone who wants to verify, and the next round of design work needs to grapple with whether the project's positioning matches what the plugin can actually deliver.
+
 **What this benchmark does NOT measure:**
 - Wall-clock latency (logged but not headlined)
-- Statistical significance — N=3 is too small for confidence claims; we show min-max whiskers, no p-values
-- Sessions longer than 4 turns (warm stage tops out at 4)
+- Statistical significance — N=2 (long) and N=3 (cold/warm 4-turn) are too small for confidence claims; we show min-max whiskers, no p-values
+- Sessions longer than 12 turns
 - Multi-language fixtures (Python only)
-- Plugin's security hooks (`block-secrets-precommit`, `block-dangerous-git`) — their value is correctness, not tokens
+- Plugin's security hooks — their value is correctness, not tokens
+- Cases where Opus is rate-limited and Haiku has a separate rate pool
 
-**Reproduce locally:** Claude Max/Pro subscription, ~$6 in equivalent API consumption for the full three-stage benchmark, ~50 min wall-clock.
+**Reproduce locally:** Claude Max/Pro subscription, ~$10 in equivalent API consumption for the full four-stage benchmark, ~70 min wall-clock.
 
 ```bash
-python bench/fixtures/build_fixtures.py    # idempotent
-python bench/harness/run.py --n 3 --runid <date>-cold-post-trim   # 24 sessions
-python bench/harness/run_warm.py --n 3                            # 6 sessions
+python bench/fixtures/build_fixtures.py                           # idempotent
+python bench/harness/run.py --n 3 --runid <date>-cold-post-trim   # 24 cold-cache sessions
+python bench/harness/run_warm.py --n 3                            # 6  warm 4-turn sessions
+python bench/harness/run_long.py --n 2                            # 4  long 12-turn sessions
 python bench/harness/report.py <date>-cold-post-trim
+python bench/harness/report_long.py <date>-v0.11.0-long
 python bench/harness/report_combined.py \
     --cold-pre  2026-05-21_v0.10.0 \
     --cold-post <date>-cold-post-trim \
@@ -240,7 +277,7 @@ python bench/harness/report_combined.py \
     --out-name  <date>_combined
 ```
 
-Last benchmarked: **2026-05-23** · plugin **v0.11.0** (chart numbers are v0.10's post-trim configuration; v0.11 follow-up data above) · Claude Code **2.1.89** (resolved in headless subprocess) · models **claude-opus-4-6[1m]**, **claude-sonnet-4-6**, **claude-haiku-4-5-20251001**. Primary chart raw data: [`bench/results/2026-05-23_combined/`](bench/results/2026-05-23_combined/). v0.11 follow-up data: [`bench/results/2026-05-23_v0.11.0-cold-reverted/`](bench/results/2026-05-23_v0.11.0-cold-reverted/) + [`-warm-reverted/`](bench/results/2026-05-23_v0.11.0-warm-reverted/).
+Last benchmarked: **2026-05-24** · plugin **v0.11.0** · Claude Code **2.1.89** (resolved in headless subprocess) · models **claude-opus-4-6[1m]**, **claude-sonnet-4-6**, **claude-haiku-4-5-20251001**. Primary 3-stage chart raw data: [`bench/results/2026-05-23_combined/`](bench/results/2026-05-23_combined/). v0.11 follow-up: [`bench/results/2026-05-23_v0.11.0-cold-reverted/`](bench/results/2026-05-23_v0.11.0-cold-reverted/) + [`-warm-reverted/`](bench/results/2026-05-23_v0.11.0-warm-reverted/). Long-session (12-turn): [`bench/results/2026-05-24_v0.11.0-long/`](bench/results/2026-05-24_v0.11.0-long/).
 
 ## Quick install (recommended)
 

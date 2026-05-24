@@ -1,6 +1,6 @@
 ---
 name: context-gatherer
-description: "Use before implementing features or fixing bugs that touch multiple files. Gathers all relevant context (types, interfaces, patterns, dependencies, tests) into a structured package so Opus can implement without exploring itself. Read-only — returns structured context, does not propose solutions or write code."
+description: "Pre-fetch implementation context (key files, types, patterns) on Haiku, read-only. Use before multi-file features."
 tools: Read, Grep, Glob
 model: haiku
 ---

@@ -23,6 +23,10 @@ COMMANDS_DIR = REPO_ROOT / "commands"
 # install but still need to be structurally valid (same maintenance contract).
 EXTRAS_AGENTS_DIR = REPO_ROOT / "extras" / "agents"
 EXTRAS_COMMANDS_DIR = REPO_ROOT / "extras" / "commands"
+# Per-dir READMEs live in *-docs/ siblings (NOT inside agents/ or commands/)
+# because Claude Code's plugin loader registers every *.md under agents/ as a
+# phantom agent (and every *.md under commands/ as a phantom slash command).
+# Moving the dir-internal docs out kills two phantom registrations.
 
 VALID_MODELS = {"sonnet", "haiku", "opus"}
 

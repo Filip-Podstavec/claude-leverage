@@ -1,7 +1,7 @@
 ---
 name: git-committer-quick
-description: "Use ONLY for trivial commits explicitly marked as such (single-file change, under 20 lines, no security-sensitive paths). For anything beyond that, use git-committer (Sonnet) instead. Optimized for speed and cost on pure plumbing tasks."
-tools: Read, Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Bash(git rev-parse:*)
+description: "Trivial commits on Haiku — 1 file, <20 lines, no sensitive paths. Speed-optimized, separate rate pool."
+tools: Read, Bash(git:*)
 model: haiku
 ---
 

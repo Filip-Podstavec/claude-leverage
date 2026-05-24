@@ -1,0 +1,235 @@
+{
+  "cell": "long__leveraged__r0",
+  "condition": "leveraged",
+  "run_idx": 0,
+  "runid": "2026-05-24_v0.11.0-long",
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 420.94,
+  "resolved_model": "claude-opus-4-6[1m]",
+  "plugins": [
+    {
+      "name": "claude-leverage",
+      "path": "C:\\Users\\filip\\Desktop\\Python\\claude-leverage",
+      "source": "claude-leverage@inline"
+    }
+  ],
+  "is_error": false,
+  "total_cost_usd": 1.26273405,
+  "total_tokens": 1035961,
+  "duration_ms": 419732,
+  "num_internal_turns": 47,
+  "session_usage": {
+    "input": 41,
+    "output": 11847,
+    "cache_read": 984909,
+    "cache_creation": 39164
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 41,
+      "outputTokens": 11847,
+      "cacheReadInputTokens": 984909,
+      "cacheCreationInputTokens": 39164,
+      "webSearchRequests": 0,
+      "costUSD": 1.0336095,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-sonnet-4-6": {
+      "inputTokens": 32,
+      "outputTokens": 5718,
+      "cacheReadInputTokens": 145991,
+      "cacheCreationInputTokens": 26523,
+      "webSearchRequests": 0,
+      "costUSD": 0.22912454999999995,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "n_turns_expected": 12,
+  "turns": [
+    {
+      "turn_idx": 0,
+      "prompt_preview": "look around. what is this service?",
+      "approx_cost_usd": 0.078724,
+      "turn_tokens": 88585,
+      "n_assistant_text_events": 5,
+      "final_text_len": 980
+    },
+    {
+      "turn_idx": 1,
+      "prompt_preview": "add a /health endpoint that returns {\"status\":\"ok\",\"version\"",
+      "approx_cost_usd": 0.080865,
+      "turn_tokens": 90994,
+      "n_assistant_text_events": 5,
+      "final_text_len": 1827
+    },
+    {
+      "turn_idx": 2,
+      "prompt_preview": "run the tests",
+      "approx_cost_usd": 0.085697,
+      "turn_tokens": 96431,
+      "n_assistant_text_events": 5,
+      "final_text_len": 1433
+    },
+    {
+      "turn_idx": 3,
+      "prompt_preview": "add a test for the new /health endpoint matching the existin",
+      "approx_cost_usd": 0.033859,
+      "turn_tokens": 38100,
+      "n_assistant_text_events": 5,
+      "final_text_len": 746
+    },
+    {
+      "turn_idx": 4,
+      "prompt_preview": "commit what we have so far using /commit-smart if available,",
+      "approx_cost_usd": 0.095166,
+      "turn_tokens": 107086,
+      "n_assistant_text_events": 5,
+      "final_text_len": 2797
+    },
+    {
+      "turn_idx": 5,
+      "prompt_preview": "the validator module looks suspicious. review it for bugs an",
+      "approx_cost_usd": 0.119519,
+      "turn_tokens": 134490,
+      "n_assistant_text_events": 5,
+      "final_text_len": 1732
+    },
+    {
+      "turn_idx": 6,
+      "prompt_preview": "fix the issues the reviewer flagged",
+      "approx_cost_usd": 0.061283,
+      "turn_tokens": 68959,
+      "n_assistant_text_events": 5,
+      "final_text_len": 1997
+    },
+    {
+      "turn_idx": 7,
+      "prompt_preview": "add a POST /users endpoint that creates a user. validate the",
+      "approx_cost_usd": 0.022541,
+      "turn_tokens": 25365,
+      "n_assistant_text_events": 5,
+      "final_text_len": 1619
+    },
+    {
+      "turn_idx": 8,
+      "prompt_preview": "write tests for POST /users covering happy path and invalid ",
+      "approx_cost_usd": 0.137961,
+      "turn_tokens": 155242,
+      "n_assistant_text_events": 5,
+      "final_text_len": 7154
+    },
+    {
+      "turn_idx": 9,
+      "prompt_preview": "run all tests",
+      "approx_cost_usd": 0.147403,
+      "turn_tokens": 165867,
+      "n_assistant_text_events": 5,
+      "final_text_len": 1267
+    },
+    {
+      "turn_idx": 10,
+      "prompt_preview": "the auth module is a stub. what would real token validation ",
+      "approx_cost_usd": 0.130384,
+      "turn_tokens": 146716,
+      "n_assistant_text_events": 5,
+      "final_text_len": 964
+    },
+    {
+      "turn_idx": 11,
+      "prompt_preview": "commit the user endpoint + tests as one commit with a good c",
+      "approx_cost_usd": 0.269332,
+      "turn_tokens": 303068,
+      "n_assistant_text_events": 16,
+      "final_text_len": 13679
+    }
+  ],
+  "delegations": [
+    {
+      "agent": "claude-leverage:test-runner",
+      "tier": "sonnet",
+      "tokens": 8866,
+      "input_tokens": 1,
+      "output_tokens": 159,
+      "cache_read_input_tokens": 8091,
+      "cache_creation_input_tokens": 615,
+      "duration_ms": 34025,
+      "_raw": {
+        "ts": "2026-05-24T06:09:40Z",
+        "subagent": "claude-leverage:test-runner",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 159,
+        "cache_read_input_tokens": 8091,
+        "cache_creation_input_tokens": 615,
+        "total_tokens": 8866,
+        "duration_ms": 34025
+      }
+    },
+    {
+      "agent": "claude-leverage:code-reviewer",
+      "tier": "sonnet",
+      "tokens": 7450,
+      "input_tokens": 1,
+      "output_tokens": 1450,
+      "cache_read_input_tokens": 5757,
+      "cache_creation_input_tokens": 242,
+      "duration_ms": 56172,
+      "_raw": {
+        "ts": "2026-05-24T06:11:32Z",
+        "subagent": "claude-leverage:code-reviewer",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 1450,
+        "cache_read_input_tokens": 5757,
+        "cache_creation_input_tokens": 242,
+        "total_tokens": 7450,
+        "duration_ms": 56172
+      }
+    },
+    {
+      "agent": "claude-leverage:test-runner",
+      "tier": "sonnet",
+      "tokens": 9254,
+      "input_tokens": 1,
+      "output_tokens": 104,
+      "cache_read_input_tokens": 8417,
+      "cache_creation_input_tokens": 732,
+      "duration_ms": 17162,
+      "_raw": {
+        "ts": "2026-05-24T06:13:15Z",
+        "subagent": "claude-leverage:test-runner",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 104,
+        "cache_read_input_tokens": 8417,
+        "cache_creation_input_tokens": 732,
+        "total_tokens": 9254,
+        "duration_ms": 17162
+      }
+    },
+    {
+      "agent": "claude-leverage:git-committer",
+      "tier": "sonnet",
+      "tokens": 9091,
+      "input_tokens": 1,
+      "output_tokens": 187,
+      "cache_read_input_tokens": 8706,
+      "cache_creation_input_tokens": 197,
+      "duration_ms": 39572,
+      "_raw": {
+        "ts": "2026-05-24T06:14:34Z",
+        "subagent": "claude-leverage:git-committer",
+        "tier": "sonnet",
+        "input_tokens": 1,
+        "output_tokens": 187,
+        "cache_read_input_tokens": 8706,
+        "cache_creation_input_tokens": 197,
+        "total_tokens": 9091,
+        "duration_ms": 39572
+      }
+    }
+  ]
+}

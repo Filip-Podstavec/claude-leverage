@@ -1,6 +1,6 @@
 ---
 name: test-runner
-description: "Use when the user asks to run tests, check for regressions, or diagnose test failures. Also useful when the user signals readiness to commit. Reports structured failure analysis - never modifies code or test files."
+description: "Run tests on Sonnet — auto-detects framework, returns structured failure analysis, read-only."
 tools: Bash, Read, Grep, Glob
 model: sonnet
 ---
