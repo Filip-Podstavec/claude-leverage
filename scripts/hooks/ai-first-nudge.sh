@@ -10,11 +10,12 @@
 #      Frequency cap: one nudge per file per day.
 #
 #   2. Per-directory AGENTS.md missing — when a file lands inside a
-#      detected source root (src/, lib/, app/, pkg/, internal/, services/,
-#      api/, cmd/) AND the parent dir has 8+ source files AND no AGENTS.md
-#      is present in the parent or any ancestor up to the repo root.
-#      Frequency cap: one nudge per directory per day. Only fires inside
-#      a git repo (so /tmp scratch dirs don't trip it).
+#      detected source root (src/, lib/, app/, apps/, pkg/, internal/,
+#      services/, api/, cmd/, crates/, packages/, including monorepo-
+#      nested variants) AND the parent dir has 8+ source files AND no
+#      AGENTS.md is present in the parent or any ancestor up to the
+#      repo root. Frequency cap: one nudge per directory per day. Only
+#      fires inside a git repo (so /tmp scratch dirs don't trip it).
 #
 # Never blocks (always exits 0). State files in
 # $XDG_STATE_HOME/claude-leverage/ (or $HOME/.claude/claude-leverage/
@@ -151,12 +152,16 @@ per_dir_agents_md_nudge() {
   # monorepo (`apps/web/src/foo.ts` should fire; `docs/foo.md` should not).
   case "$rel_path" in
     src/*|lib/*|app/*|apps/*|pkg/*|internal/*|services/*|api/*|cmd/*|crates/*|packages/*) ;;
-    */src/*|*/lib/*|*/app/*|*/pkg/*|*/internal/*|*/services/*|*/api/*|*/cmd/*) ;;
+    */src/*|*/lib/*|*/app/*|*/apps/*|*/pkg/*|*/internal/*|*/services/*|*/api/*|*/cmd/*|*/crates/*|*/packages/*) ;;
     *) return 0 ;;
   esac
 
-  # Per-dir frequency cap.
-  if grep -Fxq "$parent_dir" "$DIR_NUDGE_FILE" 2>/dev/null; then
+  # Per-dir frequency cap. Canonicalize the dir before grep + append so
+  # the same dir in different path forms (Git Bash mount vs native)
+  # doesn't double-nudge or accumulate duplicate cap entries.
+  local parent_canon
+  parent_canon=$(canon_path "$parent_dir")
+  if grep -Fxq "$parent_canon" "$DIR_NUDGE_FILE" 2>/dev/null; then
     return 0
   fi
 
@@ -187,7 +192,7 @@ per_dir_agents_md_nudge() {
   printf '(claude-leverage: %s has %s source files but no AGENTS.md anywhere up to repo root — as the module grows, an AGENTS.md helps next agents orient)\n' \
     "$short_path" "$file_count" >&2
 
-  printf '%s\n' "$parent_dir" >> "$DIR_NUDGE_FILE" 2>/dev/null || true
+  printf '%s\n' "$parent_canon" >> "$DIR_NUDGE_FILE" 2>/dev/null || true
 }
 
 per_dir_agents_md_nudge

@@ -18,11 +18,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
   running `/plugin update`.
 - **Per-directory AGENTS.md nudge** in `scripts/hooks/ai-first-nudge.sh`
   — re-added with proper scoping (only fires inside detected source
-  roots like `src/`, `lib/`, `app/`, `pkg/`, `internal/`,
-  `services/`, `api/`, `cmd/`, AND inside a git repo, AND when the
-  parent dir has 5+ source files without an existing AGENTS.md in any
-  ancestor). The earlier version that fired on `/tmp` is fixed by this
-  scoping.
+  roots like `src/`, `lib/`, `app/`, `apps/`, `pkg/`, `internal/`,
+  `services/`, `api/`, `cmd/`, `crates/`, `packages/`, plus monorepo-
+  nested variants, AND inside a git repo, AND when the parent dir has
+  8+ source files without an existing AGENTS.md in any ancestor —
+  override via `CLAUDE_LEVERAGE_DIR_AGENTS_MIN`). The earlier version
+  that fired on `/tmp` is fixed by this scoping.
 - **AIDEV-TODO deadline syntax**:
   `AIDEV-TODO(by: 2026-08-01): description` is now supported by the
   convention. `/stack-check`'s anchor walk parses the deadline and

@@ -140,12 +140,17 @@ quiet for the next N days.
 
    If not in a git repo, skip this section silently.
 
-   Deadline parsing tolerates a few formats:
-   - `AIDEV-TODO(by: 2026-08-01):`  (preferred)
-   - `AIDEV-TODO(2026-08-01):`      (shorter)
-   - `AIDEV-TODO(deadline: 2026-08-01):`  (alternative phrasing)
+   Deadline parsing tolerates a few formats. The distinguishing rule
+   for implementors: the parenthesized content matches one of these
+   regexes (anchored, case-insensitive on the keyword):
+   - `^by:\s*(\d{4}-\d{2}-\d{2})$`         — `(by: 2026-08-01)`
+   - `^(\d{4}-\d{2}-\d{2})$`               — `(2026-08-01)` (bare ISO date)
+   - `^deadline:\s*(\d{4}-\d{2}-\d{2})$`   — `(deadline: 2026-08-01)`
 
-   Anything else (free-form notes in the parens) falls under age-based.
+   Anything else in the parens (free-form notes like `(Q3 2026)` or
+   `(after the migration)`) is NOT a deadline; that anchor falls under
+   age-based stale tracking. This prevents misclassifying ambiguous
+   parenthetical text as a date.
 
 6. **Sanity-check AGENTS.md** (if present in cwd or repo root):
    - File size: warn if > 32 KiB (Codex hard cap; content beyond is

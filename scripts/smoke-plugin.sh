@@ -25,18 +25,23 @@ say() { [ "$QUIET" -eq 0 ] && printf '\n== %s ==\n' "$*"; return 0; }
 say_pass() { [ "$QUIET" -eq 0 ] && printf '   ✓ %s\n' "$*"; return 0; }
 say_fail() { printf '   ✗ %s\n' "$*" >&2; }
 
+# Single scratch dir for everything this run creates — including per-gate
+# log files. Cleanup on exit (success OR failure) via the trap.
+SCRATCH=$(mktemp -d)
+trap 'rm -rf "$SCRATCH"' EXIT
+
 failed=0
 
 # ----------------------------------------------------------------------
 # 1. pytest
 # ----------------------------------------------------------------------
 say "1. pytest tests/"
-if pytest tests/ -q >/tmp/smoke-pytest.log 2>&1; then
-  passed=$(grep -oE '[0-9]+ passed' /tmp/smoke-pytest.log | head -1)
+if pytest tests/ -q >$SCRATCH/pytest.log 2>&1; then
+  passed=$(grep -oE '[0-9]+ passed' $SCRATCH/pytest.log | head -1)
   say_pass "${passed:-tests passed}"
 else
-  say_fail "pytest failed — see /tmp/smoke-pytest.log"
-  tail -20 /tmp/smoke-pytest.log >&2
+  say_fail "pytest failed — see $SCRATCH/pytest.log"
+  tail -20 $SCRATCH/pytest.log >&2
   failed=$((failed + 1))
 fi
 
@@ -44,11 +49,11 @@ fi
 # 2. version sync
 # ----------------------------------------------------------------------
 say "2. plugin.json == marketplace.json version"
-if python scripts/check_version_sync.py >/tmp/smoke-version.log 2>&1; then
-  say_pass "$(tail -1 /tmp/smoke-version.log)"
+if python scripts/check_version_sync.py >$SCRATCH/version.log 2>&1; then
+  say_pass "$(tail -1 $SCRATCH/version.log)"
 else
   say_fail "version sync failed"
-  cat /tmp/smoke-version.log >&2
+  cat $SCRATCH/version.log >&2
   failed=$((failed + 1))
 fi
 
@@ -56,11 +61,11 @@ fi
 # 3. codex agents parity
 # ----------------------------------------------------------------------
 say "3. .codex/agents/*.toml matches agents/*.md"
-if python scripts/gen-codex-agents.py --check >/tmp/smoke-codex.log 2>&1; then
+if python scripts/gen-codex-agents.py --check >$SCRATCH/codex.log 2>&1; then
   say_pass "all generated TOMLs match"
 else
   say_fail "codex agents parity drifted — run: python scripts/gen-codex-agents.py"
-  cat /tmp/smoke-codex.log >&2
+  cat $SCRATCH/codex.log >&2
   failed=$((failed + 1))
 fi
 
@@ -69,11 +74,11 @@ fi
 # ----------------------------------------------------------------------
 say "4. shellcheck scripts/hooks/"
 if command -v shellcheck >/dev/null 2>&1; then
-  if shellcheck -S warning scripts/hooks/*.sh >/tmp/smoke-shellcheck.log 2>&1; then
+  if shellcheck -S warning scripts/hooks/*.sh >$SCRATCH/shellcheck.log 2>&1; then
     say_pass "no shellcheck warnings"
   else
     say_fail "shellcheck flagged issues"
-    cat /tmp/smoke-shellcheck.log >&2
+    cat $SCRATCH/shellcheck.log >&2
     failed=$((failed + 1))
   fi
 else
@@ -101,13 +106,9 @@ done
 # 6. install-codex end-to-end against scratch
 # ----------------------------------------------------------------------
 say "6. install-codex.sh end-to-end (scratch dirs)"
-SCRATCH=$(mktemp -d)
-# AIDEV-NOTE: trap also cleans up on early exit from any later step
-trap 'rm -rf "$SCRATCH"' EXIT
-
 if CODEX_HOME="$SCRATCH/codex" \
    CLAUDE_LEVERAGE_AGENTS_HOME="$SCRATCH/agents" \
-   bash scripts/install-codex.sh >/tmp/smoke-install.log 2>&1; then
+   bash scripts/install-codex.sh >$SCRATCH/install.log 2>&1; then
   # Verify expected install artifacts
   install_ok=1
   for expect in \
@@ -162,7 +163,7 @@ if CODEX_HOME="$SCRATCH/codex" \
   fi
 else
   say_fail "install-codex.sh failed"
-  cat /tmp/smoke-install.log >&2
+  cat $SCRATCH/install.log >&2
   failed=$((failed + 1))
 fi
 

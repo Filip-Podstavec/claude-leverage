@@ -197,9 +197,15 @@ def test_codex_hooks_match_claude_hooks_scripts() -> None:
 
 
 def _skill_dirs() -> list[Path]:
+    # Filter out non-skill scaffolding: pycache, dotted dirs (.git, .DS_Store
+    # adjacent metadata), and underscored "private" dirs (a convention for
+    # shared helpers that might land under skills/ later).
     return sorted(
         d for d in SKILLS_DIR.iterdir()
-        if d.is_dir() and d.name != "__pycache__"
+        if d.is_dir()
+        and d.name != "__pycache__"
+        and not d.name.startswith(".")
+        and not d.name.startswith("_")
     )
 
 
