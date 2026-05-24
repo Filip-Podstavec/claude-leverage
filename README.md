@@ -5,7 +5,7 @@
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Codex CLI](https://img.shields.io/badge/Codex_CLI-compatible-1f6feb)](https://developers.openai.com/codex)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
-![Version](https://img.shields.io/badge/version-1.3.2-success)
+![Version](https://img.shields.io/badge/version-1.3.3-success)
 
 > A small, opinionated **AI-coding-agent suite** for Claude Code and Codex
 > CLI. Built for me first, public so I can install it across machines, and
@@ -171,30 +171,60 @@ failure mid-loop leaves the previous install intact.
 
 ## Workflow example
 
-Typical session for a security-sensitive feature:
+Typical session for a security-sensitive feature, end-to-end:
 
+<!-- process-diagram:security-first-flow:start -->
+<!-- Regenerable via: /process-diagram security-first-flow --into README.md -->
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant CC as Claude Code (Opus)
+    participant Hook as scripts/hooks/*.sh
+    participant SR as security-reviewer<br/>(Sonnet, read-only)
+    participant Git
+
+    User->>CC: edit src/auth/handler.py
+    CC->>Hook: PostToolUse (Write/Edit)
+    Hook-->>User: ai-first-nudge: "73 LOC no AIDEV-NOTE anchor"
+
+    User->>CC: /security-review
+    CC->>SR: Task (delegate)
+    SR->>Git: git diff --cached
+    Git-->>SR: staged diff
+    SR-->>CC: Critical / Important / Nice<br/>(file:line citations)
+    CC-->>User: relay report verbatim
+
+    User->>CC: /adr-new "use HS256 not RS256 here"
+    CC->>CC: write docs/adr/0007-...md (immutable)
+
+    User->>CC: /commit-smart
+    CC->>Hook: PreToolUse (Bash: git commit)
+    Note right of Hook: block-secrets-precommit<br/>scans staged diff
+    Hook-->>CC: allow (no secrets)
+    CC->>Git: commit + push (Conventional Commits)
+
+    User->>CC: /session-log "wire HS256 auth + middleware"
+    CC->>CC: write docs/sessions/YYYY-MM-DD-...md (distillate)
+
+    Note over CC,Hook: Stop hook: security-nudge fires<br/>if sensitive paths touched (1× per branch/day)
 ```
-1. /init-repo (one-off, only if new project)
-                                   → drops AGENTS.md, .gitignore patterns, logging template
-2. Edit code                       → Opus inline
-                                     ↳ ai-first-nudge: "73 LOC of new code, no AIDEV-NOTE anchor"
-                                     ↳ per-dir-AGENTS.md nudge: "services/billing has 8 src files, no AGENTS.md"
-3. /security-review                → security-reviewer subagent (Sonnet, read-only)
-                                     ↳ returns Critical / Important / Nice findings with file:line
-4. /commit-smart                   → inline secret scan + Conventional Commits + push
-                                     ↳ block-secrets-precommit hook scans staged diff
-                                     ↳ block-dangerous-git hook refuses force-push / --no-verify
-                                     ↳ Stop hook (after session): security-nudge if sensitive paths touched
-5. /adr-new (if any load-bearing
-   decision was made)              → docs/adr/NNNN-<title>.md, immutable
-6. /session-log (at session end)   → docs/sessions/YYYY-MM-DD-<topic>.md
-```
+<!-- process-diagram:security-first-flow:end -->
 
-When you haven't run `/stack-check` in 30+ days, the SessionStart hook nudges
-you. The actual version check (Claude Code + Codex + plugin + CLI deps + AIDEV
-anchor health + AGENTS.md sanity) only fires on explicit invocation.
+Reading the diagram: explicit user invocations are solid arrows
+(`User -> CC`), automatic hook firings are dashed `Hook -> User`
+returns, subagent delegation is one `Task` round-trip. Nothing in the
+maintenance layer (ADRs, session logs) is auto-fired — the agent
+recognizes the moment from the trigger-aware skill descriptions and
+the convention documented in `AGENTS.md`.
 
-For a deeper walkthrough see [`workflows/security-first-feature.md`](workflows/security-first-feature.md)
+If you haven't run `/stack-check` in 30+ days, the SessionStart
+`stack-freshness` hook prints a one-line reminder (no network). The
+actual version check + AIDEV anchor health + AGENTS.md sanity audit
+only fires on explicit invocation.
+
+For deeper walkthroughs see
+[`workflows/security-first-feature.md`](workflows/security-first-feature.md)
 and [`workflows/maintaining-as-it-grows.md`](workflows/maintaining-as-it-grows.md).
 
 ## Architecture

@@ -5,6 +5,42 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] — 2026-05-24
+
+Dogfooding pass. We ship `/process-diagram` skill but weren't using it
+in our own docs — classic "the cobbler's children have no shoes" gap.
+This release fixes that.
+
+### Added
+
+- **Mermaid sequenceDiagram in README's `## Workflow example`** —
+  shows the end-to-end security-first feature flow as a real sequence
+  (User → Claude Code → hooks → security-reviewer subagent → Git),
+  with auto-fired hook events as dashed return arrows, explicit
+  invocations as solid arrows, and `Note over` boxes for asynchronous
+  Stop-hook firings. Wrapped in `<!-- process-diagram:security-first-flow:start -->`
+  markers so future `/process-diagram` re-runs regenerate it
+  idempotently.
+- **Mermaid flowchart for the maintenance-debt cycle in
+  `workflows/maintaining-as-it-grows.md`** — replaces the prior
+  ASCII-art cycle with a color-coded flowchart (green = passive
+  nudges, blue = active skills, orange = durable artifacts). Same
+  marker pattern for regeneration.
+
+### Rationale
+
+The README already had ONE mermaid block (architecture diagram from
+`/repo-map`). Adding `/process-diagram` outputs for workflows means
+we're dogfooding both diagram skills, AND the diagrams stay
+maintainable via skill re-run rather than hand-editing. GitHub
+renders mermaid natively — no asset toolchain, no PNG drift,
+copy-paste-able into PR descriptions.
+
+### Changed
+
+- Plugin version bumped to **1.3.3** (patch: documentation visuals
+  via dogfooding; no functional changes, no new skills).
+
 ## [1.3.2] — 2026-05-24
 
 Token-efficiency + README polish pass. Skill / agent / command

@@ -94,39 +94,50 @@ healthy; these skills keep the *reasoning* about the code healthy.
 
 ## How the maintenance debt cycle works
 
-Without the stack, maintenance debt accumulates silently. With the stack:
+Without the stack, maintenance debt accumulates silently. With the
+stack, each event triggers the next, keeping debt visible while it's
+still cheap to fix:
 
+<!-- process-diagram:maintenance-cycle:start -->
+<!-- Regenerable via: /process-diagram maintenance-cycle --into workflows/maintaining-as-it-grows.md -->
+```mermaid
+flowchart TD
+    A[write code] -->|>= 50 LOC no AIDEV-NOTE| B[ai-first-nudge]
+    B --> A1[anchor load-bearing parts as you go]
+
+    A1 -->|new file in src/ dir<br/>with 8+ files, no AGENTS.md| C[per-dir AGENTS.md nudge]
+    C --> C1[write module-level AGENTS.md]
+
+    C1 -->|sensitive paths touched<br/>>= 80 LOC| D[security-nudge<br/>Stop hook]
+    D --> D1[/security-review/]
+    D1 --> D2[address Critical findings]
+
+    D2 -->|architectural choice made| E[/adr-new/]
+    E --> E1[docs/adr/NNNN.md<br/>immutable]
+
+    E1 -->|known follow-up| F["AIDEV-TODO(by: 2026-08-01)"]
+    F --> G[/session-log/<br/>at session end]
+    G --> G1[docs/sessions/YYYY-MM-DD.md]
+
+    G1 -->|30+ days elapsed| H[stack-freshness<br/>SessionStart]
+    H --> H1[/stack-check/]
+    H1 --> I[report: versions +<br/>anchor age + AGENTS.md sanity]
+    I -->|deadline passed on F| F1[overdue AIDEV-TODO flagged]
+    F1 -->|resolve| A
+
+    classDef passive fill:#e8f5e9,stroke:#43a047,color:#1b5e20
+    classDef active fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
+    classDef artifact fill:#fff3e0,stroke:#fb8c00,color:#e65100
+
+    class B,C,D,H passive
+    class D1,E,G,H1 active
+    class E1,F,G1,I,F1 artifact
 ```
-write code  ──────►  ai-first-nudge flags missing AIDEV-NOTE
-                    (you anchor the load-bearing parts as you go)
-                            │
-                            ▼
-file count grows ─►  per-dir AGENTS.md nudge fires once
-                    (you write a module-level AGENTS.md)
-                            │
-                            ▼
-sensitive diff ──►  security-nudge suggests /security-review
-                    (you run it; address Critical)
-                            │
-                            ▼
-load-bearing choice ► /adr-new captures the WHY
-                    (so next agent doesn't propose refactoring it away)
-                            │
-                            ▼
-TODO with deadline ►  AIDEV-TODO(by: 2026-08-01)
-                            │
-                            ▼
-end of session ───►  /session-log distills what happened
-                    (next session picks up where this left off)
-                            │
-                            ▼
-30 days pass ─────►  stack-freshness nudges /stack-check
-                    (one report: tool versions + anchor age + AGENTS.md sanity)
-                            │
-                            ▼
-deadline passes ──►  /stack-check flags overdue AIDEV-TODO
-                    (you resolve it before it accumulates more dependents)
-```
+<!-- process-diagram:maintenance-cycle:end -->
+
+Colors: **green** boxes = passive nudges (hooks fire on their own),
+**blue** = active skills (user/agent invokes), **orange** = durable
+artifacts (files written to disk that survive the session).
 
 The cumulative effect: maintenance items surface when they're cheap to
 fix, not after they've quietly compounded. The hooks keep the *code*
