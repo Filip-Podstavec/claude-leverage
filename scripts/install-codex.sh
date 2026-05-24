@@ -9,9 +9,12 @@
 #   2. Appends an `@<absolute-path>/AGENTS.md` reference to ~/.codex/AGENTS.md
 #      so the canonical guidance loads in every Codex session.
 #   3. Copies .codex/agents/*.toml (if any) to ~/.codex/agents/.
+#   4. Copies skills/* to ~/.agents/skills/claude-leverage/ so Codex's
+#      skills resolver finds them (cross-tool SKILL.md spec).
 #
 # Idempotent: re-running detects existing install via the marker comment in
-# ~/.codex/AGENTS.md and updates in place instead of duplicating.
+# ~/.codex/AGENTS.md, replaces it in place, and overwrites
+# ~/.agents/skills/claude-leverage/ rather than appending.
 #
 # Prerequisites: codex CLI installed (npm i -g @openai/codex) — checked but
 # not installed by this script.
@@ -116,8 +119,51 @@ else
   say "no Codex agents in $agents_src yet — skipping"
 fi
 
+# --- Copy skills -------------------------------------------------------------
+#
+# Codex's skills resolver looks in ~/.agents/skills/ for user-scope skills
+# (per agentskills.io spec). We install ours under a namespaced subdir so
+# uninstall is a single `rm -rf`. Re-run replaces the whole dir.
+
+SKILLS_SRC="$REPO_DIR/skills"
+SKILLS_HOME="${CLAUDE_LEVERAGE_AGENTS_HOME:-$HOME/.agents}"
+SKILLS_DEST="$SKILLS_HOME/skills/claude-leverage"
+
+if [ -d "$SKILLS_SRC" ]; then
+  mkdir -p "$SKILLS_HOME/skills"
+  # Wipe previous install to avoid stale leftover skill dirs after a rename
+  # or removal in the source.
+  rm -rf "$SKILLS_DEST"
+  mkdir -p "$SKILLS_DEST"
+
+  installed_count=0
+  for skill_dir in "$SKILLS_SRC"/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name=$(basename "$skill_dir")
+    # Only copy directories that contain a SKILL.md (skip stray dirs).
+    if [ -f "$skill_dir/SKILL.md" ]; then
+      cp -R "$skill_dir" "$SKILLS_DEST/$skill_name"
+      installed_count=$((installed_count + 1))
+    fi
+  done
+
+  if [ "$installed_count" -gt 0 ]; then
+    say "copied $installed_count skill(s) to $SKILLS_DEST/"
+  else
+    rmdir "$SKILLS_DEST" 2>/dev/null || true
+    say "no skills with SKILL.md found in $SKILLS_SRC — skipping"
+  fi
+else
+  say "no skills/ dir in $REPO_DIR — skipping"
+fi
+
 # --- Done --------------------------------------------------------------------
 
 say "install complete."
 say "next: start a Codex session and verify with: codex --version"
-say "uninstall: delete the marker block from $target_agents and remove $target_hooks"
+say ""
+say "to uninstall, run:"
+say "  rm -rf $SKILLS_DEST"
+say "  rm -f $CODEX_HOME/agents/security-reviewer.toml $CODEX_HOME/agents/flaky-test-isolator.toml"
+say "  rm -f $target_hooks  # (or restore $target_hooks.pre-claude-leverage.bak if present)"
+say "  # then edit $target_agents and remove the block between the two '# claude-leverage:' markers"
