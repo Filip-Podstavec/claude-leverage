@@ -1,11 +1,11 @@
 ---
 name: log-structured
 description: |
-  Walk a codebase (or a specific path), find non-structured logging
-  statements (print, console.log, logger.X with string interpolation),
-  and suggest spec-compliant replacements per the JSON-lines logging
-  convention documented in AGENTS.md. Read-only — never auto-rewrites.
-  Cross-tool (Claude Code and Codex).
+  USE WHEN auditing logging in a legacy codebase, after adopting the
+  JSON-lines spec, or when user asks to clean up logging. Finds
+  print/console.log/interpolated logger calls and suggests spec-
+  compliant replacements per AGENTS.md. Read-only — never auto-rewrites.
+  Templates per language in `templates/logging/`.
 allowed-tools:
   - Read
   - Grep

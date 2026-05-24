@@ -1,11 +1,11 @@
 ---
 name: repo-map
 description: |
-  Generate or update a Mermaid architecture diagram in README.md between
-  idempotent markers. Walks the repo top-level + 2 levels deep, reads any
-  AGENTS.md descriptions found, emits a flowchart, and replaces only the
-  block between <!-- repo-map:start --> and <!-- repo-map:end -->.
-  Cross-tool (works in Claude Code and Codex).
+  USE WHEN adding/renaming/removing a top-level dir, before a release,
+  or when user asks to regenerate the README architecture diagram.
+  Refreshes the mermaid block in README between
+  `<!-- repo-map:start -->` markers (surrounding content untouched).
+  Optional dep-graph block via `madge`/`pydeps`.
 allowed-tools:
   - Read
   - Glob

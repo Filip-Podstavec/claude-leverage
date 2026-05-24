@@ -1,5 +1,5 @@
 ---
-description: Commit current changes safely — scans for secrets, writes a Conventional Commits message, pushes. All inline on the main session; no subagent dispatch (the v0.x benchmark showed delegation overhead exceeds Sonnet/Haiku per-token savings on commit-sized work, see bench/archive-token-savings-thesis/).
+description: Commit current changes safely — scans for secrets, writes a Conventional Commits message, pushes. All inline (no subagent dispatch). Refuses .env / credentials, never force-pushes, never uses --no-verify.
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git rev-parse:*)
 ---
 

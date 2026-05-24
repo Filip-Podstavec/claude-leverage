@@ -1,11 +1,11 @@
 ---
 name: explain-diff
 description: |
-  Read `git diff HEAD` (or a passed ref range) and return a plain-English
-  3–5 bullet narration: what changed, why it looks important, what should
-  attract a reviewer's attention. Useful as warm-up for a PR description
-  or a code review request. Read-only — never modifies code.
-  Cross-tool (Claude Code and Codex).
+  USE WHEN about to open a PR, when teammate asks "what's in this
+  diff?", or when returning to a branch and needing self-orientation.
+  Three modes: `--for pr|review|self`. Reads `git diff HEAD` (or
+  passed range), returns 3–5 bullet plain-English narration.
+  Read-only — defers security/test concerns to other skills.
 allowed-tools:
   - Read
   - Bash(git diff:*)

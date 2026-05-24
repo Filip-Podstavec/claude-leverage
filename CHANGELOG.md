@@ -5,6 +5,62 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] — 2026-05-24
+
+Token-efficiency + README polish pass. Skill / agent / command
+descriptions are loaded into the system prompt on every cold session, so
+verbose descriptions tax `cache_creation_input_tokens` on every fresh
+start. v1.3.1's `USE WHEN ...` expansions were over-long.
+
+### Changed
+
+- **All 10 skill descriptions, 2 subagent descriptions, and 2 command
+  descriptions tightened to 3–7 lines each.** Pattern: 1–2 sentences of
+  `USE WHEN ... triggers`, 1–2 sentences of `what it does`, optional
+  one-liner about scope (read-only, cross-tool, etc.). Detailed
+  `Do NOT use for` examples + hard rules + workflow stayed in the
+  SKILL.md / agent body where they're loaded only on actual invocation,
+  not on every session start.
+- **README rewritten for first-impression polish.** Banner moved below
+  badges (badges first = more visual). "What you get" reorganized by
+  category (always-on safety / security review / repo maintenance /
+  setup + handoff / workflow commands / conventions / cross-tool
+  plumbing) instead of a flat alphabetical list. Workflow example now
+  shows nudges firing inline (`↳` annotations) so the agent's
+  behaviour is visible per step. Honest history compressed.
+- **Statusline screenshot** ([`statusline/screenshot.png`](statusline/screenshot.png))
+  embedded in the README's "Optional: portable statusline" subsection
+  alongside install instructions, so the visual value is discoverable
+  at install time.
+- **README "What's inside" table** fixed stale references:
+  `claude-md-snippets/` was "(none in default install)" but now lists
+  the 2 shipped snippets (`security-review-routing`,
+  `adr-session-log-discipline`); `docs/adr/` and `docs/sessions/` row
+  counts updated.
+- **Workflow example** in README extended with `/adr-new` and
+  `/session-log` steps so the durable-memory layer is visible in the
+  "what does this look like in practice" tour.
+- **Codex install step 4** now says "Copies all 10 skills" instead of
+  enumerating 8 by name (less likely to bit-rot on next skill add).
+
+### Estimated token impact
+
+Frontmatter description lines across 14 files: roughly 150 → 84
+(~44 % reduction). At ~10 tokens per line, this saves ~600–700 tokens
+on every cold session (where the plugin's system prompt slice is
+freshly cached). For warm sessions the cache amortizes; for cold
+runs (`/plugin install` smoke, fresh CI agent, first session of the
+day on a new machine) this is real savings.
+
+### Statusline cleanup (in-place, mtime touched)
+
+- `statusline/statusline-command.sh` description in `statusline/README.md`
+  no longer mentions the removed `$cost` segment (was leaking back into
+  the "What you get" bullet in README; now consistent).
+
+Plugin version → **1.3.2** (patch: discoverability tuning + README
+polish + screenshot; no breaking changes, no new skills).
+
 ## [1.3.1] — 2026-05-24
 
 Discoverability follow-up to v1.3.0. The two new skills (`/adr-new`,

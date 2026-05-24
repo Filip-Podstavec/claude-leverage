@@ -1,25 +1,18 @@
 # claude-leverage
 
-> **v1.0.0 (2026-05-24)** — pivot release. This started as a hypothesis that
-> tier-routing across Sonnet/Haiku subagents would save tokens vs vanilla
-> Claude Code. Three rounds of rigorous benchmarking on Opus 4.7 disproved
-> that thesis (raw data in [`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/)).
-> v1.0.0 pivots to a **personal Claude Code + Codex dev stack** focused on
-> what the data still supports: deterministic security hooks, AI-first
-> conventions, on-demand skills, and a portable statusline.
->
-> The honest history lives in the archive — see [Honest history](#honest-history)
-> at the bottom of this README.
-
 [![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Codex CLI](https://img.shields.io/badge/Codex_CLI-compatible-1f6feb)](https://developers.openai.com/codex)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+![Version](https://img.shields.io/badge/version-1.3.2-success)
 
-A small, opinionated dev stack — built for me first, public so I can install
-it across machines. **Complements skills-based plugins like the official
-`superpowers` plugin; it does not try to replace them.**
+> A small, opinionated **AI-coding-agent suite** for Claude Code and Codex
+> CLI. Built for me first, public so I can install it across machines, and
+> for anyone else shipping client work primarily through AI agents.
+>
+> **Complements** skills-based plugins like the official `superpowers` plugin;
+> it does not try to replace them.
 
 ## Mission
 
@@ -45,48 +38,65 @@ properties guide every decision in this repo:
 
 ## What you get
 
-- **Security hooks** (always-on, deterministic): `block-secrets-precommit`
-  and `block-dangerous-git`. Run on every Bash tool call, cannot be
-  bypassed by prompt injection.
-- **`/security-review`** skill + read-only `security-reviewer` subagent
-  (Sonnet) for OWASP-Top-10-shaped audits of the current diff, plus
-  `package.json`/`requirements.txt` typosquatting heuristic. Self-contained
-  — no dependency on any other plugin.
-- **`/repo-map`** and **`/process-diagram`** skills — generate/update
-  mermaid blocks in markdown between idempotent markers. `/repo-map`
-  optionally appends a dep-graph block when `madge` or `pydeps` is installed.
-- **`/stack-check`** skill + 30-day **`stack-freshness`** SessionStart hook
-  — local-only timestamp nudge; explicit user-run check verifies tool
-  versions, walks repos for stale AIDEV-TODO/QUESTION anchors, and sanity-
-  checks AGENTS.md size against Codex's 32 KiB cap.
-- **`/init-repo`** — bootstrap a new project: drop an AGENTS.md from the
-  per-language template, add the right `.gitignore` patterns, optionally
-  install a structured-logging template (Python / TypeScript / Go / Rust).
-- **`/log-structured`** — find non-structured logging in a codebase and
-  suggest spec-compliant replacements per the JSON-lines logging convention.
-- **`/explain-diff`** — plain-English 3–5 bullet narration of the current
-  diff. Useful before opening a PR or asking a teammate for review.
-- **`/codex-sandbox`** — interactive helper to configure per-project
-  `.codex/config.toml` sandbox + approval modes.
-- **`/adr-new`** — bootstrap a new numbered Architecture Decision Record
-  (MADR-flavored) in `docs/adr/`. Immutable status once accepted, so the
-  next agent (in six months) knows *why* the architecture looks the way
-  it does.
-- **`/session-log`** — at end of a working session, distill the
-  conversation into a journal entry at `docs/sessions/YYYY-MM-DD-topic.md`.
-  Pointers + decisions + next-actions, not a transcript. The continuity
-  layer that lets the next session start where this one left off.
-- **`/commit-smart`** — inline secret scan + Conventional Commits message
-  + push. All in the main session, no subagent dispatch.
-- **Portable statusline** — Python-based, no `jq` dep, Windows-friendly.
-  Shows 5h/7d rate limits, context %, model, branch, session $ estimate.
-- **AI-first code conventions** documented in `AGENTS.md`: AIDEV-NOTE
-  anchors, JSON-lines logging spec, per-directory AGENTS.md template.
-- **Dual-tool by design**: same `AGENTS.md` for Claude Code (via
-  `@AGENTS.md` import in `CLAUDE.md`) and Codex (native read). Hook scripts
-  shared via `scripts/hooks/`; skills installed to `~/.agents/skills/` by
-  the Codex installer; agents authored in MD + auto-generated to TOML for
-  Codex.
+**Always-on safety (hooks, no setup, no model invocation):**
+- `block-secrets-precommit` — refuses `git commit` if staged diff contains
+  API keys / tokens / private keys (per-line allowlist via marker comment)
+- `block-dangerous-git` — refuses `git push --force`, `--no-verify`,
+  `git reset --hard` on protected branches
+- `ai-first-nudge` — non-blocking: ≥50 net-new LOC without AIDEV-NOTE on
+  non-test files OR new source-dir without AGENTS.md → one-line suggestion
+- `security-nudge` — non-blocking Stop hook: ≥80 net-new LOC touching
+  sensitive paths → suggests `/security-review`
+- `stack-freshness` — non-blocking SessionStart: 30+ days since last
+  `/stack-check` → one-line reminder (no network)
+
+**Security review (skill + dedicated subagent):**
+- `/security-review` — audit current diff for OWASP-Top-10-shaped issues +
+  `package.json` / `requirements.txt` typosquatting heuristic. Read-only
+  Sonnet subagent returns Critical / Important / Nice schema with
+  `file:line`. No dependency on any other plugin.
+
+**Repo maintenance (skills you invoke periodically):**
+- `/repo-map` — refresh the architecture mermaid block in README between
+  idempotent markers; optional dep-graph block via `madge` / `pydeps`
+- `/process-diagram <name>` — sequence/flowchart for a named workflow,
+  inserted into target markdown between markers, mmdc-validated
+- `/stack-check` — Claude Code + Codex + plugin + CLI dep versions vs
+  `stack.toml`, plus stale-anchor walk + AGENTS.md sanity audit
+- `/log-structured` — audit non-structured logging, suggest spec-compliant
+  replacements per the JSON-lines convention
+
+**Setup + handoff (skills per-project / per-decision):**
+- `/init-repo` — bootstrap a fresh project: AGENTS.md from per-language
+  template, `.gitignore` patterns, optional structured-logging starter
+- `/codex-sandbox` — configure per-project `.codex/config.toml` sandbox +
+  approval modes (dev / prod / custom)
+- `/explain-diff` — plain-English 3–5 bullet diff narration in three
+  audience modes (`--for pr / review / self`)
+- `/adr-new` — bootstrap a numbered MADR-flavored Architecture Decision
+  Record. Immutable status, captures *why* for the next agent in 6 months
+- `/session-log` — distill the current session into `docs/sessions/`. The
+  continuity layer between sessions — distillate, not transcript
+
+**Workflow commands (Claude Code only — use `!` preamble efficiency):**
+- `/commit-smart` — inline secret scan + Conventional Commits + push
+- `/flaky-test` — delegates to `flaky-test-isolator` subagent for N-run
+  stability analysis
+
+**Conventions enforced via documentation + nudges:**
+- AIDEV-NOTE / AIDEV-TODO / AIDEV-QUESTION anchor comments (with optional
+  ISO-8601 deadlines: `AIDEV-TODO(by: 2026-08-01)`)
+- JSON-lines structured logging spec with `trace_id` / `span_id` / `attrs`
+- Per-directory AGENTS.md for non-trivial modules
+- ADRs for load-bearing architectural decisions
+- Session logs for continuity between AI sessions
+
+**Cross-tool plumbing:**
+- Same `AGENTS.md` for Claude Code (via `@AGENTS.md` import in `CLAUDE.md`)
+  and Codex (native read)
+- Hook scripts in `scripts/hooks/` shared by both tools
+- Skills installed to `~/.agents/skills/` by the Codex installer
+- Subagents authored in MD + auto-generated to TOML for Codex parity (CI gate)
 
 ## Install — Claude Code
 
@@ -95,17 +105,37 @@ properties guide every decision in this repo:
 /plugin install claude-leverage@filip-podstavec
 ```
 
-That's it for the plugin. For the statusline:
+That's it for the plugin. **Restart Claude Code** (or run `/skill list` and
+`/agents` in a current session) to pick up all 10 skills and 2 subagents.
+
+### Optional: portable statusline
+
+Five segments shown left-to-right: 5-hour rate limit, 7-day rate limit, current
+context window %, model name, git branch.
+
+![statusline](statusline/screenshot.png)
+
+Claude-Code-only (Codex has no statusline). Single Python file, no `jq`
+dependency, works on Windows under Git Bash. Color thresholds: green <60 %,
+yellow 60–84 %, red ≥85 %.
+
 ```bash
-# Copy into ~/.claude/ — only overwrites if you have no statusline configured
+# 1. Copy into ~/.claude/ (overwrites only if you have no statusline configured)
 cp statusline/statusline-command.sh ~/.claude/statusline-command.sh
 chmod +x ~/.claude/statusline-command.sh
 ```
 
 Then add to `~/.claude/settings.json`:
+
 ```json
-"statusLine": { "type": "command", "command": "bash ~/.claude/statusline-command.sh" }
+"statusLine": {
+  "type": "command",
+  "command": "bash ~/.claude/statusline-command.sh"
+}
 ```
+
+Restart Claude Code. To opt out later: delete the `statusLine` block from
+`settings.json`.
 
 ## Install — Codex CLI
 
@@ -126,39 +156,46 @@ pwsh scripts/install-codex.ps1        # Windows PowerShell
 ```
 
 The installer:
-1. Resolves repo path into `~/.codex/hooks.json` so security hooks fire in
-   every Codex session globally.
+
+1. Resolves repo path into `~/.codex/hooks.json` so security + nudge hooks
+   fire in every Codex session globally.
 2. Appends `@<repo-path>/AGENTS.md` to `~/.codex/AGENTS.md` so the canonical
    guidance loads on every Codex session.
 3. Copies `.codex/agents/*.toml` to `~/.codex/agents/`.
-4. Copies `skills/*` to `~/.agents/skills/claude-leverage/` so `/security-review`,
-   `/repo-map`, `/process-diagram`, `/stack-check`, `/init-repo`,
-   `/log-structured`, `/explain-diff`, and `/codex-sandbox` work in Codex.
+4. Copies all 10 skills to `~/.agents/skills/claude-leverage/` so they work
+   in Codex sessions exactly as in Claude Code.
 
-Idempotent: re-running detects existing install via marker comments and
-overwrites in place.
+**Idempotent**: re-running detects existing install via marker comments and
+overwrites in place. Atomic skill swap (staging dir + rename) so a copy
+failure mid-loop leaves the previous install intact.
 
-## What's inside
+## Workflow example
 
-| Directory | Purpose |
-|-----------|---------|
-| [`agents/`](agents/) | Claude Code subagents (Markdown + YAML frontmatter) |
-| [`.codex/agents/`](.codex/agents/) | Codex subagents (TOML; generated from `agents/`) |
-| [`skills/`](skills/) | Cross-tool skills (`agentskills.io` SKILL.md spec) |
-| [`commands/`](commands/) | Claude Code slash commands |
-| [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
-| [`.codex/hooks.json`](.codex/hooks.json) | Codex hook config (template; installer resolves paths) |
-| [`.codex/config.toml`](.codex/config.toml) | Codex sandbox/approval defaults |
-| [`scripts/hooks/`](scripts/hooks/) | Hook shell scripts, shared by both tools |
-| [`scripts/`](scripts/) | Installers (`install-codex.{sh,ps1}`), version checks, generators |
-| [`statusline/`](statusline/) | Portable statusline script |
-| [`claude-md-snippets/`](claude-md-snippets/) | Opt-in CLAUDE.md routing rules (none in default install) |
-| [`templates/`](templates/) | Drop-in templates: per-language AGENTS.md examples, structured-logging starter kits, sample Codex config |
-| [`docs/adr/`](docs/adr/) | Architecture Decision Records (numbered, immutable; `/adr-new` bootstraps) |
-| [`docs/sessions/`](docs/sessions/) | Distilled session logs (`/session-log` writes one at end of session) |
-| [`docs/specs/`](docs/specs/) | Design specs (current and historical) |
-| [`workflows/`](workflows/) | End-to-end prose guides combining skills/hooks/conventions |
-| [`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/) | Frozen evidence of the v0.x experiment that motivated the v1.0 pivot |
+Typical session for a security-sensitive feature:
+
+```
+1. /init-repo (one-off, only if new project)
+                                   → drops AGENTS.md, .gitignore patterns, logging template
+2. Edit code                       → Opus inline
+                                     ↳ ai-first-nudge: "73 LOC of new code, no AIDEV-NOTE anchor"
+                                     ↳ per-dir-AGENTS.md nudge: "services/billing has 8 src files, no AGENTS.md"
+3. /security-review                → security-reviewer subagent (Sonnet, read-only)
+                                     ↳ returns Critical / Important / Nice findings with file:line
+4. /commit-smart                   → inline secret scan + Conventional Commits + push
+                                     ↳ block-secrets-precommit hook scans staged diff
+                                     ↳ block-dangerous-git hook refuses force-push / --no-verify
+                                     ↳ Stop hook (after session): security-nudge if sensitive paths touched
+5. /adr-new (if any load-bearing
+   decision was made)              → docs/adr/NNNN-<title>.md, immutable
+6. /session-log (at session end)   → docs/sessions/YYYY-MM-DD-<topic>.md
+```
+
+When you haven't run `/stack-check` in 30+ days, the SessionStart hook nudges
+you. The actual version check (Claude Code + Codex + plugin + CLI deps + AIDEV
+anchor health + AGENTS.md sanity) only fires on explicit invocation.
+
+For a deeper walkthrough see [`workflows/security-first-feature.md`](workflows/security-first-feature.md)
+and [`workflows/maintaining-as-it-grows.md`](workflows/maintaining-as-it-grows.md).
 
 ## Architecture
 
@@ -187,30 +224,28 @@ flowchart LR
 ```
 <!-- repo-map:end -->
 
-## Workflow example
+## What's inside
 
-Typical session with the default install:
+| Directory | Purpose |
+|-----------|---------|
+| [`agents/`](agents/) | Claude Code subagents (Markdown + YAML frontmatter) |
+| [`.codex/agents/`](.codex/agents/) | Codex subagents (TOML; auto-generated from `agents/`) |
+| [`skills/`](skills/) | 10 cross-tool skills (`agentskills.io` SKILL.md spec) |
+| [`commands/`](commands/) | 2 Claude Code slash commands (`/commit-smart`, `/flaky-test`) |
+| [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
+| [`.codex/`](.codex/) | Codex hook template + sandbox/approval defaults |
+| [`scripts/hooks/`](scripts/hooks/) | Hook shell scripts, shared by both tools |
+| [`scripts/`](scripts/) | Installers, generators, version checks, `smoke-plugin.sh` |
+| [`statusline/`](statusline/) | Portable statusline script + screenshot |
+| [`claude-md-snippets/`](claude-md-snippets/) | Opt-in CLAUDE.md / AGENTS.md routing rules (2 ship by default; installable via `/init-repo`) |
+| [`templates/`](templates/) | Per-language AGENTS.md example + structured-logging starter kits (4 languages) |
+| [`docs/adr/`](docs/adr/) | Architecture Decision Records (numbered, immutable; 4 seed ADRs + template) |
+| [`docs/sessions/`](docs/sessions/) | Distilled session logs (template + 1 demo log) |
+| [`docs/specs/`](docs/specs/) | Design specs (the v1.0 pivot package + research) |
+| [`workflows/`](workflows/) | End-to-end prose guides combining skills/hooks/conventions |
+| [`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/) | Frozen evidence of the v0.x experiment that motivated the v1.0 pivot |
 
-```
-1. Edit code                       → Opus inline
-2. Run tests inline                → Opus reads pytest output
-3. /security-review                → security-reviewer subagent (Sonnet, read-only)
-4. /commit-smart                   → inline secret scan + Conventional Commits + push
-5. Hooks run silently throughout   → block-secrets-precommit, block-dangerous-git
-```
-
-After ≥50 LOC of net-new code without an `AIDEV-NOTE:` anchor, the
-`ai-first-nudge` PostToolUse hook prints a one-liner suggestion. After
-≥80 LOC of net-new code in security-sensitive paths (auth, crypto, routes,
-templates), the `security-nudge` Stop hook suggests `/security-review`. Both
-are non-blocking.
-
-When you haven't run `/stack-check` in 30+ days, the `stack-freshness`
-SessionStart hook prints a one-liner reminder — local timestamp only, no
-network. The actual version check (Claude Code, Codex, plugin, CLI deps)
-only fires when you explicitly run `/stack-check`.
-
-## Why this is a single repo for two tools
+## Why a single repo for two tools
 
 Per the [research](docs/specs/research/research_dual_codex_claude.md):
 `AGENTS.md` is the open spec both tools converge on. Claude Code reads
@@ -219,7 +254,10 @@ redirect to `AGENTS.md`. Hook event vocabularies match between the two tools
 (`PreToolUse`, `PostToolUse`, `SessionStart`, `Stop`), so the same shell
 scripts work for both — only the trigger config differs. Subagents must be
 authored twice (MD+YAML for Claude, TOML for Codex), but `scripts/gen-codex-agents.py`
-keeps them in sync.
+keeps them in sync and CI fails on drift.
+
+The full design rationale is in
+[`docs/adr/0002-agents-md-canonical-claude-md-import.md`](docs/adr/0002-agents-md-canonical-claude-md-import.md).
 
 ## Verifying an install works
 
@@ -229,13 +267,13 @@ Before pushing changes to the plugin, run the bundled smoke check:
 bash scripts/smoke-plugin.sh
 ```
 
-It runs every pre-push gate in one shot: pytest, version sync, codex
-agent parity, shellcheck (if installed), every hook script with empty
-stdin, plus an end-to-end install-codex run against a scratch directory.
-Green exit means safe to push; red exit prints which gate failed.
+It runs every pre-push gate in one shot: pytest, version sync, codex agent
+parity, shellcheck (if installed), every hook script with empty stdin, plus
+an end-to-end install-codex run against a scratch directory. Green exit
+means safe to push; red exit prints which gate failed.
 
-If you're a user installing the plugin (not modifying it), the
-equivalent verification is:
+If you're a user installing the plugin (not modifying it), the equivalent
+verification is:
 
 ```
 /plugin install claude-leverage@filip-podstavec
@@ -248,6 +286,7 @@ echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
 ## Update / uninstall
 
 **Claude Code:**
+
 ```
 /plugin marketplace update
 /plugin update claude-leverage
@@ -268,6 +307,7 @@ mv ~/.codex/hooks.json.pre-claude-leverage.bak ~/.codex/hooks.json 2>/dev/null \
 ```
 
 PowerShell variant:
+
 ```powershell
 Remove-Item -Recurse -Force $env:USERPROFILE\.agents\skills\claude-leverage
 Remove-Item -Force $env:USERPROFILE\.codex\agents\security-reviewer.toml,$env:USERPROFILE\.codex\agents\flaky-test-isolator.toml
@@ -279,13 +319,9 @@ else { Remove-Item -Force "$env:USERPROFILE\.codex\hooks.json" }
 
 ## Honest history
 
-The benchmark series that disproved the v0.x token-savings thesis is in
-[`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/) —
-charts, raw stream-json transcripts, audit harnesses, the 11 retired
-subagents, and the original `extras-README.md` documenting per-agent
-verdicts.
-
-Headline finding (Opus 4.7, 2026-05-24):
+This repo started in 2026 as a v0.x experiment in tier-routing across
+Sonnet/Haiku subagents to save tokens vs. vanilla Claude Code. Three rounds
+of rigorous benchmarking on Opus 4.7 disproved that thesis:
 
 | Stage | Baseline | Leveraged | Delta |
 |---|---:|---:|---:|
@@ -295,10 +331,16 @@ Headline finding (Opus 4.7, 2026-05-24):
 
 The plugin model's per-invocation dispatch overhead structurally exceeded
 the per-token savings from delegating execution to Sonnet/Haiku. Prompt
-caching on Opus 4.7 makes "read large, emit small" cheap inline. v1.0.0 is
-what's left after subtracting everything the data killed.
+caching on Opus 4.7 makes "read large, emit small" cheap inline.
 
-Full design docs for the pivot: [`docs/specs/2026-05-24-pivot/`](docs/specs/2026-05-24-pivot/).
+v1.0.0 is what's left after subtracting everything the data killed; v1.1.x
+through v1.3.x added the dev-stack scaffolding around the surviving
+components (security, conventions, skills, durable-memory layer).
+
+Full data + design: [`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/),
+[`docs/specs/2026-05-24-pivot/`](docs/specs/2026-05-24-pivot/),
+[`docs/adr/0001-pivot-from-token-savings-to-dev-stack.md`](docs/adr/0001-pivot-from-token-savings-to-dev-stack.md).
+Changelog: [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License
 

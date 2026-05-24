@@ -1,15 +1,12 @@
 ---
 name: security-review
 description: |
-  Audit the current diff for OWASP-Top-10-shaped issues and common AI-coding
-  failure modes. Use BEFORE committing security-sensitive changes (auth,
-  crypto, routes, user-input handling, secret loading, templates). Read-only —
-  never modifies code. Returns deterministic Critical / Important / Nice
-  schema with file:line citations.
-
-  This skill is fully self-contained in the claude-leverage plugin — it
-  delegates to the `security-reviewer` subagent (Sonnet, read-only) shipped
-  alongside it. No dependency on superpowers or any other external plugin.
+  USE BEFORE committing security-sensitive changes (auth, crypto,
+  routes, user-input handling, secret loading, templates), or when
+  the `security-nudge` Stop hook suggests it. Audits the current diff
+  for OWASP-Top-10-shaped issues + deps typosquatting. Read-only.
+  Delegates to the `security-reviewer` Sonnet subagent shipped here;
+  returns Critical / Important / Nice schema with `file:line`.
 allowed-tools:
   - Read
   - Bash(git diff:*)

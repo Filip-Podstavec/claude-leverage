@@ -1,13 +1,12 @@
 ---
 name: stack-check
 description: |
-  Verify that Claude Code, Codex CLI, this plugin, and the CLI deps
-  required by claude-leverage hooks/skills are at their expected minimum
-  versions per stack.toml. Also flags stale AIDEV-TODO/QUESTION anchors
-  and sanity-checks AGENTS.md size + structure in the current repo.
-  Read-only — reports status and update commands; never installs anything.
-  Touches the freshness timestamp on success so the SessionStart
-  `stack-freshness` hook stays quiet for the next N days (default 30).
+  USE WHEN the `stack-freshness` SessionStart hook nudges
+  ("stack last checked 42d ago"), or when user asks to check dep
+  versions. Verifies Claude Code + Codex + plugin + CLI deps vs
+  `stack.toml` (per-OS update commands), flags stale
+  AIDEV-TODO/QUESTION anchors (deadline-aware), and sanity-checks
+  AGENTS.md size + imports. Read-only. Resets the freshness timestamp.
 allowed-tools:
   - Read
   - Write

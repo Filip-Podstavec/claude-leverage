@@ -1,6 +1,6 @@
 ---
 name: flaky-test-isolator
-description: "Use when a test intermittently fails on unchanged code (flaky test). Runs the same single test N times sequentially, captures pass/fail and stderr per run, groups failures by normalized signature, returns structured stability report. Read-only — never modifies code, never installs deps, never touches files. Distinct from test-runner (which runs the suite once and diagnoses a single failure). Use this when you need statistical signal across runs, not a one-shot diagnosis."
+description: "USE WHEN a test intermittently fails on unchanged code. Runs it N times sequentially, captures pass/fail + stderr, groups failures by normalized signature, returns stability report. Read-only — never modifies code or installs deps. For statistical signal across runs, not one-shot diagnosis."
 tools: Bash, Read, Grep, Glob
 model: sonnet
 ---

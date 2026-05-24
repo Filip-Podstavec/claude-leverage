@@ -1,28 +1,12 @@
 ---
 name: session-log
 description: |
-  USE WHEN ending a substantial working session — one that shipped
-  commits, made multiple non-trivial decisions, or surfaced open
-  questions worth preserving for the next session. Trigger signals to
-  watch for: user says "thanks, that's it for today" / "let's pick this
-  up tomorrow" / "wrap this up" / similar; OR session has shipped 3+
-  commits with no session log yet today; OR user explicitly asks for a
-  summary / handoff / status.
-
-  Writes a distilled session log to `docs/sessions/YYYY-MM-DD-<topic>.md`
-  — context, what was done, key decisions (link any ADRs), open
-  questions, next steps. Pulls branch + recent commits from git; the
-  model distills the conversation. Hard cap on length (~80 lines) so
-  logs stay useful as continuity instead of becoming dead weight.
-
-  Distillate, NOT transcript. Full conversation already lives in
-  Claude Code's session history; the log is for the NEXT agent.
-
-  Do NOT use for: quick one-shot fixes (commit message is enough);
-  pure-exploration sessions that decided nothing; sessions where you'd
-  just be writing "we discussed X" with no concrete outcome.
-
-  Cross-tool (Claude Code and Codex).
+  USE WHEN ending a substantial working session — user says
+  "thanks/tomorrow/wrap up", or session shipped 3+ commits with no log
+  today, or user asks for a summary. Distills the conversation into
+  `docs/sessions/YYYY-MM-DD-<topic>.md` (context, what was done, key
+  decisions, open questions, next steps). Hard cap ~80 lines.
+  Distillate, NOT transcript. See `docs/sessions/README.md`.
 allowed-tools:
   - Read
   - Write

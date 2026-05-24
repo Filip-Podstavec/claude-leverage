@@ -2,7 +2,7 @@
 # Do not edit by hand — re-run the generator after modifying the MD source.
 
 name = "security-reviewer"
-description = "Use BEFORE committing security-sensitive changes (auth, crypto, routes, user-input handling, secret loading, templates). Audits the current diff for OWASP-Top-10-shaped issues and common AI-coding failure modes. Read-only — never modifies code. Returns deterministic Critical / Important / Nice schema with file:line citations. Distinct from full pentest tools (Semgrep, CodeQL); this is a model review focused on what would be embarrassing to ship from a coding agent."
+description = "USE BEFORE committing security-sensitive changes (auth, crypto, routes, templates, secrets). Audits current diff for OWASP-Top-10 patterns + deps typosquatting. Read-only. Returns Critical / Important / Nice schema with file:line. Model review — not a Semgrep/CodeQL replacement."
 model = "claude-sonnet-4-6"
 allowed_tools = ["Bash", "Glob", "Grep", "Read"]
 sandbox_mode = "read-only"

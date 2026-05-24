@@ -1,5 +1,5 @@
 ---
-description: Diagnose a flaky test by running it N times and analyzing failure patterns. Delegates to flaky-test-isolator subagent (Sonnet) — N runs, signature grouping, stability report. Does NOT fix the test.
+description: Diagnose a flaky test by running it N times. Delegates to flaky-test-isolator subagent — N runs, signature-grouped failures, stability report. Does NOT fix the test.
 allowed-tools: Bash(ls:*), Bash(test:*), Bash(pwd:*)
 argument-hint: "<test-path-or-name> [--runs N=10] [--timeout SECONDS=60]"
 ---

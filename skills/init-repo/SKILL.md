@@ -1,14 +1,11 @@
 ---
 name: init-repo
 description: |
-  Bootstrap a project with the claude-leverage conventions: drop an
-  AGENTS.md from templates/AGENTS.md.example (per-language), add
-  recommended .gitignore patterns for the stack's state directories,
-  and optionally install a structured-logging template per detected
-  language. Interactive — confirms each addition before writing.
-  Idempotent — re-running detects existing claude-leverage blocks via
-  marker comments and offers update-in-place.
-  Cross-tool (Claude Code and Codex).
+  USE WHEN starting work in a project that lacks a claude-leverage
+  AGENTS.md (no `claude-leverage:` marker blocks at git root), or when
+  user asks to set up the stack here. Drops AGENTS.md + `.gitignore`
+  patterns + optional language-specific logging template + optional
+  CLAUDE.md routing snippets. Interactive, idempotent via markers.
 allowed-tools:
   - Read
   - Write

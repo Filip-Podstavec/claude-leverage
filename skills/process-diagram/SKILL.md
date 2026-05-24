@@ -1,10 +1,11 @@
 ---
 name: process-diagram
 description: |
-  Generate a Mermaid sequenceDiagram or flowchart for a named workflow,
-  with optional insertion into a target markdown file between idempotent
-  markers. Runs mmdc validation in a retry loop. Cross-tool (Claude Code
-  and Codex).
+  USE WHEN documenting a non-obvious workflow prose explains poorly,
+  or when user describes a multi-step process and asks for a
+  visualization. Generates a mermaid sequenceDiagram or flowchart,
+  optional insertion into target markdown between idempotent markers,
+  `mmdc` validation in a 3-retry loop.
 allowed-tools:
   - Read
   - Edit

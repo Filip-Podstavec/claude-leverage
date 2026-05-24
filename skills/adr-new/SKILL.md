@@ -1,27 +1,14 @@
 ---
 name: adr-new
 description: |
-  USE WHEN a load-bearing architectural decision is being made or has just
-  been made in the conversation — one that someone is likely to
-  re-litigate in six months ("why didn't we use X instead?"). Examples
-  that warrant an ADR: choosing a database / framework / integration
-  pattern / auth model, OR an explicit rejection of an alternative the
-  team will likely revisit, OR a non-obvious tradeoff between
-  performance / cost / maintenance / security.
-
-  Bootstraps a new numbered MADR-flavored ADR in `docs/adr/`: picks the
-  next sequential number, asks for title + context + decision +
-  alternatives + consequences, fills the template, and appends a link
-  to `docs/adr/README.md` index. Immutable status once accepted
-  (`proposed` → `accepted` → `deprecated` / `superseded by NNNN`).
-
-  Do NOT use for: implementation choices the code itself shows
-  (variable naming, function structure); one-off tactical fixes; things
-  covered by obvious conventions (lint config, test naming). When in
-  doubt, write it — three sentences in `docs/adr/NNNN.md` is cheaper
-  than re-arguing the same point in six months.
-
-  Cross-tool (Claude Code and Codex).
+  USE WHEN a load-bearing architectural decision is being made in
+  conversation (database / framework / auth model / integration
+  choice, or explicit rejection of an alternative) — one likely to be
+  re-litigated in 6 months without the rationale. Bootstraps a
+  numbered MADR ADR in `docs/adr/`, asks for context + decision +
+  alternatives, updates the index. Immutable status once accepted.
+  See `docs/adr/README.md` for the convention; full Do/Don't list in
+  this SKILL body.
 allowed-tools:
   - Read
   - Write

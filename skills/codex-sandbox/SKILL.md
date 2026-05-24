@@ -1,13 +1,11 @@
 ---
 name: codex-sandbox
 description: |
-  Interactive helper to configure per-project `.codex/config.toml`
-  sandbox and approval modes. Walks the user through choices, explains
-  the trade-offs, and writes the file. Idempotent — existing
-  configurations get updated in place between marker comments.
-  Cross-tool, but the artifact (`.codex/config.toml`) is Codex-only;
-  Claude Code users invoking the skill get a "this affects Codex
-  behavior only" note up front.
+  USE WHEN setting up Codex CLI in a project, tightening sandbox for
+  prod/CI, or when user asks about Codex permissions. Interactive
+  helper for per-project `.codex/config.toml`: `dev` / `prod` /
+  `custom` profiles, idempotent via markers, preserves unmanaged
+  config below the block. Codex-only artifact.
 allowed-tools:
   - Read
   - Write
