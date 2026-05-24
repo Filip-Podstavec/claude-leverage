@@ -75,13 +75,6 @@ try:
 except:
     pass
 
-# Session cost estimate
-total_in = ctx.get('total_input_tokens', 0)
-total_out = ctx.get('total_output_tokens', 0)
-if total_in > 0 or total_out > 0:
-    cost = (total_in * 3 + total_out * 15) / 1_000_000
-    parts.append(f'\033[33m\${cost:.3f}\033[0m')
-
 sep = '\033[2m | \033[0m'
 print(sep.join(parts))
 " <<< "$(cat)"

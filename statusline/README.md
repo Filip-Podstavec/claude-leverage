@@ -6,7 +6,7 @@ dependency, works on Windows (Git Bash / MSYS / WSL) and macOS / Linux.
 ## What it shows
 
 ```
-5h: ███████░░░ 73% (1h42m) | 7d: ████░░░░░░ 38% (3d4h) | Ctx: ██░░░░░░░░ 22% | Sonnet 4.6 | # main | $0.247
+5h: ███████░░░ 73% (1h42m) | 7d: ████░░░░░░ 38% (3d4h) | Ctx: ██░░░░░░░░ 22% | Sonnet 4.6 | # main
 ```
 
 - **5h** — 5-hour rate-limit usage with countdown to reset
@@ -14,9 +14,15 @@ dependency, works on Windows (Git Bash / MSYS / WSL) and macOS / Linux.
 - **Ctx** — current context-window usage
 - **Model** — display name (Sonnet 4.6, Opus 4.7, …)
 - **# branch** — current git branch (cwd-aware)
-- **$cost** — session cost estimate using Opus rates ($3/MTok input, $15/MTok output)
 
 Color thresholds: green <60 %, yellow 60-84 %, red ≥85 %.
+
+Earlier versions appended a session $cost estimate as the last segment.
+That was removed in v1.2.0 — the number was unclear ("what currency?
+estimate against what plan?") and only correct against the Opus rate
+card, which not every user is on. Add it back manually if you want it:
+the formula was `(total_input_tokens * 3 + total_output_tokens * 15) /
+1_000_000` in Opus per-MTok USD.
 
 ## Install
 

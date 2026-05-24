@@ -101,29 +101,51 @@ quiet for the next N days.
 
 5. **Walk the current repo for AIDEV anchor health** (if cwd is inside
    a git repo). Grep `git rev-parse --show-toplevel` for
-   `AIDEV-(TODO|QUESTION):` matches, group by age:
-   - "fresh" (anchor on a file modified in the last 30 days)
-   - "aging" (30–90 days)
-   - "stale" (>90 days)
-   Use `git log -1 --format=%cI -- <file>` for last-modified
-   timestamps. Cap walk at 5000 files; skip the bench archive, vendor
-   dirs, node_modules, __pycache__, .git.
+   `AIDEV-(TODO|QUESTION)` matches and parse each line.
+
+   Two flavors of anchor:
+   - **Deadline-bearing**: `AIDEV-TODO(by: 2026-08-01):` or
+     `AIDEV-QUESTION(by: YYYY-MM-DD):`. Extract the ISO-8601 date and
+     compare against today.
+     - `due-soon` (deadline in the next 14 days)
+     - `overdue` (deadline already passed)
+   - **Age-based** (no deadline): use `git log -1 --format=%cI -- <file>`
+     for the file's last-modified timestamp.
+     - `fresh` (≤30 days)
+     - `aging` (30–90 days)
+     - `stale` (>90 days)
+
+   Cap walk at 5000 files; skip the bench archive, vendor dirs,
+   node_modules, __pycache__, .git.
 
    Reported after the version table:
 
    ```markdown
    ## AIDEV anchors (current repo: <name>)
 
-   - 14 AIDEV-TODO total: 3 fresh, 8 aging, **3 stale (>90d)**
-   - 5 AIDEV-QUESTION total: 1 fresh, 2 aging, **2 stale (>90d)**
+   - 14 AIDEV-TODO total: 3 fresh, 8 aging, 2 stale (>90d), **1 overdue (by deadline)**
+   - 5 AIDEV-QUESTION total: 1 fresh, 2 aging, 1 stale, 1 due-soon
 
-   Stale anchors (consider resolving or removing):
-   - `src/billing/charge.py:47` — AIDEV-TODO (last touched 2025-12-03)
-   - `src/auth/middleware.py:89` — AIDEV-QUESTION (last touched 2025-11-15)
-     ...
+   **Overdue (deadline passed):**
+   - `src/billing/charge.py:47` — AIDEV-TODO due 2026-04-01 (44 days overdue)
+     "replace the polling loop with webhooks"
+
+   **Due soon (next 14 days):**
+   - `src/auth/middleware.py:89` — AIDEV-QUESTION due 2026-06-05 (in 12 days)
+
+   **Stale (no deadline, last touched >90 days ago):**
+   - `src/legacy/handlers.py:120` — AIDEV-TODO (last touched 2025-12-03)
+     "migrate to v2 API"
    ```
 
    If not in a git repo, skip this section silently.
+
+   Deadline parsing tolerates a few formats:
+   - `AIDEV-TODO(by: 2026-08-01):`  (preferred)
+   - `AIDEV-TODO(2026-08-01):`      (shorter)
+   - `AIDEV-TODO(deadline: 2026-08-01):`  (alternative phrasing)
+
+   Anything else (free-form notes in the parens) falls under age-based.
 
 6. **Sanity-check AGENTS.md** (if present in cwd or repo root):
    - File size: warn if > 32 KiB (Codex hard cap; content beyond is

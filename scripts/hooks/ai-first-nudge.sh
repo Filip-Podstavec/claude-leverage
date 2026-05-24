@@ -3,14 +3,23 @@
 #
 # Claude Code / Codex PostToolUse hook (Write|Edit|MultiEdit matcher).
 #
-# Prints non-blocking stderr nudges when AI-first conventions look unmet:
-#   1. Large net-new code (>=50 LOC) in a single file with no AIDEV-NOTE
-#      anchor in the added lines.
-#   2. New top-level module directory created without an AGENTS.md.
+# Two independent, non-blocking nudges:
 #
-# Never blocks (always exits 0). Frequency cap: one nudge per file per
-# session (tracked in $XDG_STATE_HOME/claude-leverage/session-nudges.txt
-# or ~/.claude/claude-leverage/session-nudges.txt).
+#   1. AIDEV-NOTE anchor missing — when >=50 net-new LOC ship in a single
+#      non-test file without any AIDEV-* anchor in the change.
+#      Frequency cap: one nudge per file per day.
+#
+#   2. Per-directory AGENTS.md missing — when a file lands inside a
+#      detected source root (src/, lib/, app/, pkg/, internal/, services/,
+#      api/, cmd/) AND the parent dir has 8+ source files AND no AGENTS.md
+#      is present in the parent or any ancestor up to the repo root.
+#      Frequency cap: one nudge per directory per day. Only fires inside
+#      a git repo (so /tmp scratch dirs don't trip it).
+#
+# Never blocks (always exits 0). State files in
+# $XDG_STATE_HOME/claude-leverage/ (or $HOME/.claude/claude-leverage/
+# as fallback). Override the LOC threshold with CLAUDE_LEVERAGE_NUDGE_LOC,
+# the per-dir file-count threshold with CLAUDE_LEVERAGE_DIR_AGENTS_MIN.
 #
 # Hook protocol:
 #   - Receives JSON on stdin with tool_name + tool_input/tool_response
@@ -31,18 +40,20 @@ if ! has_parser; then
   exit 0
 fi
 
-# Threshold for "large net-new" — declared here so it's easy to find and tune.
+# Tunables.
 THRESHOLD_LOC="${CLAUDE_LEVERAGE_NUDGE_LOC:-50}"
+DIR_AGENTS_MIN="${CLAUDE_LEVERAGE_DIR_AGENTS_MIN:-8}"
 
-# Session-nudge tracking file. Per-machine, per-session-day granularity
-# (we don't have a real session id from the hook payload, so we use date).
+# State dir (file-level + dir-level nudge caps live here).
 NUDGE_DIR="${CLAUDE_LEVERAGE_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/claude-leverage}"
 [ -d "$NUDGE_DIR" ] || mkdir -p "$NUDGE_DIR" 2>/dev/null || NUDGE_DIR="$HOME/.claude/claude-leverage"
 [ -d "$NUDGE_DIR" ] || mkdir -p "$NUDGE_DIR" 2>/dev/null || exit 0
-NUDGE_FILE="$NUDGE_DIR/session-nudges-$(date +%Y%m%d).txt"
-touch "$NUDGE_FILE" 2>/dev/null || exit 0
+TODAY=$(date +%Y%m%d 2>/dev/null || printf '00000000')
+FILE_NUDGE_FILE="$NUDGE_DIR/session-nudges-$TODAY.txt"
+DIR_NUDGE_FILE="$NUDGE_DIR/dir-agents-nudges-$TODAY.txt"
+touch "$FILE_NUDGE_FILE" "$DIR_NUDGE_FILE" 2>/dev/null || exit 0
 
-# Read hook input from stdin and pull the file path the tool acted on.
+# Read hook input from stdin and pull the tool + file path.
 read_stdin
 tool=$(get_field '.tool_name') || exit 0
 case "$tool" in
@@ -50,40 +61,145 @@ case "$tool" in
   *) exit 0 ;;
 esac
 
-# Resolve the file path from tool_input. Different tools use slightly
-# different keys; try the common ones in order.
 file_path=$(get_field '.tool_input.file_path' 2>/dev/null) || true
 [ -z "${file_path:-}" ] && file_path=$(get_field '.tool_input.path' 2>/dev/null) || true
 [ -z "${file_path:-}" ] && exit 0
 
 # Ignore patterns: tests, fixtures, generated code, dotfiles, archive.
+# Applied to BOTH nudges — these paths are noise for both checks.
 case "$file_path" in
   *_test.*|*test_*.py|*.test.ts|*.test.tsx|*.test.js|*.test.jsx) exit 0 ;;
   */tests/*|*/test/*|*/__tests__/*|*/fixtures/*|*/__pycache__/*) exit 0 ;;
-  */node_modules/*|*/.git/*|*/dist/*|*/build/*|*/.next/*) exit 0 ;;
+  */node_modules/*|*/.git/*|*/dist/*|*/build/*|*/.next/*|*/target/*|*/vendor/*) exit 0 ;;
   */bench/archive-token-savings-thesis/*) exit 0 ;;
   *.lock|*.lockb|*.snap) exit 0 ;;
 esac
 
-# Already nudged this file today?
-if grep -Fxq "$file_path" "$NUDGE_FILE" 2>/dev/null; then
-  exit 0
-fi
-
-# Try to count added LOC. For Write: count all non-empty lines (whole-file
-# write is net-new). For Edit/MultiEdit: count new_string lines minus
-# old_string lines (approximation: just count new_string lines as an
-# upper bound — we want a heuristic, not accounting).
-added_loc=0
-# Defensive: each branch falls back to 0 if anything in the pipeline fails
-# under `set -euo pipefail`. grep -c always emits a number when given input,
-# but the safety belt costs nothing.
+# Helper: count non-blank lines in a string.
 count_non_blank() {
   local body="$1"
   local n
   n=$(printf '%s\n' "$body" | grep -cv '^[[:space:]]*$' 2>/dev/null || printf '0')
   case "$n" in ''|*[!0-9]*) printf '0' ;; *) printf '%s' "$n" ;; esac
 }
+
+# Helper: canonicalize a path so paths from different sources can be compared.
+# Git Bash on Windows has three flavors that don't string-compare equal:
+#   /tmp/foo            (MSYS mount)
+#   /c/Users/.../foo    (drive-prefix)
+#   C:/Users/.../foo    (native, with forward slashes)
+# `cygpath -m` translates all of them to the native-with-forward-slashes
+# form, which is what `git rev-parse --show-toplevel` returns. On non-Git-Bash
+# systems the paths are already canonical; fall back to Python abspath.
+canon_path() {
+  local p="$1"
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -m -- "$p" 2>/dev/null && return
+  fi
+  local PY
+  PY=$(command -v python3 || command -v python || true)
+  if [ -n "$PY" ]; then
+    printf '%s' "$p" | "$PY" -c '
+import os, sys
+print(os.path.abspath(sys.stdin.read()).replace("\\", "/"), end="")
+' 2>/dev/null && return
+  fi
+  printf '%s' "$p"
+}
+
+# ----------------------------------------------------------------------
+# Check 1: per-directory AGENTS.md (runs independently of LOC threshold)
+# ----------------------------------------------------------------------
+#
+# Only fires inside a git repo + recognized source root, so /tmp scratch
+# work doesn't trip it. The earlier removal of this check was because the
+# original version fired on any dir with 3+ files anywhere — including
+# /tmp. This version is scoped to "actual project source dirs growing
+# past the in-AGENTS.md threshold."
+
+per_dir_agents_md_nudge() {
+  local parent_dir
+  parent_dir=$(dirname "$file_path")
+
+  # Must be inside a git repo. `cd "$parent_dir"` only works if the path
+  # exists — for fresh Write of a new file in a new dir, parent_dir may
+  # not exist yet. Use git -C with the deepest existing ancestor.
+  local probe="$parent_dir"
+  while [ ! -d "$probe" ] && [ "$probe" != "/" ] && [ "$probe" != "." ]; do
+    probe=$(dirname "$probe")
+  done
+  [ -d "$probe" ] || return 0
+
+  local repo_root
+  repo_root=$(git -C "$probe" rev-parse --show-toplevel 2>/dev/null) || return 0
+  [ -z "$repo_root" ] && return 0
+
+  # Canonicalize both sides — they may come in different path forms on
+  # Git Bash on Windows (MSYS mount vs native), and would otherwise fail
+  # the prefix-match below despite pointing at the same location.
+  local fp_canon rr_canon
+  fp_canon=$(canon_path "$file_path")
+  rr_canon=$(canon_path "$repo_root")
+
+  case "$fp_canon" in
+    "$rr_canon"/*) ;;
+    *) return 0 ;;  # file not under any known repo root (e.g. an absolute path elsewhere)
+  esac
+  local rel_path=${fp_canon#"$rr_canon"/}
+
+  # Must be under a recognized source root. First-level OR nested in a
+  # monorepo (`apps/web/src/foo.ts` should fire; `docs/foo.md` should not).
+  case "$rel_path" in
+    src/*|lib/*|app/*|apps/*|pkg/*|internal/*|services/*|api/*|cmd/*|crates/*|packages/*) ;;
+    */src/*|*/lib/*|*/app/*|*/pkg/*|*/internal/*|*/services/*|*/api/*|*/cmd/*) ;;
+    *) return 0 ;;
+  esac
+
+  # Per-dir frequency cap.
+  if grep -Fxq "$parent_dir" "$DIR_NUDGE_FILE" 2>/dev/null; then
+    return 0
+  fi
+
+  # Walk parent → repo_root looking for an AGENTS.md. Codex merges
+  # nested AGENTS.md from the cwd up to git root; if any ancestor has
+  # one, the convention is satisfied for this file.
+  local d="$parent_dir"
+  while :; do
+    [ -f "$d/AGENTS.md" ] && return 0
+    [ "$d" = "$repo_root" ] && break
+    local parent
+    parent=$(dirname "$d")
+    [ "$parent" = "$d" ] && break  # hit / safely
+    d="$parent"
+  done
+
+  # Parent dir must exist and have a meaningful number of source files
+  # before we suggest an AGENTS.md. Brand-new dir with one file is
+  # premature; established dir with 8+ siblings is the right moment.
+  [ -d "$parent_dir" ] || return 0
+  local file_count
+  file_count=$(find "$parent_dir" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
+  case "$file_count" in ''|*[!0-9]*) file_count=0 ;; esac
+  [ "$file_count" -lt "$DIR_AGENTS_MIN" ] && return 0
+
+  local short_path
+  short_path=$(printf '%s' "$parent_dir" | sed "s|^$HOME|~|")
+  printf '(claude-leverage: %s has %s source files but no AGENTS.md anywhere up to repo root — as the module grows, an AGENTS.md helps next agents orient)\n' \
+    "$short_path" "$file_count" >&2
+
+  printf '%s\n' "$parent_dir" >> "$DIR_NUDGE_FILE" 2>/dev/null || true
+}
+
+per_dir_agents_md_nudge
+
+# ----------------------------------------------------------------------
+# Check 2: missing AIDEV-NOTE on large diffs (original logic)
+# ----------------------------------------------------------------------
+#
+# Independent of Check 1 — both can fire (rare) or neither.
+
+# Count added LOC per tool type.
+added_loc=0
 case "$tool" in
   Write)
     content=$(get_field '.tool_input.content' 2>/dev/null) || content=""
@@ -94,11 +210,9 @@ case "$tool" in
     added_loc=$(count_non_blank "$new_string")
     ;;
   MultiEdit)
-    # Sum non-blank lines across edits[*].new_string. The earlier
-    # implementation counted lines in the raw JSON blob, which counted
-    # JSON brackets and old_string content too — producing inflated
-    # counts that triggered spurious nudges. This Python pass walks the
-    # array properly. Falls back to 0 if no python is available.
+    # Sum non-blank lines across edits[*].new_string via Python (the JSON
+    # blob shape needs proper array walking; the older regex-on-blob
+    # approach over-counted JSON syntax and triggered spurious nudges).
     PY_BIN=$(command -v python3 || command -v python || true)
     if [ -n "$PY_BIN" ]; then
       added_loc=$(printf '%s' "$JSON_INPUT" | "$PY_BIN" -c '
@@ -123,15 +237,12 @@ except Exception:
     ;;
 esac
 
-# Check: large net-new code, no AIDEV-NOTE in the change.
-#
-# We deliberately do NOT also nudge about missing per-directory AGENTS.md
-# files. That check is too easy to get wrong from a hook (almost every
-# directory has 3+ files; the "new module" intent is hard to infer from a
-# single Write event). Phase 3's docs-sync skill handles that case at PR
-# time, where the author can actually answer "is this a non-trivial
-# module that warrants its own AGENTS.md?".
 if [ "$added_loc" -lt "$THRESHOLD_LOC" ]; then
+  exit 0
+fi
+
+# Per-file frequency cap.
+if grep -Fxq "$file_path" "$FILE_NUDGE_FILE" 2>/dev/null; then
   exit 0
 fi
 
@@ -151,5 +262,5 @@ short_path=$(printf '%s' "$file_path" | sed "s|^$HOME|~|")
 printf '(claude-leverage: %s LOC of net-new code in %s with no AIDEV-NOTE anchor — consider anchoring load-bearing parts)\n' \
   "$added_loc" "$short_path" >&2
 
-printf '%s\n' "$file_path" >> "$NUDGE_FILE" 2>/dev/null || true
+printf '%s\n' "$file_path" >> "$FILE_NUDGE_FILE" 2>/dev/null || true
 exit 0

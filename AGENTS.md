@@ -108,6 +108,19 @@ workarounds, ordering dependencies, idempotency tricks). Do NOT decorate every
 function — that's clutter. The PostToolUse `ai-first-nudge` hook prints a
 non-blocking suggestion when ≥50 net-new LOC ship without any anchor.
 
+**Deadlines (optional).** `AIDEV-TODO` and `AIDEV-QUESTION` accept an
+optional ISO-8601 deadline:
+
+```python
+# AIDEV-TODO(by: 2026-08-01): replace the polling loop with webhooks
+# AIDEV-QUESTION(by: 2026-07-15): is the encoding always UTF-8 here?
+```
+
+`/stack-check`'s anchor walk parses the date and reports overdue items
+separately from age-based "stale" items, so deadlines have actual teeth.
+Without a deadline, the same anchor falls under the age-based check
+(fresh / aging / stale at 30 / 90 days).
+
 ### Structured JSON-lines logging
 
 For application code that emits logs an agent will later need to read:

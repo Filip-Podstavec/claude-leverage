@@ -109,9 +109,16 @@ Rules: ≤120 chars per line, all-caps prefix. **Before editing a module, run
 `grep -rn 'AIDEV-' <module>` first.** Do not silently remove anchors —
 removing one requires an explicit decision in the commit / PR message.
 
+`AIDEV-TODO` and `AIDEV-QUESTION` accept an optional ISO-8601 deadline:
+
+```python
+# AIDEV-TODO(by: 2026-08-01): replace the polling loop with webhooks
+```
+
 The `ai-first-nudge` PostToolUse hook from claude-leverage prints a
 non-blocking suggestion when ≥50 net-new LOC ship in a single file without
-any anchor. `/stack-check` periodically flags stale anchors (>90 days).
+any anchor. `/stack-check` periodically flags **overdue** anchors (deadline
+past) and **stale** anchors (no deadline, last touched >90 days ago).
 
 ### Structured JSON-lines logging
 
