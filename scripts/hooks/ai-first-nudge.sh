@@ -94,11 +94,32 @@ case "$tool" in
     added_loc=$(count_non_blank "$new_string")
     ;;
   MultiEdit)
-    # Approximation: count lines in tool_input.edits[*].new_string. Without
-    # a real array walker (we may only have python/jq in get_field), use the
-    # whole .tool_input.edits JSON length as a proxy. Skip the precise count.
-    edits_blob=$(get_field '.tool_input.edits' 2>/dev/null) || edits_blob=""
-    added_loc=$(count_non_blank "$edits_blob")
+    # Sum non-blank lines across edits[*].new_string. The earlier
+    # implementation counted lines in the raw JSON blob, which counted
+    # JSON brackets and old_string content too — producing inflated
+    # counts that triggered spurious nudges. This Python pass walks the
+    # array properly. Falls back to 0 if no python is available.
+    PY_BIN=$(command -v python3 || command -v python || true)
+    if [ -n "$PY_BIN" ]; then
+      added_loc=$(printf '%s' "$JSON_INPUT" | "$PY_BIN" -c '
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    edits = (data.get("tool_input", {}) or {}).get("edits", []) or []
+    n = 0
+    for e in edits:
+        if isinstance(e, dict):
+            s = e.get("new_string", "")
+            if isinstance(s, str):
+                n += sum(1 for ln in s.splitlines() if ln.strip())
+    print(n)
+except Exception:
+    print(0)
+' 2>/dev/null || printf '0')
+      case "$added_loc" in ''|*[!0-9]*) added_loc=0 ;; esac
+    else
+      added_loc=0
+    fi
     ;;
 esac
 

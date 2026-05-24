@@ -79,6 +79,13 @@ declare -a pattern_names=(
 )
 
 declare -a patterns=(
+  # AIDEV-NOTE: the trailing "Generic Password Assignment" pattern below
+  # uses an exclusion character class `[^"'$\{<]` to skip placeholder
+  # interpolations: `$` excludes `$VAR` references, `{` excludes `${VAR}`
+  # references (the `\{` here is literal because backslash-`{` inside a
+  # bracket expression in ERE is the same as bare `{`), `<` excludes
+  # template-style `<placeholder>` markers. Don't "simplify" the class
+  # without checking what each character is exempting.
   'AKIA[0-9A-Z]{16}'
   'ghp_[A-Za-z0-9]{36}'
   'github_pat_[A-Za-z0-9_]{36,}'

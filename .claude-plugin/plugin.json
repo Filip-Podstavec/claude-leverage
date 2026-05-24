@@ -1,7 +1,7 @@
 {
   "name": "claude-leverage",
   "version": "1.0.0",
-  "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, /security-review, /repo-map, /stack-check, portable statusline. Designed to complement skills-based plugins like superpowers, not replace them.",
+  "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, /security-review, /repo-map, /stack-check, portable statusline. Designed to complement other skills-based plugins, not replace them.",
   "author": {
     "name": "Filip Podstavec",
     "url": "https://github.com/Filip-Podstavec"

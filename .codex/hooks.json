@@ -30,6 +30,7 @@
     ],
     "PostToolUse": [
       {
+        "_comment": "Codex emits PostToolUse with tool_name='subagent' for subagent calls (vs Claude's 'Task' — see hooks/hooks.json). Matching both gives forward-compat if Codex ever aligns its event names with Claude.",
         "matcher": "^Task$|^subagent$",
         "hooks": [
           {

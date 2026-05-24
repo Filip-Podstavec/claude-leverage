@@ -44,14 +44,24 @@ if grep -Fxq "$key" "$NUDGE_FILE" 2>/dev/null; then
   exit 0
 fi
 
-# Count added LOC across staged + unstaged combined.
+# Count added LOC across staged + unstaged combined, deduplicated.
+# `git diff HEAD` emits one unified diff for "working tree vs HEAD",
+# which is exactly "staged + unstaged combined" without double-counting
+# lines that appear in both `git diff --cached` and `git diff`.
 # "Added" = lines beginning with '+' but not '+++' file headers.
-added=$(
-  {
-    git diff --cached 2>/dev/null
-    git diff 2>/dev/null
-  } | grep -E '^\+[^+]' 2>/dev/null | wc -l | tr -d ' '
-) || added=0
+#
+# Falls back to `git diff` (working tree vs index) when there are no
+# commits yet on the branch (rare in real use, but `git diff HEAD` fails
+# in that case).
+if git rev-parse HEAD >/dev/null 2>&1; then
+  diff_cmd_lines="git diff HEAD"
+  diff_cmd_names="git diff HEAD --name-only"
+else
+  diff_cmd_lines="git diff"
+  diff_cmd_names="git diff --name-only"
+fi
+
+added=$($diff_cmd_lines 2>/dev/null | grep -E '^\+[^+]' 2>/dev/null | wc -l | tr -d ' ') || added=0
 case "$added" in ''|*[!0-9]*) added=0 ;; esac
 
 if [ "$added" -lt "$THRESHOLD_LOC" ]; then
@@ -59,12 +69,7 @@ if [ "$added" -lt "$THRESHOLD_LOC" ]; then
 fi
 
 # Check whether any changed file matches a sensitive-path pattern.
-changed_files=$(
-  {
-    git diff --cached --name-only 2>/dev/null
-    git diff --name-only 2>/dev/null
-  } | sort -u
-)
+changed_files=$($diff_cmd_names 2>/dev/null | sort -u)
 [ -z "$changed_files" ] && exit 0
 
 # Pattern set — kept inline so this script is grep-able. Tunable by

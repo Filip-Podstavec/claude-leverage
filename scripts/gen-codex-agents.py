@@ -100,6 +100,15 @@ def render_toml(fields: dict[str, str], body: str) -> str:
         raise ValueError("frontmatter has no 'name'")
     description = fields.get("description", "").strip()
     tools_raw = fields.get("tools", "").strip()
+    # Without a tools field we can't reason about sandbox_mode (the heuristic
+    # below would silently default to read-only, which is the safest but
+    # invisible decision). Require the field explicitly — the Claude pytest
+    # `test_agent_required_fields` already enforces it on the MD side.
+    if not tools_raw:
+        raise ValueError(
+            "frontmatter has no 'tools' field — add it to the agent .md "
+            "before regenerating Codex parity"
+        )
     model_short = fields.get("model", "").strip().lower()
     model_full = MODEL_MAP.get(model_short, model_short)
 

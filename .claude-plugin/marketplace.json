@@ -11,7 +11,7 @@
         "source": "url",
         "url": "https://github.com/Filip-Podstavec/claude-leverage.git"
       },
-      "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, /security-review, /repo-map, /stack-check, portable statusline.",
+      "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, /security-review, /repo-map, /stack-check, portable statusline. Complements other skills-based plugins, not a replacement.",
       "version": "1.0.0",
       "category": "workflow",
       "keywords": [

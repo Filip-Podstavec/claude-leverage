@@ -50,10 +50,23 @@ if [ -f "$target_hooks" ] && ! grep -q '__CLAUDE_LEVERAGE_DIR__' "$target_hooks"
   say "backed up existing hooks.json -> $target_hooks.pre-claude-leverage.bak"
 fi
 
-# Use sed to substitute the placeholder. Use # as delimiter so /-bearing paths
-# don't break it.
-sed "s#__CLAUDE_LEVERAGE_DIR__#$REPO_DIR#g" \
-  "$REPO_DIR/.codex/hooks.json" > "$target_hooks"
+# Use Python for the substitution. sed with any single-byte delimiter can
+# silently mis-parse when the delimiter character appears literally in
+# REPO_DIR (e.g. '#' in '~/projects/my#project/...'), producing a broken
+# JSON file with no error. Python's str.replace is delimiter-free.
+PY_BIN=$(command -v python3 || command -v python || true)
+if [ -z "$PY_BIN" ]; then
+  die "python3 or python is required for install-codex (path substitution); install one and re-run"
+fi
+"$PY_BIN" -c '
+import sys
+src_path, repo_dir, dst_path = sys.argv[1], sys.argv[2], sys.argv[3]
+with open(src_path, encoding="utf-8") as f:
+    body = f.read()
+body = body.replace("__CLAUDE_LEVERAGE_DIR__", repo_dir)
+with open(dst_path, "w", encoding="utf-8") as f:
+    f.write(body)
+' "$REPO_DIR/.codex/hooks.json" "$REPO_DIR" "$target_hooks"
 say "wrote $target_hooks (paths resolved to $REPO_DIR)"
 
 # --- Wire AGENTS.md import ---------------------------------------------------
@@ -86,11 +99,21 @@ say "added @import to $target_agents"
 # --- Copy Codex agents -------------------------------------------------------
 
 agents_src="$REPO_DIR/.codex/agents"
-if [ -d "$agents_src" ] && [ -n "$(ls -A "$agents_src" 2>/dev/null)" ]; then
-  cp -f "$agents_src"/*.toml "$CODEX_HOME/agents/" 2>/dev/null && \
-    say "copied $(ls "$agents_src" | wc -l) agent definition(s) to $CODEX_HOME/agents/"
+toml_files=()
+if [ -d "$agents_src" ]; then
+  # Iterate via explicit existence check rather than `cp ... *.toml`, which
+  # would expand to a literal "*.toml" if the glob matches nothing and
+  # then `cp` would error out with a noisy "No such file" that the && chain
+  # would swallow — making the failure invisible.
+  for f in "$agents_src"/*.toml; do
+    [ -f "$f" ] && toml_files+=("$f")
+  done
+fi
+if [ "${#toml_files[@]}" -gt 0 ]; then
+  cp -f "${toml_files[@]}" "$CODEX_HOME/agents/"
+  say "copied ${#toml_files[@]} agent definition(s) to $CODEX_HOME/agents/"
 else
-  say "no agents in $agents_src yet — skipping"
+  say "no Codex agents in $agents_src yet — skipping"
 fi
 
 # --- Done --------------------------------------------------------------------

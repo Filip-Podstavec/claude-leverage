@@ -27,6 +27,7 @@
     ],
     "PostToolUse": [
       {
+        "_comment": "Claude Code emits the PostToolUse event for the subagent tool as tool_name='Task'. Codex emits 'subagent' (see .codex/hooks.json matcher). Same shell script handles both since it only reads tool_response.usage.* via the JSON parser.",
         "matcher": "Task",
         "hooks": [
           {

@@ -37,7 +37,10 @@ case "$THRESHOLD_DAYS" in
   ''|0|*[!0-9]*) exit 0 ;;
 esac
 
-now=$(date +%s)
+now=$(date +%s 2>/dev/null || printf '0')
+# Defensive: on a strictly POSIX-conformant system, `date +%s` may emit
+# the literal "%s" rather than the epoch. Refuse to do math on it.
+case "$now" in ''|*[!0-9]*|0) exit 0 ;; esac
 
 if [ ! -f "$LAST_CHECK_FILE" ]; then
   printf '(claude-leverage: stack never checked — run /stack-check to verify Claude Code, Codex, plugin, and CLI dep versions)\n' >&2
