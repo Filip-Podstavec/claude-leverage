@@ -15,9 +15,11 @@
 name = "claude-leverage"
 marketplace = "filip-podstavec"
 # Manifest version. Bumped when the *shape* of stack.toml changes, not
-# when plugin.json version bumps. Used by /stack-check to refuse loading
-# a stack.toml from a future plugin version it doesn't understand yet.
-manifest_version = 2  # v2: per-OS update hints
+# when plugin.json version bumps. /stack-check uses this for informational
+# logging only as of v1.1.0 — the "refuse loading future versions" guard
+# is aspirational; current additions (v1 -> v2 = per-OS update hints) are
+# strictly additive so legacy /stack-check still works.
+manifest_version = 2  # v2: per-OS update hints (update_hint_macos/linux/windows)
 
 # Host CLIs (Claude Code, Codex). Checked if found on PATH; missing is
 # warned-not-failed for `optional = true`.

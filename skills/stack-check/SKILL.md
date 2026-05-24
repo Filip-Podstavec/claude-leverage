@@ -78,6 +78,11 @@ quiet for the next N days.
      found, mark "missing" (and "outdated" if `optional = false`).
    - Compare against `min_version` using a tuple compare (split on `.`).
    - Mark: `ok` | `outdated` | `missing` | `unknown (parse failed)`.
+   - **Resolve update hint** per-OS: detect platform via `uname -s` (or
+     PowerShell `$env:OS` / `$IsWindows`). Prefer `update_hint_macos` /
+     `update_hint_linux` / `update_hint_windows` when present and the
+     platform matches; otherwise fall back to the generic `update_hint`
+     field. This is what stack.toml `manifest_version = 2` introduced.
 
 3. **For the plugin itself:**
    - Read `version` from the installed `.claude-plugin/plugin.json`.

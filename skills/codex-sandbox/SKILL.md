@@ -52,17 +52,23 @@ mode = "<on-request | on-failure | never>"
 # <!-- claude-leverage:codex-sandbox END -->
 ```
 
-## The three pre-baked profiles
+## The pre-baked profiles
 
 | Profile | Sandbox | Approval | Use for |
 |---|---|---|---|
 | `dev` | `workspace-write` | `on-request` | Local development. Agent can write inside the project but asks before risky actions (network, package install, shell commands outside cwd). |
-| `staging` | `workspace-write` | `on-request` | Pre-production environments. Same as dev but log every approval prompt for audit trails. |
 | `prod` | `read-only` | `never` | Production / CI runs. Agent can only read; any write requires running outside the sandbox. |
 | `custom` | (asks) | (asks) | Anything else; skill walks you through each field. |
 
-(Field names match Codex spec; if Codex's spec evolves, this skill
-will need a refresh — `/stack-check` flags the situation.)
+> Earlier drafts proposed a `staging` profile with "audit logging" — that
+> claim was incorrect (Codex config has no audit-log field). For CI /
+> staging behavior, use `dev` if you want approvals or `prod` if you want
+> the safer read-only sandbox, and pipe Codex's own stderr to your log
+> aggregator if you need an audit trail.
+
+Field names below are what Codex currently documents. If the spec
+evolves, this skill will need a refresh — `/stack-check` does not yet
+verify Codex spec freshness (v1.1 candidate).
 
 ## Workflow
 
@@ -81,9 +87,8 @@ will need a refresh — `/stack-check` flags the situation.)
    ```
    Pick a profile:
      1. dev      — workspace-write, on-request approvals (recommended for local)
-     2. staging  — same as dev with audit logging
-     3. prod     — read-only sandbox, no approvals (CI / production)
-     4. custom   — answer each question individually
+     2. prod     — read-only sandbox, no approvals (CI / production)
+     3. custom   — answer each question individually
    ```
    Unless `--noninteractive`, wait for a choice. With
    `--noninteractive` and no `--profile`, default to `dev`.
@@ -93,7 +98,10 @@ will need a refresh — `/stack-check` flags the situation.)
    - Approval mode: never / on-request / on-failure + explain each.
    - `project_doc.max_bytes`: keep default 32768 or set higher
      (warns this exceeds Codex's silent-drop cap if user picks higher).
-   - Allowed extra paths (`sandbox.writable_roots`): optional list.
+   - **TODO**: additional Codex sandbox fields like writable-roots /
+     network-allowlist are not yet documented stably across Codex
+     versions; this skill emits only the mode fields for now. Verify
+     against the live spec before adding more.
 
 5. **Write the managed block.**
    - If no `.codex/config.toml` exists: create file with managed
@@ -124,7 +132,7 @@ will need a refresh — `/stack-check` flags the situation.)
 
 ## Tunables
 
-- `--profile dev|staging|prod|custom` — skip the picker.
+- `--profile dev|prod|custom` — skip the picker. Default is `dev`.
 - `--noninteractive` — confirm nothing, use profile (default `dev`).
 - `--dry-run` — print what would be written, write nothing.
 

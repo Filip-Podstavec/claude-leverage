@@ -12,8 +12,10 @@ Both tools see identical guidance. Tool-specific additions live in `CLAUDE.md`
 ## Project
 
 `claude-leverage` is Filip Podstavec's personal **Claude Code + Codex dev stack**:
-security hooks, AI-first code conventions, `/security-review`, `/repo-map`,
-`/process-diagram`, `/stack-check`, plus a portable statusline.
+security hooks, AI-first code conventions, 8 on-demand skills
+(`/security-review`, `/repo-map`, `/process-diagram`, `/stack-check`,
+`/init-repo`, `/log-structured`, `/explain-diff`, `/codex-sandbox`), plus
+a portable statusline.
 
 It is installed:
 - **In Claude Code** as a plugin (`/plugin install claude-leverage@filip-podstavec`).

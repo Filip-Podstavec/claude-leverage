@@ -128,29 +128,49 @@ fi
 SKILLS_SRC="$REPO_DIR/skills"
 SKILLS_HOME="${CLAUDE_LEVERAGE_AGENTS_HOME:-$HOME/.agents}"
 SKILLS_DEST="$SKILLS_HOME/skills/claude-leverage"
+SKILLS_STAGING="$SKILLS_DEST.new"
 
 if [ -d "$SKILLS_SRC" ]; then
   mkdir -p "$SKILLS_HOME/skills"
-  # Wipe previous install to avoid stale leftover skill dirs after a rename
-  # or removal in the source.
-  rm -rf "$SKILLS_DEST"
-  mkdir -p "$SKILLS_DEST"
+
+  # AIDEV-NOTE: copy to a staging sibling dir first, then atomically swap.
+  # If any cp fails mid-loop, the previous install stays intact rather
+  # than getting wiped to a half-installed state.
+  rm -rf "$SKILLS_STAGING"
+  mkdir -p "$SKILLS_STAGING"
 
   installed_count=0
+  copy_failed=0
   for skill_dir in "$SKILLS_SRC"/*/; do
     [ -d "$skill_dir" ] || continue
     skill_name=$(basename "$skill_dir")
     # Only copy directories that contain a SKILL.md (skip stray dirs).
     if [ -f "$skill_dir/SKILL.md" ]; then
-      cp -R "$skill_dir" "$SKILLS_DEST/$skill_name"
-      installed_count=$((installed_count + 1))
+      if cp -R "$skill_dir" "$SKILLS_STAGING/$skill_name" 2>/dev/null; then
+        installed_count=$((installed_count + 1))
+      else
+        copy_failed=1
+        say "WARNING: failed to copy $skill_name; aborting skills install"
+        break
+      fi
     fi
   done
 
-  if [ "$installed_count" -gt 0 ]; then
+  if [ "$copy_failed" -eq 1 ]; then
+    rm -rf "$SKILLS_STAGING"
+    say "skills install aborted; previous install (if any) at $SKILLS_DEST is untouched"
+  elif [ "$installed_count" -gt 0 ]; then
+    # Atomic-ish swap. mv replaces an existing directory only if both
+    # are on the same filesystem (always true here — same $HOME).
+    if [ -d "$SKILLS_DEST" ]; then
+      rm -rf "$SKILLS_DEST.old"
+      mv "$SKILLS_DEST" "$SKILLS_DEST.old"
+    fi
+    mv "$SKILLS_STAGING" "$SKILLS_DEST"
+    rm -rf "$SKILLS_DEST.old"
     say "copied $installed_count skill(s) to $SKILLS_DEST/"
   else
-    rmdir "$SKILLS_DEST" 2>/dev/null || true
+    rm -rf "$SKILLS_STAGING"
     say "no skills with SKILL.md found in $SKILLS_SRC — skipping"
   fi
 else

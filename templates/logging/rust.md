@@ -11,9 +11,15 @@ In `Cargo.toml`:
 ```toml
 [dependencies]
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+# Note: "chrono" feature is REQUIRED for fmt::time::ChronoUtc used below.
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter", "chrono"] }
 uuid = { version = "1", features = ["v4"] }
 ```
+
+`tracing-subscriber`'s `chrono` feature pulls in the `chrono` crate
+transitively. If your project already uses `time` or wants to avoid
+chrono, swap `ChronoUtc` below for `time::format_description::well_known::Iso8601`
+plus the `time` crate (and drop the `chrono` feature).
 
 ## Drop into your project
 
@@ -24,9 +30,8 @@ Save as `src/logging.rs`:
 // Do not interpolate values into the event/message — use the `event` arg
 // for the snake_case name and pass values as structured fields via the
 // `tracing` macros (e.g. `info!(invoice_id = "inv_789", "invoice_paid")`).
-use std::io;
 use tracing_subscriber::{
-    fmt::{self, format::FmtSpan},
+    fmt::{self},
     prelude::*,
     EnvFilter,
 };
@@ -37,104 +42,51 @@ pub fn new_trace_id() -> String {
 }
 
 pub fn new_span_id() -> String {
-    let s = Uuid::new_v4().simple().to_string();
-    s[..16].to_string()
+    let mut s = Uuid::new_v4().simple().to_string();
+    s.truncate(16);
+    s
 }
 
 /// Initialize the global tracing subscriber. Call once at program start.
-/// `service` is baked into every event as the `service` field.
+/// The returned guard is the root span carrying `service`; keep it alive
+/// (typically by binding to `_root_guard` in `main`) for the duration of
+/// the program — when it drops, `service` stops appearing on events.
 ///
 /// Respects RUST_LOG env var for filtering (`info`, `debug`, etc.).
-pub fn init(service: &'static str) {
-    let json_layer = fmt::layer()
-        .json()
-        .with_current_span(true)
-        .with_span_list(false)
-        .with_target(false)
-        .with_writer(io::stdout)
-        .with_timer(fmt::time::ChronoUtc::rfc_3339())
-        .with_span_events(FmtSpan::NONE);
-
-    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
-
-    // Inject `service` field into every event via a default-fields layer.
-    let with_service = fmt::layer()
-        .json()
-        .fmt_fields(fmt::format::JsonFields::new())
-        .with_filter(filter);
+pub fn init(service: &'static str) -> tracing::span::EnteredSpan {
+    let filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info"));
 
     tracing_subscriber::registry()
-        .with(json_layer.with_filter(EnvFilter::new("info")))
-        .with(WithService::new(service))
-        .init();
-}
-
-// AIDEV-NOTE: small layer that injects `service` as a synthetic field
-// on every event. Rolling our own avoids forcing callers to repeat
-// `service = "billing"` on every macro call.
-mod with_service {
-    use std::marker::PhantomData;
-    use tracing::Subscriber;
-    use tracing_subscriber::{layer::Context, Layer};
-
-    pub struct WithService<S> {
-        service: &'static str,
-        _s: PhantomData<S>,
-    }
-
-    impl<S> WithService<S> {
-        pub fn new(service: &'static str) -> Self {
-            Self { service, _s: PhantomData }
-        }
-    }
-
-    impl<S: Subscriber> Layer<S> for WithService<S> {
-        fn on_event(
-            &self,
-            event: &tracing::Event<'_>,
-            _ctx: Context<'_, S>,
-        ) {
-            // tracing's standard JSON formatter will read the service from
-            // the visitor pattern; the simplest portable way is to use
-            // tracing::field::Visit and prepend service=... — left as a
-            // demonstration. For most projects, baking service into the
-            // span name via `info_span!("svc", service = "billing")` is
-            // sufficient and keeps this module simple.
-            let _ = event;
-        }
-    }
-}
-pub use with_service::WithService;
-```
-
-## Simpler path (recommended for most projects)
-
-If the custom layer feels heavy, use a root span with `service` as a
-field. `tracing-subscriber`'s JSON layer will emit it on every nested
-event:
-
-```rust
-// src/main.rs
-use tracing::{info, info_span};
-use tracing_subscriber::{fmt, prelude::*, EnvFilter};
-
-fn main() {
-    tracing_subscriber::registry()
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+        .with(filter)
         .with(
             fmt::layer()
                 .json()
                 .with_current_span(true)
+                .with_span_list(true)        // emit the full span stack — service shows up here
                 .with_writer(std::io::stdout)
                 .with_timer(fmt::time::ChronoUtc::rfc_3339()),
         )
         .init();
 
-    let root = info_span!("svc", service = "billing");
-    let _enter = root.enter();
+    // Root span carrying the service name. Returned to the caller as an
+    // EnteredSpan so it stays active until dropped.
+    tracing::info_span!("svc", service = service).entered()
+}
+```
 
-    let trace_id = uuid::Uuid::new_v4().simple().to_string();
-    let span_id  = uuid::Uuid::new_v4().simple().to_string()[..16].to_string();
+## First call
+
+```rust
+// src/main.rs
+use tracing::{info, info_span};
+use yourapp::logging::{init, new_trace_id, new_span_id};
+
+fn main() {
+    let _root_guard = init("billing");  // keep alive for program duration
+
+    let trace_id = new_trace_id();
+    let span_id  = new_span_id();
 
     let request_span = info_span!(
         "request",
@@ -155,14 +107,22 @@ fn main() {
 Output (sample):
 
 ```json
-{"ts":"2026-05-24T12:34:56.789Z","level":"INFO","fields":{"message":"invoice_paid","invoice_id":"inv_789","amount_cents":4900,"currency":"EUR"},"target":"yourapp::main","span":{"trace_id":"a1b2...","span_id":"4d5e...","name":"request"},"spans":[{"service":"billing","name":"svc"},{"trace_id":"a1b2...","span_id":"4d5e...","name":"request"}]}
+{"timestamp":"2026-05-24T12:34:56.789Z","level":"INFO","fields":{"message":"invoice_paid","invoice_id":"inv_789","amount_cents":4900,"currency":"EUR"},"target":"yourapp::main","span":{"trace_id":"a1b2...","span_id":"4d5e...","name":"request"},"spans":[{"service":"billing","name":"svc"},{"trace_id":"a1b2...","span_id":"4d5e...","name":"request"}]}
 ```
 
 This matches the **spirit** of the spec (event name, structured fields,
-trace context) even though the field-name layout differs from the
-JSON-lines example in `AGENTS.md`. Adjust the JSON layer's
-`fmt::format::Format` if you need exact field-name parity with the
-Python / Go templates downstream.
+service identity, trace context) — the field layout differs slightly
+from the Python / Go templates because tracing-subscriber renders span
+context as a nested `span` / `spans` object rather than flat
+`trace_id` / `span_id` top-level keys.
+
+If you need exact field-name parity with the other language templates
+downstream (e.g., for a shared log aggregator), write a custom
+`tracing_subscriber::fmt::format::FormatEvent` impl that flattens
+span context into top-level `trace_id` / `span_id` / `service` fields.
+That's an advanced customization — the default emitted shape above is
+fine for most aggregators (Loki / OTEL / Datadog all handle the
+nested layout).
 
 ## HTTP middleware (axum)
 

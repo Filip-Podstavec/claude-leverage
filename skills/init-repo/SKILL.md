@@ -147,16 +147,21 @@ installed sections via marker comments and offers update-in-place.
   "stack details" get a `TODO: fill in` placeholder if the user
   cannot answer.
 - **Refuse on non-git dirs unless explicitly allowed.** Random
-  directory bootstrap is a foot-gun; require the user to opt in if
-  they really want it.
+  directory bootstrap is a foot-gun. The interactive flow asks
+  "proceed anyway?" when `.git/` is missing; `--noninteractive` mode
+  refuses unless `--allow-non-git` is also passed.
 
 ## Tunables
 
 - `--lang <name>` — skip detection, use this language.
 - `--lang none` — no logging template, just AGENTS.md / CLAUDE.md /
   .gitignore.
-- `--noninteractive` — confirm nothing, write all 4. Use in
-  install-time scripts.
+- `--noninteractive` — confirm nothing, write all 4. Refuses to run on
+  non-git dirs (no interactive prompt to fall back on; combine with
+  `--allow-non-git` if you really mean it).
+- `--allow-non-git` — explicitly proceed in non-git directories. The
+  interactive flow asks this question automatically; in
+  `--noninteractive` mode the flag is the only way to opt in.
 - `--dry-run` — print what would be written, write nothing.
 
 ## When to run

@@ -53,6 +53,12 @@ export function getTrace(): TraceContext {
 const base = pino({
   // Spec field names override pino defaults.
   timestamp: () => `,"ts":"${new Date().toISOString()}"`,
+  // base: null disables pino's default `pid` / `hostname` bindings AND
+  // suppresses the numeric `level` field — otherwise the output would
+  // contain BOTH a numeric level (pino default) and our string level
+  // (from formatters.level below), which downstream parsers find
+  // confusing.
+  base: null,
   formatters: {
     level(label) {
       return { level: label };
@@ -66,7 +72,7 @@ const base = pino({
   // Mirror Python template's behavior: pino calls .msg the message;
   // we want `event` as the canonical field. We always pass the event as
   // the first string arg to logger.info(), so pino puts it under `msg`.
-  // We rename it via formatters below.
+  // messageKey renames it to `event` in the output.
   messageKey: "event",
 });
 

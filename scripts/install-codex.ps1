@@ -40,9 +40,26 @@ if ((Test-Path $targetHooks) -and -not (Select-String -Path $targetHooks -Patter
 }
 
 $repoForJson = $repoDir -replace '\\', '/'   # JSON-friendly forward-slash path
-(Get-Content -Raw -Encoding utf8 "$repoDir\.codex\hooks.json") `
-    -replace '__CLAUDE_LEVERAGE_DIR__', $repoForJson |
-    Out-File -Encoding utf8 -NoNewline:$false $targetHooks
+
+# AIDEV-NOTE: PowerShell's -replace is regex on BOTH args; a literal '$' in
+# $repoForJson (a project path like /home/user/my$project/...) would be
+# interpreted as a regex backreference and silently mangle the JSON. Use
+# Python's str.replace for the same delimiter-free substitution as the
+# bash variant — Python is already required for install (sanity above).
+$pythonBin = if (Get-Command python3 -ErrorAction SilentlyContinue) { 'python3' }
+             elseif (Get-Command python -ErrorAction SilentlyContinue) { 'python' }
+             else { Die 'python3 or python required for install-codex (path substitution)'; '' }
+
+& $pythonBin -c @"
+import sys
+src_path, repo_dir, dst_path = sys.argv[1], sys.argv[2], sys.argv[3]
+with open(src_path, encoding='utf-8') as f:
+    body = f.read()
+body = body.replace('__CLAUDE_LEVERAGE_DIR__', repo_dir)
+with open(dst_path, 'w', encoding='utf-8') as f:
+    f.write(body)
+"@ "$repoDir\.codex\hooks.json" $repoForJson $targetHooks
+
 Say "wrote $targetHooks (paths resolved to $repoForJson)"
 
 # Wire AGENTS.md import

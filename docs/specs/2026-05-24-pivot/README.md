@@ -1,8 +1,19 @@
 # claude-leverage pivot — design package
 
 **Date:** 2026-05-24
-**Status:** Draft for user review
+**Status:** Implemented (v1.0.0 → v1.1.0), point-in-time design record
 **Author:** Claude (Opus 4.7) at user request
+
+> **Note (post-implementation):** This design package was written before
+> implementation. The shipped v1.1.0 made a few additive adjustments
+> the design did not anticipate — most notably `/install-snippets`
+> was dropped (its bootstrap niche is now covered by `/init-repo`),
+> `/log-structured` and the per-language `templates/logging/` kit
+> were added, and `/explain-diff` / `/codex-sandbox` were added per
+> the "to-consider" review. References to `/install-snippets` in the
+> spec files below are accurate for the design intent at writing time;
+> the canonical post-implementation list lives in the top-level
+> [`AGENTS.md`](../../../AGENTS.md) and [`README.md`](../../../README.md).
 
 This folder holds the design package for pivoting `claude-leverage` away from a
 "save tokens by tier-routing across Sonnet/Haiku" thesis (disproven by our own
