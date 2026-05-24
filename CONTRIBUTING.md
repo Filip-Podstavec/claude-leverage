@@ -39,13 +39,21 @@ This repo is both a copy-pasteable component collection and a Claude Code plugin
 - Bump the `version` field in both `.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json` for any changes that should propagate to existing plugin installs. Use semantic versioning. CI verifies the two stay in sync (see below).
 - Test the plugin install flow locally before opening a PR: `/plugin marketplace add /path/to/local/clone`.
 - Test the Codex install flow with `bash scripts/install-codex.sh` against a scratch `$CODEX_HOME` if you change the installer.
+- **Run the full pre-push smoke check**: `bash scripts/smoke-plugin.sh`.
+  It bundles pytest + version sync + codex parity + shellcheck (if installed) +
+  hook-exit checks + install-codex end-to-end against a scratch dir. Green
+  exit means "safe to push." Failing exit prints which gate broke. Run it
+  every time before `git push`.
 
 ## CI
 
-PRs and pushes to `main` run `.github/workflows/ci.yml` with three jobs:
+PRs and pushes to `main` run `.github/workflows/ci.yml` with four jobs:
 
 1. **`shellcheck`** — lints every script under `scripts/hooks/` at `warning` severity. Style noise is filtered out, but real bugs (quoting, unset vars, missing `local`) will fail the build. Run locally with `shellcheck scripts/hooks/*.sh` if you have shellcheck installed.
-2. **`pytest`** — runs `tests/` against `scripts/hooks/leverage_stats_agg.py` and the frontmatter validator. The suite pins output format, tier sorting, and the specific edge cases that triggered v0.9.x patches (float coercion, non-string tiers, malformed JSONL, bad UTF-8 bytes). Run locally with `pytest tests/ -v`.
+2. **`pytest`** — runs `tests/` (frontmatter validator + plugin integrity tests). The integrity tests catch "manifest parses but references files that don't exist" — the failure mode that silently breaks `/plugin install`. Run locally with `pytest tests/ -v`.
 3. **`version-sync`** — `scripts/check_version_sync.py` asserts that `plugin.json.version` matches the `claude-leverage` entry in `marketplace.json`. Manual two-file bumps drift silently; this job is the safety net. Run locally with `python scripts/check_version_sync.py`.
+4. **`codex-agents-parity`** — runs `python scripts/gen-codex-agents.py --check`. Fails if any `agents/*.md` lacks a paired `.codex/agents/*.toml` or if generated output drifted from the committed file. Regenerate locally with `python scripts/gen-codex-agents.py`.
 
-When adding new bash hooks, write them so they pass shellcheck at warning severity. When changing `leverage_stats_agg.py` output shape, update `tests/test_leverage_stats_agg.py` in the same PR.
+The smoke script (`scripts/smoke-plugin.sh`) bundles all four of these plus the install-codex end-to-end check; CI runs them separately for per-job granularity, the smoke script runs them in sequence for local convenience.
+
+When adding new bash hooks, write them so they pass shellcheck at warning severity. When changing aggregator output shape or the manifest format, update `tests/test_plugin_integrity.py` in the same PR.

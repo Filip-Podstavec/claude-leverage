@@ -188,6 +188,30 @@ scripts work for both — only the trigger config differs. Subagents must be
 authored twice (MD+YAML for Claude, TOML for Codex), but `scripts/gen-codex-agents.py`
 keeps them in sync.
 
+## Verifying an install works
+
+Before pushing changes to the plugin, run the bundled smoke check:
+
+```bash
+bash scripts/smoke-plugin.sh
+```
+
+It runs every pre-push gate in one shot: pytest, version sync, codex
+agent parity, shellcheck (if installed), every hook script with empty
+stdin, plus an end-to-end install-codex run against a scratch directory.
+Green exit means safe to push; red exit prints which gate failed.
+
+If you're a user installing the plugin (not modifying it), the
+equivalent verification is:
+
+```
+/plugin install claude-leverage@filip-podstavec
+/skill list                # confirm 8 skills appear
+/agents                    # confirm security-reviewer + flaky-test-isolator
+echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
+# Ask the agent to commit /tmp/test.txt — block-secrets-precommit should refuse.
+```
+
 ## Update / uninstall
 
 **Claude Code:**
