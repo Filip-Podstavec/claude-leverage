@@ -39,6 +39,28 @@ For each file in the diff, also read enough surrounding context (10–20
 lines around each hunk) to make a confident finding. Do not re-read the
 entire file unless a finding genuinely depends on it.
 
+### 1b. Dependency diff scan
+
+If the diff touches any of `package.json`, `package-lock.json`,
+`requirements.txt`, `pyproject.toml`, `Pipfile`, `Pipfile.lock`,
+`go.mod`, `Cargo.toml`, `Cargo.lock`, `Gemfile`, `Gemfile.lock` —
+extract the **newly added or upgraded** dependency entries.
+
+For each newly added dependency name, check:
+
+- **Typosquatting**: is the name a near-match to a more popular package?
+  Heuristic: 1-character substitution / insertion / deletion from a
+  well-known package name in the same ecosystem (e.g., `requests` vs
+  `reqeusts`, `lodash` vs `loadash`, `numpy` vs `numpyy`). Flag at
+  Important tier with file:line.
+- **Suspicious version pin**: `^0.0.x`, `*`, `latest`, a commit SHA on a
+  GitHub URL (vs a tagged version), a `file:` or `git+` url. Flag at
+  Nice-to-have tier.
+
+Do NOT try to be a CVE scanner — flag those concerns under
+"Out of scope" pointing at the right tool (`npm audit`, `pip-audit`,
+`cargo audit`, GitHub Dependabot).
+
 ### 2. Pattern check — what to look for
 
 Walk the added/modified lines through these categories. Cite file:line.
@@ -75,9 +97,13 @@ Walk the added/modified lines through these categories. Cite file:line.
 
 ## Out of scope (noted, not audited)
 
-- <e.g. "Third-party dependencies — run `npm audit` or `pip-audit` separately">
-- <e.g. "Authorization model correctness — requires application context this
-  review does not have">
+- <e.g. "Third-party dependency CVEs — run `npm audit` (JS/TS),
+  `pip-audit` (Python), `cargo audit` (Rust), `bundle-audit` (Ruby),
+  or `govulncheck` (Go) separately">
+- <e.g. "Static analysis — the depth this review can do is shallower
+  than Semgrep / CodeQL / Bandit; wire one of those into CI">
+- <e.g. "Authorization model correctness — requires application context
+  this review does not have">
 ```
 
 If a tier has no findings, write `_None._` under it. Do not skip tiers.
@@ -112,6 +138,14 @@ hedge by upgrading uncertain findings to higher tiers.
 - Architectural decisions — out of scope for a diff review.
 - Test correctness — out of scope.
 - License / compliance — out of scope.
+- **Dependency CVE scanning** — out of scope. Always surface in "Out
+  of scope" with concrete commands for the project's stack:
+  - JS/TS: `npm audit` or `pnpm audit`
+  - Python: `pip-audit` (`pip install pip-audit`) or `safety check`
+  - Rust: `cargo audit` (`cargo install cargo-audit`)
+  - Go: `govulncheck ./...` (golang.org/x/vuln/cmd/govulncheck)
+  - Ruby: `bundle-audit` (`gem install bundler-audit`)
+  - GitHub: Dependabot security updates
 
 If the user asks you to review something outside scope, decline and point
 at the right tool. Do not silently expand scope.
