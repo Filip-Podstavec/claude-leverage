@@ -21,6 +21,28 @@ A small, opinionated dev stack — built for me first, public so I can install
 it across machines. **Complements skills-based plugins like the official
 `superpowers` plugin; it does not try to replace them.**
 
+## Mission
+
+This stack exists for one job: **help an AI dev (me) ship secure and
+long-term-maintainable software for clients, working primarily through Claude
+Code or Codex.**
+
+Shipping at velocity with AI agents is easy. Shipping in a way that the *next*
+agent (human or AI) opening the repo in six months can still safely modify is
+the hard part. That second part is what the hooks, conventions, and skills here
+automate — not just at session start, but continuously as the repo grows. Three
+properties guide every decision in this repo:
+
+1. **Security by default** — deterministic shell hooks block secrets, force
+   pushes, and `--no-verify` before any model decision.
+2. **Self-maintaining as the repo grows** — non-blocking nudges flag missing
+   AIDEV-NOTE anchors on big diffs, missing per-directory `AGENTS.md` on
+   growing source dirs, stale-anchor decay (`AIDEV-TODO(by: ...)` deadlines),
+   and security-review-worthy changes — so maintenance debt surfaces while it's
+   still cheap to fix.
+3. **Cross-tool by design** — same `AGENTS.md`, same `SKILL.md` files, same
+   hook scripts in Claude Code and Codex. Author once.
+
 ## What you get
 
 - **Security hooks** (always-on, deterministic): `block-secrets-precommit`

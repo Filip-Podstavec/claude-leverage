@@ -1,28 +1,54 @@
 # CLAUDE.md / AGENTS.md Snippets
 
 Optional fragments meant to be appended to a project's `AGENTS.md` (or
-`CLAUDE.md`, or `~/.claude/CLAUDE.md`) to add routing rules or behavioral
-guidance that pair with specific skills or subagents from this stack.
+`CLAUDE.md`, or `~/.claude/CLAUDE.md`) to add routing rules or
+behavioral guidance that pair with specific skills or subagents from
+this stack.
 
-## What's here
+`/init-repo` is the installer: it offers to add selected snippets to a
+project's `AGENTS.md` between marker comments, idempotently.
 
-**v1.0.0 ships no snippets in the default install.** The five v0.x snippets
-that paired with the retired token-savings era agents are frozen in
-[`../bench/archive-token-savings-thesis/claude-md-snippets/`](../bench/archive-token-savings-thesis/claude-md-snippets/).
+## Available snippets
 
-New snippets land here per skill as the need arises (e.g. "auto-route
-security review when touching auth paths"). When they do, the
-[`/init-repo`](../skills/init-repo/SKILL.md) skill picks them up
-automatically — its interactive flow lets the user opt-in per snippet
-per project.
+- [`security-review-routing.md`](security-review-routing.md) — Promotes
+  `/security-review` from "the Stop hook might suggest it" to "the
+  project mandates it before commit" on diffs touching sensitive paths
+  (auth, crypto, payment, templates, etc.). Pairs with the
+  `security-nudge` Stop hook and the `security-reviewer` subagent.
 
-## Why snippets aren't auto-installed by the plugin
+(More snippets land here as patterns emerge from actual use.
+Convention: one routing rule per snippet, with marker comments so
+`/init-repo` can install / update / detect drift.)
+
+## Snippet contract
+
+Every snippet uses the same idempotent-marker pattern:
+
+```markdown
+<!-- claude-leverage:<snippet-name> START -->
+<body>
+<!-- claude-leverage:<snippet-name> END -->
+```
+
+The markers are the only contract between the snippet source and the
+target file. `/init-repo`'s snippet installer:
+
+- Appends a new block on first install
+- Replaces the body between markers on update (drift detected)
+- Skips silently if body matches source exactly
+- Refuses to touch anything outside the marker block
+
+Markers must stay byte-identical between source and installed copy.
+
+## Why snippets are opt-in
 
 Claude Code plugins install agents, commands, hooks, and skills — but
-**not** CLAUDE.md content. (There's no platform hook to auto-append
-guidance to the user's `CLAUDE.md`.) `/init-repo` is the workaround at
-project scope; for `~/.claude/CLAUDE.md` you copy manually.
+**not** CLAUDE.md / AGENTS.md content. There's no platform hook to
+auto-append guidance to a user's `CLAUDE.md` on plugin install. The
+snippet pattern works around this by treating snippet installation as
+an explicit user choice per project, gated through `/init-repo`.
 
-For Codex, the equivalent is `scripts/install-codex.sh` — it appends an
-`@<repo>/AGENTS.md` reference to `~/.codex/AGENTS.md`. Per-snippet
-install would be added later if Codex ends up needing it.
+The historical alternative was `/install-snippets` (removed in
+v1.1.0). That command did the same job but as a separate skill;
+folding it into `/init-repo`'s interactive flow gave one less command
+to remember.

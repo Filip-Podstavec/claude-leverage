@@ -5,6 +5,45 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] — 2026-05-24
+
+### Added
+
+- **Mission statement** in both `AGENTS.md` and `README.md` (above the
+  "Project" / "What you get" sections). Makes the repo's actual goal —
+  *help an AI dev ship secure and long-term-maintainable software for
+  clients, working through Claude Code or Codex* — visible to anyone
+  (or any agent) opening the repo for the first time. Three guiding
+  properties enumerated: security by default, self-maintaining as the
+  repo grows, cross-tool by design.
+- **`workflows/security-first-feature.md`** — concrete end-to-end
+  walkthrough of shipping a sensitive feature with the stack
+  (`/init-repo` once → hooks fire passively → `/security-review`
+  before commit → `/commit-smart` → `/explain-diff --for pr`).
+  Documents what the workflow does and does NOT do for you.
+- **`workflows/maintaining-as-it-grows.md`** — the "what the stack
+  does automatically vs what I invoke" mental-model document.
+  Includes the maintenance-debt cycle diagram (write code →
+  ai-first-nudge → per-dir AGENTS.md nudge → security-nudge →
+  AIDEV-TODO with deadline → stack-freshness → /stack-check → resolved
+  debt) and the full table of tunable env vars per nudge.
+- **`claude-md-snippets/security-review-routing.md`** — first actual
+  routing snippet: promotes `/security-review` from "Stop hook might
+  suggest it" to "project mandates it before commit" on diffs
+  touching sensitive paths. Installable via `/init-repo`'s interactive
+  flow.
+
+### Changed
+
+- Moved `docs/specs/2026-05-21-synthetic-benchmark-design.md` into
+  `bench/archive-token-savings-thesis/` where it belongs (it's the
+  design doc for the now-archived benchmark harness).
+- `workflows/README.md` and `claude-md-snippets/README.md` updated to
+  reflect the actual now-shipped content instead of "no content yet"
+  placeholders.
+- Plugin version bumped to **1.2.1** (cleanup + documentation, no
+  breaking changes, no new skills).
+
 ## [1.2.0] — 2026-05-24
 
 ### Added

@@ -9,15 +9,50 @@ first**, before touching any file.
 Both tools see identical guidance. Tool-specific additions live in `CLAUDE.md`
 (below the `@AGENTS.md` import) — keep them short.
 
-## Project
+## Mission
 
-`claude-leverage` is Filip Podstavec's personal **Claude Code + Codex dev stack**:
-security hooks, AI-first code conventions, 8 on-demand skills
-(`/security-review`, `/repo-map`, `/process-diagram`, `/stack-check`,
-`/init-repo`, `/log-structured`, `/explain-diff`, `/codex-sandbox`), plus
-a portable statusline.
+`claude-leverage` is Filip Podstavec's personal **AI-dev stack for Claude Code
+and Codex**, built to help him ship **secure and long-term-maintainable software
+for clients** when working primarily through AI agents.
 
-It is installed:
+The premise: shipping client work with AI agents at velocity is easy; shipping it
+in a way that the *next* agent (human or AI) opening the repo in six months can
+still safely modify is the hard part. This stack is the set of deterministic
+guardrails, code conventions, and on-demand skills that make the second part
+automatic — not just at session start, but **continuously as the repo grows**.
+
+Three properties guide every decision in this repo:
+
+1. **Security by default** — deterministic shell hooks block secrets, dangerous
+   git operations, and force-push before the model can rationalize past them.
+2. **Self-maintaining as the repo grows** — non-blocking nudges flag missing
+   AIDEV-NOTE anchors, missing per-directory AGENTS.md, stale anchors with
+   deadlines, and security-review-worthy diffs — so maintenance debt surfaces
+   while it's still cheap to fix.
+3. **Cross-tool by design** — the same `AGENTS.md`, same `SKILL.md` files, and
+   same hook scripts work in both Claude Code and Codex. Authoring once.
+
+The point is **not** to save tokens (that thesis was disproven by the v0.x
+benchmark series — see `bench/archive-token-savings-thesis/` and
+`docs/specs/2026-05-24-pivot/`). The point is to make the *next* agent's
+job easier than the *previous* one's, every time, automatically.
+
+## What's in it
+
+Concretely:
+- 4 hooks (security guardrails + maintenance nudges, all non-blocking unless
+  blocking a real safety issue)
+- 8 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
+  `/stack-check`, `/init-repo`, `/log-structured`, `/explain-diff`,
+  `/codex-sandbox`)
+- 2 Claude-only slash commands (`/commit-smart`, `/flaky-test`)
+- 2 subagents (`security-reviewer`, `flaky-test-isolator`)
+- 1 portable statusline
+- Per-language AGENTS.md template + 4 structured-logging starter kits
+- Workflow guides showing how to combine all of the above for common tasks
+  (`workflows/`)
+
+Installed:
 - **In Claude Code** as a plugin (`/plugin install claude-leverage@filip-podstavec`).
 - **In Codex** via `bash scripts/install-codex.sh` (or `.ps1` on Windows) — Codex
   has no plugin marketplace.
