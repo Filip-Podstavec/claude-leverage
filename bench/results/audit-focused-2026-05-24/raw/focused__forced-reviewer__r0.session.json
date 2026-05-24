@@ -1,0 +1,40 @@
+{
+  "cell": "focused__forced-reviewer__r0",
+  "condition": "forced-reviewer",
+  "run_idx": 0,
+  "exit_code": 0,
+  "timed_out": false,
+  "wallclock_s": 114.07,
+  "total_cost_usd": 0.2781876,
+  "total_tokens": 37163,
+  "tokens": {
+    "input": 4,
+    "output": 866,
+    "cache_read": 16476,
+    "cache_creation": 19817
+  },
+  "model_usage": {
+    "claude-opus-4-6[1m]": {
+      "inputTokens": 4,
+      "outputTokens": 866,
+      "cacheReadInputTokens": 16476,
+      "cacheCreationInputTokens": 19817,
+      "webSearchRequests": 0,
+      "costUSD": 0.15376425000000002,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000
+    },
+    "claude-sonnet-4-6": {
+      "inputTokens": 8,
+      "outputTokens": 4365,
+      "cacheReadInputTokens": 41727,
+      "cacheCreationInputTokens": 12375,
+      "webSearchRequests": 0,
+      "costUSD": 0.12442334999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000
+    }
+  },
+  "quality_pass": true,
+  "final_text_len": 2260
+}
