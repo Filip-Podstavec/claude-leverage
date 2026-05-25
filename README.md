@@ -50,9 +50,14 @@ properties guide every decision in this repo:
 - `stack-freshness` — non-blocking SessionStart: 30+ days since last
   `/stack-check` → one-line reminder via SessionStart `additionalContext`
   (no network)
-- `bare-repo-nudge` — non-blocking SessionStart: cwd is not a git repo
-  AND not `$HOME`/`/tmp`/system → one-per-day reminder to `git init` +
-  `/init-repo` before writing project code
+- `bare-repo-nudge` — non-blocking SessionStart, two-branch nudge:
+  (A) cwd is not a git repo AND not `$HOME`/`/tmp`/system → reminder
+  to `git init` + `/init-repo`; (B) cwd IS a git repo but root has no
+  `AGENTS.md` / `CLAUDE.md` AND has a project marker file
+  (`package.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` / …)
+  → reminder to `/init-repo` so the convention layer (AIDEV anchors,
+  structured logging, …) actually gets loaded. One-per-day per
+  cwd/repo-root.
 
 **Security review (skill + dedicated subagent):**
 - `/security-review` — audit current diff for OWASP-Top-10-shaped issues +

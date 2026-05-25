@@ -352,6 +352,95 @@ def test_bare_repo_nudge_silent_in_home_directory(tmp_path: Path) -> None:
     )
 
 
+def test_bare_repo_nudge_fires_in_git_project_without_agents_md(tmp_path: Path) -> None:
+    """Branch B (v1.4.3+): cwd IS a git repo, has a project marker
+    (pyproject.toml / package.json / Cargo.toml / etc.), but no
+    AGENTS.md or CLAUDE.md at the repo root → the model has zero
+    project-specific conventions loaded, so claude-leverage's value
+    proposition is mostly inert. Nudge toward /init-repo to bootstrap."""
+    project = tmp_path / "py-project"
+    project.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=str(project), check=True)
+    (project / "pyproject.toml").write_text("[project]\nname = \"x\"\n", encoding="utf-8")
+
+    result = _run_hook(
+        BARE_REPO_NUDGE,
+        "",
+        cwd=project,
+        state_dir=tmp_path / "_state",
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = _parse_session_start_json(result.stdout)
+    ctx = payload.get("hookSpecificOutput", {}).get("additionalContext", "")
+    assert "/init-repo" in ctx
+    assert "AGENTS.md" in ctx, f"branch-B nudge should mention AGENTS.md, got {ctx!r}"
+
+
+def test_bare_repo_nudge_silent_when_agents_md_present(tmp_path: Path) -> None:
+    """Project has AGENTS.md → conventions loaded → no nudge."""
+    project = tmp_path / "configured-project"
+    project.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=str(project), check=True)
+    (project / "pyproject.toml").write_text("[project]\nname = \"x\"\n", encoding="utf-8")
+    (project / "AGENTS.md").write_text("# AGENTS\n", encoding="utf-8")
+
+    result = _run_hook(
+        BARE_REPO_NUDGE,
+        "",
+        cwd=project,
+        state_dir=tmp_path / "_state",
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == "", (
+        f"AGENTS.md present should suppress nudge, got {result.stdout!r}"
+    )
+
+
+def test_bare_repo_nudge_silent_when_only_claude_md_present(tmp_path: Path) -> None:
+    """CLAUDE.md (typically `@AGENTS.md` import) is enough for the model
+    to have project context — no nudge."""
+    project = tmp_path / "claude-only-project"
+    project.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=str(project), check=True)
+    (project / "package.json").write_text("{}", encoding="utf-8")
+    (project / "CLAUDE.md").write_text("# CLAUDE\n", encoding="utf-8")
+
+    result = _run_hook(
+        BARE_REPO_NUDGE,
+        "",
+        cwd=project,
+        state_dir=tmp_path / "_state",
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == ""
+
+
+def test_bare_repo_nudge_silent_in_git_repo_without_project_marker(tmp_path: Path) -> None:
+    """An empty git repo with no recognizable project marker (no
+    package.json / pyproject.toml / Cargo.toml / etc.) is probably a
+    scratch/docs repo — branch B should NOT fire even though AGENTS.md
+    is missing. Avoids nudging on every personal notes repo."""
+    project = tmp_path / "scratch-repo"
+    project.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=str(project), check=True)
+    # No project marker file written.
+
+    result = _run_hook(
+        BARE_REPO_NUDGE,
+        "",
+        cwd=project,
+        state_dir=tmp_path / "_state",
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == "", (
+        f"no project marker → should be silent, got {result.stdout!r}"
+    )
+
+
 def test_bare_repo_nudge_rate_limit_per_day(tmp_path: Path) -> None:
     """Second invocation in the same dir on the same day must be silent."""
     project = tmp_path / "fresh-project"

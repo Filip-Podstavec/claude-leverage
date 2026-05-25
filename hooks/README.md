@@ -58,14 +58,25 @@ Scripts in `../scripts/hooks/`:
   suggesting `/stack-check` (so the model actually sees it — stderr
   from SessionStart is invisible to the model context window). Override
   via `CLAUDE_LEVERAGE_FRESHNESS_DAYS` env var (`=0` disables).
-- **`bare-repo-nudge.sh`** (SessionStart) — Network-free. When cwd is
-  NOT inside a git repo and is also not a "just-opened-terminal"
-  location (`$HOME`, `/tmp`, `/`, `/etc`, …), emits a one-per-day
-  `additionalContext` nudge suggesting `git init` + `/init-repo` before
-  writing code. Fills the gap left by `security-nudge.sh` (which is
-  git-only by design) so that fresh non-git projects — the exact place
-  where guardrails are most valuable — get proactive signal at session
-  start.
+- **`bare-repo-nudge.sh`** (SessionStart) — Network-free. Two-branch
+  proactive nudge for the cases where claude-leverage's *convention*
+  layer would otherwise be inert:
+  - **Branch A** — cwd is NOT inside a git repo (and is not a
+    just-opened-terminal location like `$HOME` / `/tmp` / `/etc`).
+    Nudge: `git init` + `/init-repo` before writing code.
+  - **Branch B** (v1.4.3+) — cwd IS inside a git repo, but the repo
+    root has neither `AGENTS.md` nor `CLAUDE.md` AND looks like a real
+    project (has a recognizable marker: `package.json`, `pyproject.toml`,
+    `Cargo.toml`, `go.mod`, `pom.xml`, `build.gradle[.kts]`, `Gemfile`,
+    `composer.json`, `mix.exs`, `*.csproj`, `Package.swift`,
+    `CMakeLists.txt`, `requirements.txt`, `setup.py`/`setup.cfg`).
+    Nudge: `/init-repo` to drop AGENTS.md so the convention layer
+    (AIDEV anchors, structured logging, per-dir AGENTS.md, module
+    org) actually gets loaded into model context.
+
+  Rate-limited to one nudge per cwd (branch A) or per repo root
+  (branch B) per day so opening multiple terminals in subdirs of the
+  same unconfigured repo doesn't double-nudge.
 - **`json_parse.sh`** — Helper shell library (not itself a hook). Sourced
   by the security hooks. Provides `read_stdin`, `has_parser`, and
   `get_field` with a `jq` → `python3` → `python` fallback chain.
