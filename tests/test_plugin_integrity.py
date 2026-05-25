@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -299,4 +300,71 @@ def test_agent_has_codex_toml(agent_md: Path) -> None:
     assert toml_path.is_file(), (
         f"{agent_md.name}: no Codex parity at {toml_path.relative_to(REPO_ROOT)}. "
         f"Run: python scripts/gen-codex-agents.py"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Shell script executable bit (git index mode)
+# ---------------------------------------------------------------------------
+#
+# The hook scripts and the statusline command are invoked DIRECTLY by
+# Claude Code / Codex (no `bash <script>` wrapper). They MUST be mode
+# 100755 in the git index, otherwise users get `Permission denied` on
+# clone — `chmod +x` on a dev machine is not enough; only
+# `git update-index --chmod=+x` flips what gets shipped. v1.4.1 shipped
+# with 100644 hook scripts and broke on every Linux install; v1.4.2
+# fixed it and added this test so the regression cannot recur silently.
+
+
+def _git_index_mode(path_relative_to_repo: str) -> str:
+    """Return the git-recorded file mode (e.g. '100644', '100755')."""
+    out = subprocess.run(
+        ["git", "ls-files", "-s", "--", path_relative_to_repo],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    line = out.stdout.strip()
+    if not line:
+        raise AssertionError(
+            f"{path_relative_to_repo} not tracked in git — cannot check mode"
+        )
+    # Format: <mode> <hash> <stage>\t<path>
+    return line.split()[0]
+
+
+def _scripts_requiring_executable_bit() -> list[str]:
+    """Scripts that Claude Code / Codex / users invoke directly (not via
+    `bash <script>`). Hook scripts hit this when the host process spawns
+    them via the hook config; statusline-command.sh hits this when Claude
+    Code renders the statusline. Helpers like json_parse.sh are sourced,
+    not exec'd, but staying 755 keeps the policy uniform and silences
+    shellcheck-style audits."""
+    out = subprocess.run(
+        ["git", "ls-files", "scripts/hooks/*.sh", "statusline/*.sh",
+         "scripts/*.sh"],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return sorted(line for line in out.stdout.splitlines() if line.strip())
+
+
+SHELL_SCRIPTS_NEEDING_EXEC = _scripts_requiring_executable_bit()
+
+
+@pytest.mark.parametrize("script", SHELL_SCRIPTS_NEEDING_EXEC, ids=lambda s: s)
+def test_shell_script_is_executable_in_git_index(script: str) -> None:
+    """Regression guard for the v1.4.1 → v1.4.2 'Permission denied on
+    Linux' bug. The git index mode (not the dev's local FS mode) is what
+    ships to users via `/plugin install`. `chmod +x` locally does NOT
+    update the index — only `git update-index --chmod=+x <file>` does."""
+    mode = _git_index_mode(script)
+    assert mode == "100755", (
+        f"{script} has git index mode {mode}; expected 100755. "
+        f"Fix with: git update-index --chmod=+x {script} "
+        f"(then commit). Local `chmod +x` is NOT enough — the index "
+        f"mode is what ships."
     )
