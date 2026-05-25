@@ -278,19 +278,34 @@ crosses the threshold.
 ## Build / test
 
 ```bash
-pytest tests/ -v                          # frontmatter + codex-parity tests
+pytest tests/ -v                          # plugin integrity + frontmatter tests
 python scripts/check_version_sync.py       # plugin.json == marketplace.json
 shellcheck scripts/hooks/*.sh              # CI runs this; install locally to match
 python scripts/gen-codex-agents.py --check # ensure .codex/agents/*.toml matches agents/
+bash scripts/smoke-plugin.sh               # single-shot pre-push: all of the above + install-codex e2e
 ```
+
+### Pre-push hook (opt-in)
+
+To make `bash scripts/smoke-plugin.sh` run automatically on every `git
+push`, enable the in-tree hooks directory:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+See [`.githooks/README.md`](.githooks/README.md) for details (disable,
+bypass, rationale for opt-in).
 
 ## Design specs
 
 Living design docs in `docs/specs/`:
 
 - `2026-05-24-pivot/` — the v1.0.0 pivot package (this rewrite)
-- `2026-05-21-synthetic-benchmark-design.md` — bench harness design
 - `research/` — supporting research for the pivot
+
+The original synthetic-benchmark design lives with the archived harness it
+describes, at `bench/archive-token-savings-thesis/2026-05-21-synthetic-benchmark-design.md`.
 
 ## Honest history
 

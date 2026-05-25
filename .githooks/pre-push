@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# .githooks/pre-push — opt-in deterministic gate before `git push`.
+#
+# Wires the existing scripts/smoke-plugin.sh (the same pre-push checks
+# documented in AGENTS.md) into git itself so the model — or the human
+# — cannot accidentally push a broken plugin manifest, a drifted
+# .codex/agents/*.toml, or failing pytest.
+#
+# Opt-in (not enabled by default — opinionated about local workflow is
+# bad in a plugin repo). Enable per-clone with:
+#
+#   git config core.hooksPath .githooks
+#
+# Disable again with:
+#
+#   git config --unset core.hooksPath
+#
+# Bypass once (use sparingly — this is the gate it exists to be):
+#
+#   git push --no-verify
+#
+# Stdin: per `githooks(5)`, git pipes "<local_ref> <local_sha>
+# <remote_ref> <remote_sha>" lines on stdin. We do not inspect them —
+# the smoke gate is binary (all green or block), independent of which
+# refs are being pushed. If you need ref-specific behavior (e.g.
+# "skip smoke when pushing to a personal branch"), read stdin here.
+
+set -euo pipefail
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+SMOKE="$REPO_ROOT/scripts/smoke-plugin.sh"
+
+if [ ! -x "$SMOKE" ] && [ ! -f "$SMOKE" ]; then
+  printf '[pre-push] %s not found — skipping smoke gate.\n' "$SMOKE" >&2
+  exit 0
+fi
+
+printf '[pre-push] running scripts/smoke-plugin.sh ...\n' >&2
+
+if bash "$SMOKE" --quiet; then
+  printf '[pre-push] smoke OK — push allowed.\n' >&2
+  exit 0
+else
+  printf '[pre-push] smoke FAILED — push blocked. Re-run `bash scripts/smoke-plugin.sh` for full output, or `git push --no-verify` to bypass once.\n' >&2
+  exit 1
+fi

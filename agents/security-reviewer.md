@@ -58,6 +58,42 @@ Do NOT try to be a CVE scanner — flag those concerns under
 "Out of scope" pointing at the right tool (`npm audit`, `pip-audit`,
 `cargo audit`, GitHub Dependabot).
 
+### 1c. CI workflow floating-ref scan
+
+If the diff touches `.github/workflows/*.yml` (or `.gitea/workflows/`,
+`.circleci/config.yml`, `.gitlab-ci.yml`, `azure-pipelines.yml`,
+`.drone.yml`), grep the added/modified lines for action references and
+classify each.
+
+For GitHub Actions, the line shape is:
+
+```yaml
+uses: <owner>/<repo>@<ref>
+uses: ./local/path           # local actions — skip
+uses: docker://image:tag     # container actions — skip (different threat model)
+```
+
+Classification of `<ref>`:
+
+- **40-char hex SHA** (e.g. `00cae500b08a931fb5698e11e79bfbd38e612a38`) → OK.
+- **Semver tag** (e.g. `v4`, `v4.1`, `v4.1.2`, `2.0.0`) → Nice tier
+  comment only ("consider pinning to commit SHA for stronger
+  supply-chain guarantee"); not flagged unless you have other reasons.
+- **Branch ref** (`master`, `main`, `develop`, `latest`, `HEAD`, or any
+  bare word that is not a SHA and not a version tag) → **Important
+  tier**. A supply-chain change to that action mutates every CI run
+  silently.
+
+For non-GitHub-Actions CI systems, apply the same principle to the
+equivalent pinning surface (CircleCI orb `@volatile`, GitLab
+`include: remote:` without SHA, etc.). If the system uses a lock file
+or vendor list, treat that file's discipline as the source of truth.
+
+This scan exists because a repo whose mission is "security by default"
+that pins its OWN CI to `@master` is a credibility hit. The model
+review catches this on every diff that touches a workflow file, not
+just when a human remembers to look.
+
 ### 2. Pattern check — what to look for
 
 Walk the added/modified lines through these categories. Cite file:line.

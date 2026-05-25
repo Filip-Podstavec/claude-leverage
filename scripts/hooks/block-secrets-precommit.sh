@@ -136,7 +136,9 @@ Line preview: $preview
 If this is a false positive, you can:
 - Add the marker comment 'claude-leverage-allow-secret' on the same line
 - Commit manually outside Claude Code
-- Adjust patterns in ~/.claude/hooks/block-secrets-precommit.sh
+- Adjust patterns by forking the script from the plugin source
+  (scripts/hooks/block-secrets-precommit.sh in the claude-leverage repo)
+  into a project-local hook and pointing settings.json at your copy
 - Temporarily disable the hook in ~/.claude/settings.json
 EOF
     exit 2

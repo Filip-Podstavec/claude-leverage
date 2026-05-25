@@ -13,13 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run shellcheck
-        uses: ludeeus/action-shellcheck@master
+        # Pinned to 2.0.0 — floating @master refs are a supply-chain risk and
+        # would be ironic in a repo whose mission is "security by default".
+        # Bump by replacing the SHA + comment together.
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38  # v2.0.0
         with:
           scandir: scripts/hooks
           severity: warning
 
   pytest:
-    name: Pytest (scripts/hooks/leverage_stats_agg.py + frontmatter)
+    name: Pytest (plugin integrity + frontmatter)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

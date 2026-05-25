@@ -177,11 +177,66 @@ quiet for the next N days.
      but not found)
    ```
 
-7. **Emit the Markdown report** combining version table + anchors +
-   AGENTS.md sanity. Tier the version rows: required first, then
-   optional. Required-failing rows in bold.
+7. **Walk every tracked `*.md` file for stale path references.** This
+   is the generalization of step 6's "Possibly stale references" check
+   beyond AGENTS.md — the failure mode "doc references a file that was
+   moved or deleted N versions ago" is repo-wide, not AGENTS.md-only.
 
-8. **Reset the timestamp.** Only if no row failed with an *error*
+   Scope:
+   - Use `git ls-files '*.md'` so untracked / .gitignored markdown is
+     not scanned. Skip files under the bench archive, `node_modules/`,
+     `vendor/`, `__pycache__/`, `.git/`, and anything inside a
+     `.gitignored` tree (relying on `ls-files` filters most of this).
+   - Cap walk at the first 200 markdown files (sorted) — repos with
+     larger doc trees get a "(truncated)" footer; honest scope, not a
+     silent half-job.
+
+   Per file:
+   - Strip fenced code blocks (` ``` ... ``` `) and inline backticks
+     before regex-walking the body. Path-like tokens inside code blocks
+     are usually placeholders / examples, not live links.
+   - Extract candidates with a deliberately conservative regex (rough
+     shape, implementor adjusts):
+     `(?:^|[\s(\[`>])([a-zA-Z][a-zA-Z0-9_.\-]*(?:/[a-zA-Z0-9_.\-]+)+\.[a-zA-Z0-9]+)(?:$|[\s.,;:)`\]])`
+     — must contain at least one `/`, must end in a file extension, must
+     not look like a URL (skip if preceded by `://` or starting with
+     `http`).
+   - Skip tokens that look like commit hashes, version strings
+     (`v1.2.3`), or domain names (anything matching `\.(com|org|io|dev|gov)$`).
+   - Resolve relative to the repo root (`git rev-parse --show-toplevel`).
+     If the file does not exist, record `<md-file>:<line> → <token>`.
+
+   Output budget: hard cap of 20 broken refs in the report; if more,
+   show the first 20 plus a "(N more not shown)" footer so the section
+   does not dominate the report.
+
+   Reported as a new section:
+
+   ```markdown
+   ## Markdown link audit
+
+   Scanned 47 tracked `*.md` files; 3 broken path references.
+
+   - `README.md:118` → `scripts/legacy/runner.sh` (not found)
+   - `docs/adr/0002-...md:42` → `agents/old-reviewer.md` (not found)
+   - `workflows/security-first-feature.md:88` → `templates/old-logging.md` (not found)
+   ```
+
+   If zero broken refs, write `_All links resolve._` and move on. If
+   the scan was skipped (not in a git repo, or `CLAUDE_LEVERAGE_SKIP_MD_LINK_AUDIT=1`),
+   omit the section entirely.
+
+   This check exists because the v1.0.0 → v1.3.3 pivot in this repo
+   left three stale `tests/README.md` / `AGENTS.md` / `ci.yml` refs
+   that survived 4–7 version bumps before being caught by a human-led
+   pre-push audit. Catching that class of drift automatically is the
+   point.
+
+8. **Emit the Markdown report** combining version table + anchors +
+   AGENTS.md sanity + markdown link audit. Tier the version rows:
+   required first, then optional. Required-failing rows in bold.
+
+9. **Reset the timestamp.** Only if no row failed with an *error*
    (process crashed, network exception). A failure status (outdated /
    missing / stale anchors / oversized AGENTS.md) is information, not
    an error — reset the timestamp. `touch <state_dir>/.last-stack-check`
@@ -215,6 +270,9 @@ quiet for the next N days.
   entirely (useful when running outside any project repo).
 - `CLAUDE_LEVERAGE_SKIP_AGENTS_MD_AUDIT=1` — skip the AGENTS.md
   sanity pass.
+- `CLAUDE_LEVERAGE_SKIP_MD_LINK_AUDIT=1` — skip the repo-wide markdown
+  link audit (step 7). Use when the repo has a very large doc tree
+  and the audit is producing too many false positives to be useful.
 
 ## Codex parity
 

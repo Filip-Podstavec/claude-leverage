@@ -1,0 +1,27 @@
+# Force LF line endings for shell scripts and git hooks. Without this,
+# clones on Windows under autocrlf=true get CRLF inside .sh / hook
+# files, and bash on Linux / macOS / Git Bash treats CRLF as a syntax
+# error ("/usr/bin/env bash^M: bad interpreter"). The hooks run inside
+# the security-by-default chain — silent CRLF corruption would defeat
+# the whole stack.
+*.sh           text eol=lf
+.githooks/*    text eol=lf
+
+# Markdown stays platform-native; CRLF in docs is harmless.
+*.md           text
+
+# Python tooling reads UTF-8 LF and emits the same.
+*.py           text eol=lf
+
+# JSON/TOML manifests — LF for cross-platform diff cleanliness.
+*.json         text eol=lf
+*.toml         text eol=lf
+*.yml          text eol=lf
+*.yaml         text eol=lf
+
+# Binary assets — never normalize.
+*.png          binary
+*.jpg          binary
+*.jpeg         binary
+*.gif          binary
+*.ico          binary

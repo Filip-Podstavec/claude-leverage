@@ -5,6 +5,85 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2026-05-25
+
+The "self-audit caught self-maintenance gaps" release. A pre-push
+human-led audit of the v1.0.0 → v1.3.3 commit batch surfaced three
+stale-reference issues that had survived 4–7 version-bumps each —
+exactly the failure mode the stack's "self-maintaining as the repo
+grows" mission is supposed to prevent. v1.4.0 closes the loop on both
+fronts: fixes the stale references found, AND adds the deterministic
+checks that would have caught them automatically.
+
+### Fixed (stale references)
+
+- **`.github/workflows/ci.yml`**: pytest job name no longer references
+  `leverage_stats_agg.py` (deleted in v1.1.0); renamed to "Pytest
+  (plugin integrity + frontmatter)".
+- **`AGENTS.md`** "Design specs" section: removed broken pointer to
+  `docs/specs/2026-05-21-synthetic-benchmark-design.md`; the file
+  lives at `bench/archive-token-savings-thesis/...` since v1.2.1.
+  Added an inline pointer there.
+- **`tests/README.md`**: Coverage section fully rewritten to describe
+  the actually-shipped `test_plugin_integrity.py` (added v1.2.0) and
+  `test_agent_command_frontmatter.py`. Dropped the deleted
+  `test_leverage_stats_agg.py` entry. Added `bash scripts/smoke-plugin.sh`
+  as the one-shot pre-push entrypoint.
+- **`scripts/hooks/block-secrets-precommit.sh`**: false-positive hint
+  text no longer points users to `~/.claude/hooks/block-secrets-precommit.sh`
+  (a path that does not exist in plugin-install mode). New hint
+  describes the fork-from-plugin-source pattern.
+
+### Added (self-maintenance hardening)
+
+- **Repo-wide markdown link audit in `/stack-check`** (new step 7):
+  walks every tracked `*.md` (capped at 200), extracts path-like
+  tokens (`scripts/...`, `docs/...`, `tests/...`) outside fenced code
+  blocks, reports broken refs as `<md-file>:<line> → <token>`. Cap of
+  20 in the report so the section never dominates. New env var
+  `CLAUDE_LEVERAGE_SKIP_MD_LINK_AUDIT=1` to disable on doc-heavy
+  repos. This is the deterministic version of what humans would have
+  needed to do by hand to catch the three issues above.
+- **CI workflow floating-ref scan in `security-reviewer` subagent**
+  (new step 1c): on diffs touching `.github/workflows/*.yml` (and
+  CircleCI / GitLab / Azure / Drone equivalents), parses each
+  `uses: <owner>/<repo>@<ref>`; classifies as SHA (ok), semver tag
+  (Nice tier comment), or branch ref / `master` / `main` / `latest`
+  (Important tier finding). Triggered automatically by `/security-review`
+  whenever a workflow file is in the diff. Catches the irony of a
+  "security by default" repo with floating action refs in its own CI.
+- **`.githooks/pre-push` (opt-in)** + `.githooks/README.md`: in-tree
+  pre-push hook that runs `scripts/smoke-plugin.sh --quiet` and
+  blocks the push on failure. Enable per-clone with
+  `git config core.hooksPath .githooks`. Disable with
+  `git config --unset core.hooksPath`. Bypass once with
+  `git push --no-verify`. In-tree (vs `.git/hooks/`) so the hook is
+  visible to review, evolves with the repo, and doesn't diverge
+  per-clone.
+
+### Maintenance
+
+- **`.gitattributes`** added: forces LF line endings for `*.sh`,
+  `.githooks/*`, `*.py`, `*.json`, `*.toml`, `*.yml`, `*.yaml`. Without
+  this, Windows clones with `autocrlf=true` ship CRLF inside shell
+  scripts, and `bash` on Linux / macOS / Git Bash refuses to execute
+  them (`/usr/bin/env bash^M: bad interpreter`). Markdown stays
+  platform-native; binary assets explicitly marked.
+- **`.github/workflows/ci.yml`** shellcheck step pinned to
+  `ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38`
+  (v2.0.0 SHA) instead of `@master`. Comment block documents the bump
+  procedure (replace SHA + comment together).
+- **`AGENTS.md` Build / test section** documents
+  `bash scripts/smoke-plugin.sh` as the canonical one-shot, and points
+  at the opt-in pre-push hook setup.
+
+### Why the version is 1.4.0 and not 1.3.4
+
+Three real new features (markdown link audit in `/stack-check`, CI
+floating-ref scan in `security-reviewer`, in-tree opt-in pre-push
+hook). Stale-reference fixes alone would be 1.3.4; the additive
+self-maintenance hardening earns the minor bump.
+
 ## [1.3.3] — 2026-05-24
 
 Dogfooding pass. We ship `/process-diagram` skill but weren't using it
