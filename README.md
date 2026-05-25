@@ -48,7 +48,11 @@ properties guide every decision in this repo:
 - `security-nudge` — non-blocking Stop hook: ≥80 net-new LOC touching
   sensitive paths → suggests `/security-review`
 - `stack-freshness` — non-blocking SessionStart: 30+ days since last
-  `/stack-check` → one-line reminder (no network)
+  `/stack-check` → one-line reminder via SessionStart `additionalContext`
+  (no network)
+- `bare-repo-nudge` — non-blocking SessionStart: cwd is not a git repo
+  AND not `$HOME`/`/tmp`/system → one-per-day reminder to `git init` +
+  `/init-repo` before writing project code
 
 **Security review (skill + dedicated subagent):**
 - `/security-review` — audit current diff for OWASP-Top-10-shaped issues +

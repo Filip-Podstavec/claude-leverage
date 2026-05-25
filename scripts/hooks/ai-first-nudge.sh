@@ -68,12 +68,23 @@ file_path=$(get_field '.tool_input.file_path' 2>/dev/null) || true
 
 # Ignore patterns: tests, fixtures, generated code, dotfiles, archive.
 # Applied to BOTH nudges — these paths are noise for both checks.
-case "$file_path" in
-  *_test.*|*test_*.py|*.test.ts|*.test.tsx|*.test.js|*.test.jsx) exit 0 ;;
+#
+# AIDEV-NOTE: split into basename-only vs path patterns so a directory
+# named e.g. slevomat_test_api/ does not silently swallow nudges for
+# production code inside it (v1.4.0 field-feedback #1). Also normalize
+# Windows backslashes before path matching so paths Claude Code sends
+# in C:\…\node_modules\… form still hit the ignore list (#2).
+fp_norm=${file_path//\\//}
+fp_base=${fp_norm##*/}
+case "$fp_base" in
+  test_*.py|*_test.py|*_test.go|*_test.ts|*_test.tsx|*_test.js|*_test.jsx) exit 0 ;;
+  *.test.ts|*.test.tsx|*.test.js|*.test.jsx|*.spec.ts|*.spec.js) exit 0 ;;
+  *.lock|*.lockb|*.snap) exit 0 ;;
+esac
+case "$fp_norm" in
   */tests/*|*/test/*|*/__tests__/*|*/fixtures/*|*/__pycache__/*) exit 0 ;;
   */node_modules/*|*/.git/*|*/dist/*|*/build/*|*/.next/*|*/target/*|*/vendor/*) exit 0 ;;
   */bench/archive-token-savings-thesis/*) exit 0 ;;
-  *.lock|*.lockb|*.snap) exit 0 ;;
 esac
 
 # Helper: count non-blank lines in a string.

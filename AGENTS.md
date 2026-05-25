@@ -40,7 +40,7 @@ job easier than the *previous* one's, every time, automatically.
 ## What's in it
 
 Concretely:
-- 4 hooks (security guardrails + maintenance nudges, all non-blocking unless
+- 5 hooks (security guardrails + maintenance nudges, all non-blocking unless
   blocking a real safety issue)
 - 10 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
   `/stack-check`, `/init-repo`, `/log-structured`, `/explain-diff`,

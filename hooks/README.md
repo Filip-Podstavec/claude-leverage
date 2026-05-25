@@ -54,8 +54,18 @@ Scripts in `../scripts/hooks/`:
   payment, templates, `.env*`, …). Once per branch per day.
 - **`stack-freshness.sh`** (SessionStart) — Network-free. Reads only the
   local `~/.local/state/claude-leverage/.last-stack-check` timestamp; if
-  >30 days old, prints a one-liner suggesting `/stack-check`. Override
+  >30 days old, emits a `hookSpecificOutput.additionalContext` nudge
+  suggesting `/stack-check` (so the model actually sees it — stderr
+  from SessionStart is invisible to the model context window). Override
   via `CLAUDE_LEVERAGE_FRESHNESS_DAYS` env var (`=0` disables).
+- **`bare-repo-nudge.sh`** (SessionStart) — Network-free. When cwd is
+  NOT inside a git repo and is also not a "just-opened-terminal"
+  location (`$HOME`, `/tmp`, `/`, `/etc`, …), emits a one-per-day
+  `additionalContext` nudge suggesting `git init` + `/init-repo` before
+  writing code. Fills the gap left by `security-nudge.sh` (which is
+  git-only by design) so that fresh non-git projects — the exact place
+  where guardrails are most valuable — get proactive signal at session
+  start.
 - **`json_parse.sh`** — Helper shell library (not itself a hook). Sourced
   by the security hooks. Provides `read_stdin`, `has_parser`, and
   `get_field` with a `jq` → `python3` → `python` fallback chain.
@@ -110,7 +120,12 @@ Then add to `~/.claude/settings.json`:
 {
   "hooks": {
     "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "$HOME/.claude/hooks/stack-freshness.sh" }] }
+      {
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/stack-freshness.sh" },
+          { "type": "command", "command": "$HOME/.claude/hooks/bare-repo-nudge.sh" }
+        ]
+      }
     ],
     "PreToolUse": [
       {

@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/stack-freshness.sh"
+          },
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/bare-repo-nudge.sh"
           }
         ]
       }

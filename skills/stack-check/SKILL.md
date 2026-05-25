@@ -239,9 +239,22 @@ quiet for the next N days.
 9. **Reset the timestamp.** Only if no row failed with an *error*
    (process crashed, network exception). A failure status (outdated /
    missing / stale anchors / oversized AGENTS.md) is information, not
-   an error — reset the timestamp. `touch <state_dir>/.last-stack-check`
-   writes mtime; we write the epoch into the file body too (the hook
-   reads from the body).
+   an error — reset the timestamp.
+
+   **Run exactly this command — do NOT write a literal number into the
+   file:**
+
+   ```bash
+   date +%s > "$STATE_DIR/.last-stack-check"
+   ```
+
+   where `$STATE_DIR` is `${CLAUDE_LEVERAGE_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/claude-leverage}`
+   (matching the fallback chain in `scripts/hooks/stack-freshness.sh`).
+   The SessionStart hook reads the epoch from the file body — not the
+   mtime — so a stale or hallucinated number suppresses nudges for
+   weeks. Capturing the value via `date +%s` is the only reliable way
+   to avoid the v1.4.0 field-feedback #7 bug where the body and mtime
+   disagreed by ~2 months.
 
 ## Hard rules
 
