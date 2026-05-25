@@ -88,9 +88,16 @@ properties guide every decision in this repo:
   continuity layer between sessions — distillate, not transcript
 
 **Workflow commands (Claude Code only — use `!` preamble efficiency):**
-- `/commit-smart` — inline secret scan + Conventional Commits + push
 - `/flaky-test` — delegates to `flaky-test-isolator` subagent for N-run
   stability analysis
+
+(For commits, the vanilla Claude commit workflow + the
+`block-secrets-precommit` / `block-dangerous-git` hooks already cover
+secret scanning, Conventional Commits style, refusing `.env`, refusing
+`--no-verify`, and refusing force-push. v1.4.4 removed the
+`/commit-smart` slash command — it added a treacherous auto-push to
+something that should be opt-in. Just commit with vanilla and push
+explicitly when you want.)
 
 **Conventions enforced via documentation + nudges:**
 - AIDEV-NOTE / AIDEV-TODO / AIDEV-QUESTION anchor comments (with optional
@@ -207,11 +214,12 @@ sequenceDiagram
     User->>CC: /adr-new "use HS256 not RS256 here"
     CC->>CC: write docs/adr/0007-...md (immutable)
 
-    User->>CC: /commit-smart
+    User->>CC: commit this
     CC->>Hook: PreToolUse (Bash: git commit)
     Note right of Hook: block-secrets-precommit<br/>scans staged diff
     Hook-->>CC: allow (no secrets)
-    CC->>Git: commit + push (Conventional Commits)
+    CC->>Git: commit (Conventional Commits)
+    Note right of CC: push only when user asks<br/>(no auto-push in v1.4.4+)
 
     User->>CC: /session-log "wire HS256 auth + middleware"
     CC->>CC: write docs/sessions/YYYY-MM-DD-...md (distillate)
@@ -270,7 +278,7 @@ flowchart LR
 | [`agents/`](agents/) | Claude Code subagents (Markdown + YAML frontmatter) |
 | [`.codex/agents/`](.codex/agents/) | Codex subagents (TOML; auto-generated from `agents/`) |
 | [`skills/`](skills/) | 10 cross-tool skills (`agentskills.io` SKILL.md spec) |
-| [`commands/`](commands/) | 2 Claude Code slash commands (`/commit-smart`, `/flaky-test`) |
+| [`commands/`](commands/) | 1 Claude Code slash command (`/flaky-test`) |
 | [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
 | [`.codex/`](.codex/) | Codex hook template + sandbox/approval defaults |
 | [`scripts/hooks/`](scripts/hooks/) | Hook shell scripts, shared by both tools |

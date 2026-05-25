@@ -32,14 +32,15 @@ reload without restarting.
 
 ## Available commands
 
-- [`commit-smart.md`](../commands/commit-smart.md) — Inline secret scan +
-  Conventional Commits message + push, all in the main session. The bash
-  preamble computes diff stats before the model wakes up, which a skill
-  can't currently do. Hard rules: refuse `.env` / API key commits, never
-  force push, never `--no-verify`, never amend / rebase, never write code.
 - [`flaky-test.md`](../commands/flaky-test.md) — Delegates to the
   `flaky-test-isolator` subagent with target, run count, and timeout.
   Validates inputs and applies caps before delegation.
+
+> **v1.4.4 removed `commit-smart.md`.** It auto-pushed by default, which
+> violates the "actions visible to others should require confirmation"
+> principle the rest of the stack follows. Vanilla Claude Code commit
+> + the `block-secrets-precommit` / `block-dangerous-git` hooks already
+> cover everything `/commit-smart` did, without the treacherous auto-push.
 
 Anything else (security review, repo map, process diagrams, stack check,
 init-repo, log-structured, explain-diff, codex-sandbox) lives in

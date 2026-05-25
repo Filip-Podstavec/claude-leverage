@@ -45,7 +45,7 @@ Concretely:
 - 10 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
   `/stack-check`, `/init-repo`, `/log-structured`, `/explain-diff`,
   `/codex-sandbox`, `/adr-new`, `/session-log`)
-- 2 Claude-only slash commands (`/commit-smart`, `/flaky-test`)
+- 1 Claude-only slash command (`/flaky-test`)
 - 2 subagents (`security-reviewer`, `flaky-test-isolator`)
 - 1 portable statusline
 - Per-language AGENTS.md template + 4 structured-logging starter kits
@@ -262,7 +262,6 @@ crosses the threshold.
 
 | Command | What it does |
 |---------|--------------|
-| `/commit-smart` | Inline: secret scan + Conventional Commits message + push |
 | `/security-review` | Audit current diff for OWASP-Top-10-shaped issues |
 | `/repo-map` | Generate/update mermaid architecture block in README between markers |
 | `/process-diagram <name>` | Generate sequence/flowchart for a named workflow |

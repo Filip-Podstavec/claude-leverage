@@ -10,8 +10,8 @@ describe how to **wire them together** for real tasks.
 
 - [**`security-first-feature.md`**](security-first-feature.md) — Shipping
   a new auth / payment / template / route safely with the stack. The
-  three explicit skill invocations (`/init-repo` once,
-  `/security-review` before commit, `/commit-smart` to ship) plus what
+  two explicit skill invocations (`/init-repo` once, `/security-review`
+  before commit) plus the vanilla commit + explicit push, plus what
   fires passively (hooks, nudges) at each step.
 
 - [**`maintaining-as-it-grows.md`**](maintaining-as-it-grows.md) — The

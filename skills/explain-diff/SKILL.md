@@ -21,9 +21,9 @@ argument-hint: "[ref-range, default HEAD] [--for pr|review|self]"
 
 Reads a git diff and produces a tight English narration of what
 changed, why a reviewer should care, and where the risk concentrates.
-Lives next to `/commit-smart` (mechanical Conventional Commits message)
-and `/security-review` (structured security audit) — covers the
-"narrative" niche neither does.
+Lives next to the vanilla commit workflow (mechanical Conventional
+Commits message) and `/security-review` (structured security audit) —
+covers the "narrative" niche neither does.
 
 Three audience modes:
 
@@ -147,9 +147,9 @@ add to PR body".>
 
 ## What this skill does NOT do
 
-- **Generate the commit message.** That's `/commit-smart`. They're
-  different shapes: a commit message is per-commit; a PR description
-  is per-branch. Don't conflate.
+- **Generate the commit message.** That's the vanilla commit workflow.
+  They're different shapes: a commit message is per-commit; a PR
+  description is per-branch. Don't conflate.
 - **Audit for security/correctness.** Cite when sensitive paths
   appear; let `/security-review` do the actual audit.
 - **Run tests or verify claims.** "How to verify" is suggestions for

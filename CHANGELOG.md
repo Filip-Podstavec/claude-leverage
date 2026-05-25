@@ -5,6 +5,113 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] — 2026-05-25
+
+### Removed
+
+- **`/commit-smart` slash command** (`commands/commit-smart.md`) —
+  removed entirely. The command auto-pushed by default
+  (`git push --set-upstream` on first push of a new branch), which
+  violates the Claude Code principle that visible / shared-state
+  actions should require explicit confirmation. The auto-push was
+  treacherous: users who invoked `/commit-smart` for the commit part
+  got a public remote ref as a side effect.
+
+  Vanilla Claude Code commit workflow + the existing
+  `block-secrets-precommit` and `block-dangerous-git` hooks already
+  enforce every safety invariant `/commit-smart` had (refuse `.env`,
+  refuse `--no-verify`, refuse `--force`, refuse `--amend`, match
+  Conventional Commits style). The slash command added a treacherous
+  auto-push for no net benefit.
+
+  v0.12.0 already dropped the *delegation* layer of `/commit-smart`
+  after benchmarks disproved the token-savings thesis; v1.4.4 closes
+  the loop by dropping the *command* itself. The bench evidence stays
+  in `bench/archive-token-savings-thesis/` as before.
+
+### Changed (docs)
+
+- `README.md`, `AGENTS.md`, `workflows/security-first-feature.md`,
+  `workflows/maintaining-as-it-grows.md`, `workflows/README.md`,
+  `commands-docs/README.md`, `skills/process-diagram/SKILL.md`,
+  `skills/explain-diff/SKILL.md` — every live-doc reference to
+  `/commit-smart` replaced with vanilla-commit guidance. The historical
+  pivot specs under `docs/specs/` and the bench archive are left as
+  frozen reference (per AGENTS.md repo conventions).
+
+## [1.4.3] — 2026-05-25
+
+### Added
+
+- **`bare-repo-nudge.sh` branch B** — SessionStart inside a git repo
+  whose root has neither `AGENTS.md` nor `CLAUDE.md` AND that looks
+  like a real project (recognizable marker file like `package.json`,
+  `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml`,
+  `build.gradle[.kts]`, `Gemfile`, `composer.json`, `mix.exs`,
+  `*.csproj`, `Package.swift`, `CMakeLists.txt`, `requirements.txt`,
+  `setup.py` / `setup.cfg`) now emits an `additionalContext` nudge
+  toward `/init-repo`. Closes the gap where the plugin's hooks fire
+  but the convention layer (AIDEV anchors, structured logging,
+  per-dir AGENTS.md, module org) stays invisible to the model.
+  v1.4.1's branch A still covers the non-git case.
+- 4 new tests in `tests/test_hook_behavior.py` covering the branch-B
+  decision tree (fires for git + project marker + no AGENTS.md;
+  silent for AGENTS.md present, CLAUDE.md present, or no project
+  marker).
+
+## [1.4.2] — 2026-05-25
+
+### Fixed
+
+- **All 10 shell scripts** (`scripts/hooks/*.sh`,
+  `scripts/install-codex.sh`, `scripts/smoke-plugin.sh`,
+  `statusline/statusline-command.sh`) were committed to the git
+  index with mode `100644` instead of `100755`. On Linux installs
+  via `/plugin install`, every Bash call emitted
+  `Permission denied` from the hook scripts, silently disabling the
+  security guardrails the plugin exists to provide. Flipped via
+  `git update-index --chmod=+x`.
+
+### Added
+
+- New parametrized pytest in `tests/test_plugin_integrity.py`
+  (`test_shell_script_is_executable_in_git_index`) calls
+  `git ls-files -s` for every tracked shell script and asserts
+  mode `100755`. Prevents the regression from recurring silently.
+
+## [1.4.1] — 2026-05-25
+
+### Fixed (field-feedback bundle)
+
+- **`ai-first-nudge.sh`** split basename-only vs path ignore patterns
+  so directories named e.g. `slevomat_test_api/` no longer silently
+  swallow nudges for production files inside them. Added Windows
+  backslash → forward slash normalization before pattern matching so
+  `node_modules` and friends still match on Git Bash.
+- **`stack-freshness.sh`** migrated from `printf >&2` to stdout JSON
+  `hookSpecificOutput.additionalContext` per the Claude Code
+  SessionStart hook spec, so the model actually sees the nudge in
+  its context window (stderr from SessionStart is invisible to the
+  model).
+- **`skills/stack-check/SKILL.md` step 9** now mandates exactly
+  `date +%s > "$STATE_DIR/.last-stack-check"`; prevents the
+  hallucinated-epoch bug where the body and mtime disagreed by
+  ~2 months and suppressed nudges for weeks.
+
+### Added
+
+- **`bare-repo-nudge.sh`** — new SessionStart hook (branch A only at
+  this stage). When cwd is not inside a git repo and is not a
+  just-opened-terminal location (`$HOME` / `/tmp` / `/etc` / …),
+  emits a one-per-day `additionalContext` nudge toward `git init` +
+  `/init-repo`. Fills the gap left by `security-nudge.sh` (git-only
+  by design) so that fresh non-git projects — the exact place where
+  guardrails are most valuable — get proactive signal at session
+  start.
+- 13 new tests in `tests/test_hook_behavior.py` driving each hook
+  with crafted stdin JSON in an isolated state dir, asserting on
+  the externally observable contract.
+
 ## [1.4.0] — 2026-05-25
 
 The "self-audit caught self-maintenance gaps" release. A pre-push

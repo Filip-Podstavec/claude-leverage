@@ -60,7 +60,6 @@ with `CLAUDE_LEVERAGE_FRESHNESS_DAYS=N` (`=0` disables).
 | Skill | When to invoke |
 |-------|----------------|
 | `/security-review` | Before committing changes in auth / crypto / routes / payment / templates. The `security-nudge` Stop hook will suggest this automatically when the threshold is met. |
-| `/commit-smart` | When you're ready to commit. Scans for secrets, writes Conventional Commits message, pushes. Inline (no subagent). |
 | `/explain-diff` | Before opening a PR (`--for pr`) or when teammate is reviewing (`--for review`). Plain-English diff narration. |
 | `/flaky-test <test>` | When a single test fails intermittently — runs it N times, groups failures by signature. |
 
@@ -70,7 +69,7 @@ with `CLAUDE_LEVERAGE_FRESHNESS_DAYS=N` (`=0` disables).
 |-------|----------------|--------------|
 | `/stack-check` | When the SessionStart hook nudges, or every ~30 days | Markdown report covering: Claude Code + Codex + plugin + CLI dep versions (with per-OS install commands); AIDEV-TODO/QUESTION anchor walk grouped by age and deadline status (fresh / aging / stale / due-soon / overdue); AGENTS.md sanity (32 KiB cap, broken `@<path>` imports, possibly stale file references). Resets the freshness timestamp on success. |
 | `/repo-map` | After adding/renaming a top-level directory, or before tagging a release | Regenerates the mermaid architecture block in README.md between idempotent markers. Optionally adds a per-language dep graph (`madge` for JS/TS, `pydeps` for Python — opt-in, skipped silently if neither installed). |
-| `/process-diagram <name>` | When documenting a non-obvious workflow (commit-smart flow, hook-intercept flow, etc.) | mermaid sequenceDiagram or flowchart, mmdc validation loop, inserted into target markdown between idempotent markers. |
+| `/process-diagram <name>` | When documenting a non-obvious workflow (security-review flow, hook-intercept flow, etc.) | mermaid sequenceDiagram or flowchart, mmdc validation loop, inserted into target markdown between idempotent markers. |
 | `/log-structured` | Onboarding to a legacy codebase, or after AGENTS.md adoption to see baseline | Walks codebase, flags print() / console.log() / interpolated logger.X() calls, suggests spec-compliant replacements per file:line. Read-only. |
 
 ### Skills you invoke per-decision and per-session (durable memory)

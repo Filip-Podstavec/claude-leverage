@@ -140,23 +140,29 @@ review.
 
 ## Commit
 
-```
-/commit-smart
-```
+Use the vanilla Claude Code commit workflow ("commit this" or
+equivalent). The stack's safety invariants are enforced at the hook
+layer, not at the command layer:
 
-All-inline (no subagent dispatch). Reads the staged diff, scans for
-problems the secrets hook didn't already catch (debug prints, broken
-syntax), checks for unsafe path patterns, writes a Conventional Commits
-message in the repo's existing style, commits, and pushes (with
-upstream tracking if missing).
+- `block-secrets-precommit` refuses `git commit` if the staged diff
+  contains API keys / tokens / private keys / `.env` content.
+- `block-dangerous-git` refuses `git push --force`, `--no-verify`,
+  and `git reset --hard` on protected branches.
 
-Hard rules built into the command (and reinforced by the hooks):
-- Refuses to commit `.env`, API keys, tokens, anything that looks like
-  a credential.
-- Never force-pushes.
-- Never uses `--no-verify`.
-- Never amends or rebases.
-- Never writes code (commits what's staged; you decide what to write).
+So regardless of how the commit gets composed (vanilla Claude, manual
+`git commit`, another plugin's command), the same guardrails apply.
+
+After committing, push **explicitly** when you're ready — no auto-push.
+This matches the broader Claude Code principle that actions visible to
+others should require confirmation.
+
+> **Why no `/commit-smart` anymore?** v1.4.4 removed it. Earlier
+> versions of the plugin shipped a `/commit-smart` slash command that
+> committed AND pushed in one shot. The auto-push was treacherous —
+> `git push --set-upstream` on a new branch in particular creates a
+> public remote ref before the user realizes. The vanilla commit
+> workflow + hooks cover everything `/commit-smart` did, minus the
+> auto-push footgun.
 
 ## After commit
 
@@ -211,7 +217,8 @@ For a typical sensitive-feature PR, you invoke the stack ~3 times:
 /init-repo            # only once per project, if it doesn't have AGENTS.md yet
 # ... write code ...  # hooks fire passively
 /security-review      # before commit
-/commit-smart         # commit + push
+# "commit this"       # vanilla Claude commit; hooks enforce safety
+# git push            # push explicitly when ready (no auto-push)
 /explain-diff --for pr # generates PR description block
 ```
 

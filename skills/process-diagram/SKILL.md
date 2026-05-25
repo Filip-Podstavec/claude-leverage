@@ -20,9 +20,10 @@ argument-hint: "<workflow-name> [--into <path.md>] [--type sequence|flowchart]"
 ## What it does
 
 Produces a Mermaid diagram for a named workflow (the flow of
-`/security-review`, how `/commit-smart` interacts with the security hooks,
-how a hook intercepts a Bash call, etc.) and optionally inserts it into a
-target markdown file between idempotent markers:
+`/security-review`, how a hook intercepts a Bash call, how the
+SessionStart `bare-repo-nudge` decision tree resolves, etc.) and
+optionally inserts it into a target markdown file between idempotent
+markers:
 
 ```html
 <!-- process-diagram:<name>:start -->
@@ -81,7 +82,7 @@ sequenceDiagram
 
 ```
 /process-diagram security-review
-/process-diagram commit-smart --into skills/commit-smart/SKILL.md
+/process-diagram bare-repo-nudge --into hooks/README.md
 /process-diagram stack-check-pipeline --type flowchart --into docs/specs/2026-05-24-pivot/05-stack-freshness.md
 ```
 
@@ -90,8 +91,8 @@ sequenceDiagram
 - **Never overwrite content outside the markers.** Idempotence is the
   whole point of the markers.
 - **Never silently change marker IDs.** If the user says
-  `/process-diagram commit-smart` and the existing block is
-  `<!-- process-diagram:commit-flow:start -->`, ask which one to update;
+  `/process-diagram security-review` and the existing block is
+  `<!-- process-diagram:security-flow:start -->`, ask which one to update;
   do not duplicate.
 - **Refuse to invent a flow.** If the user gives only a workflow name and
   no description, and you cannot find a SKILL/command file to read for
