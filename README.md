@@ -350,22 +350,45 @@ else { Remove-Item -Force "$env:USERPROFILE\.codex\hooks.json" }
 ## Honest history
 
 This repo started in 2026 as a v0.x experiment in tier-routing across
-Sonnet/Haiku subagents to save tokens vs. vanilla Claude Code. Three rounds
-of rigorous benchmarking on Opus 4.7 disproved that thesis:
+Sonnet/Haiku subagents to save tokens vs. vanilla Claude Code. Earlier
+runs done on prior Claude model generations (not preserved in this
+repo's archive) showed genuine savings on the order of **+40 % or
+more** in the leveraged direction — the thesis was empirically alive
+when it was first formed. By the time we were measuring v0.10 / v0.11
+under benchmark conditions that *are* captured here, the trade-off had
+narrowed to overhead in the tens of percent (best in-repo run:
+**+26 %** on a 4-turn warm-cache workflow), but the other benefits of
+subagent dispatch (isolated context, structured output, deterministic
+schemas) arguably still justified that price.
 
-| Stage | Baseline | Leveraged | Delta |
-|---|---:|---:|---:|
-| Cold cache, 4 tasks                 | $0.37 | $0.64 | **+73 %** |
-| Warm cache, 4-turn workflow         | $0.24 | $0.39 | **+63 %** |
-| Warm cache, 12-turn day-in-the-life | $0.51 | $1.11 | **+117 %** |
+Opus 4.7 inverted the trade-off. Its prompt caching made "read large,
+emit small" inline cheap enough that per-invocation `Task`-dispatch
+overhead structurally exceeded any per-token savings from delegating
+to Sonnet/Haiku. The pivot was a rational response to a
+pricing-structure change, not a confession of a design mistake — but
+once the new economics landed, the headline thesis stopped paying for
+itself and we said so.
 
-The plugin model's per-invocation dispatch overhead structurally exceeded
-the per-token savings from delegating execution to Sonnet/Haiku. Prompt
-caching on Opus 4.7 makes "read large, emit small" cheap inline.
+The shift is cleanest on the 12-turn day-in-the-life scenario (one
+session, realistic mix of orientation, edits, tests, commits):
 
-v1.0.0 is what's left after subtracting everything the data killed; v1.1.x
-through v1.3.x added the dev-stack scaffolding around the surviving
-components (security, conventions, skills, durable-memory layer).
+| Stage | Pre-Opus 4.7 | Opus 4.7 |
+|---|---:|---:|
+| Cold cache, 4 tasks                 | +73 % | +73 % |
+| Warm cache, 4-turn workflow         | +26 % (best) / +63 % (v0.11.0) | +63 % |
+| Warm cache, 12-turn day-in-the-life | **+64 %** | **+117 %** |
+
+The 12-turn case shows the mechanism. On Opus 4.7 the baseline cost
+fell from $0.745 → $0.511 (-31 %) for the same 12 prompts; leveraged
+barely moved ($1.220 → $1.107, -9 %). The model upgrade dropped
+baseline cost faster than leveraged could amortize, because baseline
+benefits from cache reuse every turn while subagent dispatch resets
+context per invocation.
+
+v1.0.0 is what's left after subtracting everything the new economics
+killed; v1.1.x through v1.4.x added the dev-stack scaffolding around
+the surviving components (security hooks, AI-first conventions,
+on-demand skills, durable-memory layer, self-maintenance hardening).
 
 Full data + design: [`bench/archive-token-savings-thesis/`](bench/archive-token-savings-thesis/),
 [`docs/specs/2026-05-24-pivot/`](docs/specs/2026-05-24-pivot/),
