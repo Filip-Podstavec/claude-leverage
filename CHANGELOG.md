@@ -5,6 +5,36 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.5] — 2026-05-25
+
+### Fixed
+
+- **`block-dangerous-git.sh` false positives on prose in commit message
+  bodies.** Surfaced during v1.4.4's own commit: the message body
+  explained why the hook refuses force-push / `--no-verify` / hard
+  reset, but the hook's pre-v1.4.5 `tr -d '"'\\` strip flattened the
+  entire bash command into one string before keyword scanning, so the
+  literal `--force` substring in the commit message body — combined
+  with a chained `git push` later in the same compound command —
+  matched the force-push detector and blocked the commit.
+
+  Fixed by moving to quote-aware stripping: contents of `'...'` and
+  `"..."` (with `\"` escape) are stripped entirely before keyword
+  matching, via Python regex with `re.DOTALL` so multi-line bodies
+  (heredoc-inside-`$()`-inside-`"..."`) are caught. Remaining
+  backslashes are stripped after that pass to preserve the
+  `git\ push\ --force` evasion catch.
+
+  Deliberate trade-off: someone who quotes a flag (e.g.
+  `git push '--force'`) now slips past detection. The hook is a
+  safety net for accidents — adversarial evasion was always out of
+  scope (documented in `hooks/README.md`), and the daily false-
+  positive rate on common prose was breaking legitimate commits.
+
+- 9 new tests in `tests/test_hook_behavior.py` covering both directions
+  (5 ALLOW cases for quoted flag-mentions, 4 BLOCK cases for real
+  attacks including backslash-escape evasion regression guard).
+
 ## [1.4.4] — 2026-05-25
 
 ### Removed

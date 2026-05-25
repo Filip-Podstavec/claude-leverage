@@ -27,6 +27,7 @@ AI_FIRST_NUDGE = HOOKS_DIR / "ai-first-nudge.sh"
 STACK_FRESHNESS = HOOKS_DIR / "stack-freshness.sh"
 BARE_REPO_NUDGE = HOOKS_DIR / "bare-repo-nudge.sh"
 SECURITY_NUDGE = HOOKS_DIR / "security-nudge.sh"
+BLOCK_DANGEROUS_GIT = HOOKS_DIR / "block-dangerous-git.sh"
 
 
 BASH = shutil.which("bash")
@@ -455,4 +456,128 @@ def test_bare_repo_nudge_rate_limit_per_day(tmp_path: Path) -> None:
     assert second.returncode == 0
     assert second.stdout.strip() == "", (
         f"second call in same dir same day should be silent, got stdout={second.stdout!r}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# block-dangerous-git: quote-aware flag detection (#v1.4.5)
+# ---------------------------------------------------------------------------
+#
+# v1.4.4 surfaced the false-positive: the hook stripped quotes wholesale
+# before scanning for --force / --no-verify / --hard, so a commit message
+# whose body mentioned those flags as prose tripped the detector. The
+# v1.4.5 fix moves to quote-aware stripping: contents of '...' and "..."
+# are removed (they're DATA, not command tokens) before pattern matching.
+#
+# These tests cover both directions: real attacks STILL block, prose in
+# message bodies NO LONGER blocks.
+
+
+def _bash_hook_payload(command: str) -> dict:
+    return {"tool_name": "Bash", "tool_input": {"command": command}}
+
+
+# --- Should ALLOW (false-positive fixes) ---
+
+
+def test_block_dangerous_git_allows_force_substring_in_commit_message(tmp_path: Path) -> None:
+    """`git commit -m "...--force..."` should NOT be blocked — `--force`
+    is inside a quoted message body, not an actual flag. Pre-v1.4.5 the
+    aggressive `tr -d` strip would treat it as if it were unquoted and
+    co-occur with any later `git push` in the same shell command."""
+    cmd = 'git commit -m "explain why --force is bad" && git push'
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, (
+        f"expected exit 0, got {result.returncode}; stderr={result.stderr!r}"
+    )
+
+
+def test_block_dangerous_git_allows_force_in_heredoc_body(tmp_path: Path) -> None:
+    """The exact shape that caught v1.4.4: a `git commit -m "$(cat <<'EOF'
+    ... --force ... EOF)"` chained with a final `git push`. The heredoc
+    body lives inside the outer "..." quote; quote-aware strip eats it."""
+    cmd = (
+        "git add . && git commit -m \"$(cat <<'EOF'\n"
+        "chore: explain hooks reject --force, --no-verify, etc.\n"
+        "EOF\n"
+        ")\" && git push"
+    )
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, (
+        f"expected exit 0, got {result.returncode}; stderr={result.stderr!r}"
+    )
+
+
+def test_block_dangerous_git_allows_no_verify_substring_in_message(tmp_path: Path) -> None:
+    cmd = 'git commit -m "the --no-verify flag bypasses hooks — never use it"'
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, (
+        f"expected exit 0, got {result.returncode}; stderr={result.stderr!r}"
+    )
+
+
+def test_block_dangerous_git_allows_hard_reset_substring_in_message(tmp_path: Path) -> None:
+    cmd = "git commit -m 'document that git reset --hard main is destructive'"
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, (
+        f"expected exit 0, got {result.returncode}; stderr={result.stderr!r}"
+    )
+
+
+# --- Should BLOCK (real attacks; regression guard) ---
+
+
+def test_block_dangerous_git_blocks_actual_force_push(tmp_path: Path) -> None:
+    cmd = "git push --force origin main"
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, (
+        f"expected block (exit 2), got {result.returncode}; stderr={result.stderr!r}"
+    )
+    assert "Force push" in result.stderr
+
+
+def test_block_dangerous_git_blocks_force_push_short_option(tmp_path: Path) -> None:
+    cmd = "git push -f origin main"
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, (
+        f"expected block (exit 2), got {result.returncode}; stderr={result.stderr!r}"
+    )
+
+
+def test_block_dangerous_git_blocks_actual_no_verify(tmp_path: Path) -> None:
+    cmd = 'git commit --no-verify -m "skip the hooks"'
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, (
+        f"expected block (exit 2), got {result.returncode}; stderr={result.stderr!r}"
+    )
+    assert "--no-verify" in result.stderr
+
+
+def test_block_dangerous_git_blocks_actual_hard_reset_main(tmp_path: Path) -> None:
+    cmd = "git reset --hard origin/main"
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, (
+        f"expected block (exit 2), got {result.returncode}; stderr={result.stderr!r}"
+    )
+
+
+def test_block_dangerous_git_blocks_backslash_escape_evasion(tmp_path: Path) -> None:
+    """Backslash-escape evasion (`git push \\--force`) is in an UNQUOTED
+    position; the backslash-strip step after quote-aware stripping must
+    still reconstitute the flag and block it. Pre-v1.4.5 caught this; the
+    v1.4.5 refactor must preserve it."""
+    cmd = "git push \\--force origin main"
+    result = _run_hook(BLOCK_DANGEROUS_GIT, _bash_hook_payload(cmd),
+                       cwd=tmp_path, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, (
+        f"backslash-escape evasion should still block; got exit {result.returncode}, "
+        f"stderr={result.stderr!r}"
     )

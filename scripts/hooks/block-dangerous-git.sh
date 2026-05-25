@@ -35,11 +35,50 @@ read_stdin
 cmd=$(get_field '.tool_input.command') || exit 0
 [ -z "$cmd" ] && exit 0
 
-# Normalize for keyword matching: strip shell quotes and backslashes that
-# could be used to evade detection (e.g., `git "commit"`, `git\ push --force`).
-# This trades semantic accuracy for robustness - the normalized string is
-# only used for pattern matching, never executed.
-cmd_norm=$(printf '%s' "$cmd" | tr -d "'\"\\\\")
+# Normalize for keyword matching. Two concerns to balance:
+#
+#   1. Evasion via shell quoting/escaping: `git "commit"`, `git\ push --force`
+#      should still be caught. We strip backslashes from unquoted positions
+#      after quote-aware stripping below.
+#
+#   2. False positives from quoted-string DATA: a commit message body that
+#      *mentions* `--force` or `--no-verify` as prose (e.g. documenting why
+#      the hook refuses them) must NOT trip the detector. v1.4.4 surfaced
+#      this when a commit message containing the literal "force-push" was
+#      blocked because the pre-v1.4.5 strip flattened the message into the
+#      same string as a chained `git push`.
+#
+# Solution: strip the contents of `'...'` and `"..."` (DATA, not command
+# tokens) via Python regex with DOTALL — handles multi-line bodies including
+# `$(cat <<'EOF' ... EOF)` substitutions nested inside outer `"..."`. Then
+# strip remaining backslash escapes (those are in unquoted positions —
+# real evasion attempts like `git\ push\ --force`).
+#
+# Deliberate trade-off: someone who quotes a flag (`git push '--force'`)
+# now slips past detection — pre-v1.4.5 the `tr` strip caught this because
+# it removed only the quote characters and kept the content. We accept the
+# weaker adversarial-evasion posture because (a) the hook is a safety net
+# for accidents, not an adversary firewall — documented in hooks/README,
+# (b) determined evasion can always shell out manually, (c) the
+# false-positive rate on common prose ("don't use --force") was breaking
+# legitimate commits in v1.4.4 daily use.
+#
+# If Python is unavailable but jq is (rare), fall back to the old
+# aggressive `tr` strip — same false-positive surface as pre-v1.4.5 but
+# real attacks still block.
+PY_STRIP_BIN=$(command -v python3 || command -v python || true)
+if [ -n "$PY_STRIP_BIN" ]; then
+  cmd_norm=$(printf '%s' "$cmd" | "$PY_STRIP_BIN" -c '
+import re, sys
+text = sys.stdin.read()
+text = re.sub(r"\x27[^\x27]*\x27", " ", text)
+text = re.sub(r"\"(?:[^\"\\]|\\.)*\"", " ", text, flags=re.DOTALL)
+text = text.replace("\\", "")
+sys.stdout.write(text)
+' 2>/dev/null) || cmd_norm=$(printf '%s' "$cmd" | tr -d "'\"\\\\")
+else
+  cmd_norm=$(printf '%s' "$cmd" | tr -d "'\"\\\\")
+fi
 
 # --- Force push ---
 # Match --force, --force-with-lease, or any short-option cluster containing 'f'
