@@ -369,21 +369,20 @@ pricing-structure change, not a confession of a design mistake — but
 once the new economics landed, the headline thesis stopped paying for
 itself and we said so.
 
-The shift is cleanest on the 12-turn day-in-the-life scenario (one
-session, realistic mix of orientation, edits, tests, commits):
+Three rounds of benchmarking on Opus 4.7 captured the post-shift
+picture:
 
-| Stage | Pre-Opus 4.7 | Opus 4.7 |
-|---|---:|---:|
-| Cold cache, 4 tasks                 | +73 % | +73 % |
-| Warm cache, 4-turn workflow         | +26 % (best) / +63 % (v0.11.0) | +63 % |
-| Warm cache, 12-turn day-in-the-life | **+64 %** | **+117 %** |
+| Stage | Overhead vs vanilla |
+|---|---:|
+| Cold cache, 4 tasks                 | +73 % |
+| Warm cache, 4-turn workflow         | +63 % |
+| Warm cache, 12-turn day-in-the-life | **+117 %** |
 
-The 12-turn case shows the mechanism. On Opus 4.7 the baseline cost
-fell from $0.745 → $0.511 (-31 %) for the same 12 prompts; leveraged
-barely moved ($1.220 → $1.107, -9 %). The model upgrade dropped
-baseline cost faster than leveraged could amortize, because baseline
-benefits from cache reuse every turn while subagent dispatch resets
-context per invocation.
+The 12-turn case shows the mechanism. Baseline benefits from prompt
+cache reuse every turn within a session; subagent dispatch resets
+context per invocation. As Opus 4.7's caching matured, the gap
+widened rather than amortizing. Full per-turn breakdown is in the
+archived long-session report.
 
 v1.0.0 is what's left after subtracting everything the new economics
 killed; v1.1.x through v1.4.x added the dev-stack scaffolding around
