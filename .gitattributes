@@ -25,3 +25,9 @@
 *.jpeg         binary
 *.gif          binary
 *.ico          binary
+
+# The smart-context-surfacing manifest is generated from source by
+# scripts/build-context-map.py. On merge conflicts, keep the local
+# version then rebuild — never try to hand-resolve a 234-entry sorted
+# JSON. After any merge, run `/refresh-context-map` (or pre-commit).
+.claude-leverage-context-map.json merge=ours
