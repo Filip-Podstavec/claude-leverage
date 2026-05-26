@@ -31,6 +31,16 @@
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/block-dangerous-git.sh"
           }
         ]
+      },
+      {
+        "matcher": "Read|Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/context-surface.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [

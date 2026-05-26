@@ -34,6 +34,17 @@
             "statusMessage": "Checking for dangerous git operations"
           }
         ]
+      },
+      {
+        "matcher": "^Read$|^Edit$|^Write$|^MultiEdit$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/context-surface.sh",
+            "statusMessage": "Surfacing context for file",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [
