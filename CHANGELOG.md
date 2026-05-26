@@ -5,6 +5,22 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1] — 2026-05-26
+
+### Fixed
+
+- **`context-surface.sh` path normalization on Linux.** The bundled
+  `canon_path` helper applied `replace("\\", "/")` *after* `os.path.abspath`,
+  which on Linux treated a Windows-style input like `\tmp\foo` as relative
+  (since `\` isn't a path separator on POSIX), prepended cwd, and produced a
+  path that no longer matched `repo_root` — the manifest lookup silently
+  missed. The regression test
+  `test_hook_normalizes_windows_backslash_path` correctly caught this on
+  the GitHub Actions Linux runner; it had passed locally on Windows because
+  `cygpath` runs first there and short-circuits the buggy branch. Fix:
+  convert backslashes *before* `abspath` so absolute Windows paths are
+  recognized as absolute on any platform. AIDEV-NOTE added at the fix site.
+
 ## [1.8.0] — 2026-05-26
 
 ### Added

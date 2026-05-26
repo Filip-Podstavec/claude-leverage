@@ -56,9 +56,16 @@ canon_path() {
   local PY
   PY=$(command -v python3 || command -v python || true)
   if [ -n "$PY" ]; then
+    # AIDEV-NOTE: convert backslashes BEFORE abspath so that Windows-style
+    # paths (e.g. \tmp\foo or C:\Users\…) sent to a Linux interpreter — as
+    # happens in CI when the regression test simulates a Windows path on
+    # the Linux runner — are recognized as absolute, not relative. Without
+    # the early replace, abspath prepends cwd, the result no longer
+    # matches repo_root, and the manifest lookup silently misses.
     printf '%s' "$p" | "$PY" -c '
 import os, sys
-print(os.path.abspath(sys.stdin.read()).replace("\\", "/"), end="")
+text = sys.stdin.read().replace("\\", "/")
+print(os.path.abspath(text).replace("\\", "/"), end="")
 ' 2>/dev/null && return
   fi
   printf '%s' "$p"
