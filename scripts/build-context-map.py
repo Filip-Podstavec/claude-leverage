@@ -37,6 +37,12 @@ ANCHOR_RE = re.compile(
     r"AIDEV-(NOTE|TODO|QUESTION)(?:\(by:\s*(\d{4}-\d{2}-\d{2})\))?:\s*(.*)"
 )
 
+# Comment-marker prefixes that count as "this line is a real comment, the
+# AIDEV anchor isn't inside a string literal". Covers Python/shell (#),
+# C-family + JS/TS/Go/Rust (// and /*), SQL/Lua/Haskell (--), Lisp (;),
+# and `*` continuation lines inside /* ... */ blocks.
+_COMMENT_MARKERS = ("#", "//", "/*", "--", ";", "*")
+
 
 def find_repo_root(start: Path) -> Path | None:
     try:
@@ -86,6 +92,16 @@ def _scan_anchors(file_path: Path) -> list[dict]:
     for i, line in enumerate(text.splitlines(), start=1):
         m = ANCHOR_RE.search(line)
         if not m:
+            continue
+        # Comment-context gate: skip matches inside string literals or
+        # arbitrary code. The text from line-start up to the anchor must
+        # begin (after stripping leading whitespace) with a comment marker.
+        # Without this, the manifest builder would extract AIDEV-NOTE from
+        # its own JSON values, test fixtures like
+        # `{"src/x.py": "# AIDEV-NOTE: real anchor\n"}`, and prose
+        # mentioning "AIDEV-NOTE: ..." inside docstrings.
+        prefix_stripped = line[: m.start()].lstrip()
+        if not prefix_stripped or not prefix_stripped.startswith(_COMMENT_MARKERS):
             continue
         a = {
             "line": i,
@@ -154,6 +170,12 @@ def build(repo_root: Path) -> dict:
 
     for abs_path in list_tracked_files(repo_root):
         if not abs_path.is_file():
+            continue
+        # AIDEV-NOTE: skip the manifest itself — its own JSON literals
+        # contain the AIDEV-NOTE substring inside text values, which would
+        # otherwise cause the builder to (a) include itself with bogus
+        # anchors and (b) drift between runs whenever anchor text changes.
+        if abs_path.name == MANIFEST_NAME:
             continue
         anchors = _scan_anchors(abs_path)
         if not anchors:

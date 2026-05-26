@@ -224,6 +224,49 @@ def test_builder_check_mode_passes_after_rebuild(tmp_path: Path) -> None:
     assert result.returncode == 0, f"--check should pass post-rebuild; stderr={result.stderr!r}"
 
 
+def test_builder_requires_comment_context_for_anchor(tmp_path: Path) -> None:
+    """AIDEV-NOTE inside a string literal must NOT be extracted as a real
+    anchor. Real comment lines (Python #, JS //, etc.) must be extracted."""
+    _init_repo_with_files(tmp_path, {
+        # Real anchors (in comments) — should be extracted
+        "src/python_comment.py": "# AIDEV-NOTE: real python anchor\nx = 1\n",
+        "src/js_comment.js":     "// AIDEV-NOTE: real js anchor\n",
+        "src/sql_comment.sql":   "-- AIDEV-NOTE: real sql anchor\n",
+        # Fake anchors (in string literals / prose) — must be rejected
+        "src/python_string.py": 'data = {"key": "# AIDEV-NOTE: not real\\n"}\n',
+        "src/python_docstring.py": '"""AIDEV-NOTE: docstring, not a comment."""\n',
+        "src/prose.md":         "Discussion of `AIDEV-NOTE: example` style anchors.\n",
+    })
+    _run_builder(tmp_path, "--quiet")
+    manifest = json.loads((tmp_path / ".claude-leverage-context-map.json").read_text())
+
+    assert "src/python_comment.py" in manifest["files"]
+    assert "src/js_comment.js" in manifest["files"]
+    assert "src/sql_comment.sql" in manifest["files"]
+    assert "src/python_string.py" not in manifest["files"], \
+        "string-literal AIDEV-NOTE must not be extracted"
+    assert "src/python_docstring.py" not in manifest["files"], \
+        "docstring AIDEV-NOTE must not be extracted (use # comment style)"
+    assert "src/prose.md" not in manifest["files"], \
+        "inline-backtick AIDEV-NOTE in markdown prose must not be extracted"
+
+
+def test_builder_skips_its_own_manifest(tmp_path: Path) -> None:
+    """The manifest JSON contains the literal `AIDEV-NOTE` substring
+    inside text values. Without explicit self-skip, a second build would
+    add the manifest itself as a tracked file with bogus anchors and
+    cause perpetual drift on every rebuild."""
+    _init_repo_with_files(tmp_path, {"src/x.py": "# AIDEV-NOTE: real anchor\n"})
+    _run_builder(tmp_path, "--quiet")
+    # Add the manifest to git so it's tracked
+    subprocess.run(["git", "-C", str(tmp_path), "add",
+                    ".claude-leverage-context-map.json"], check=True)
+    # Second run must NOT include the manifest in `files`
+    _run_builder(tmp_path, "--quiet")
+    manifest = json.loads((tmp_path / ".claude-leverage-context-map.json").read_text())
+    assert ".claude-leverage-context-map.json" not in manifest["files"]
+
+
 def test_builder_writes_atomically(tmp_path: Path) -> None:
     """After a successful run, no leftover .tmp file should remain at the
     target location. (Confirms _atomic_write cleaned up via os.replace.)"""
