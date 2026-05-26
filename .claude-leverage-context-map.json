@@ -3,7 +3,7 @@
     "anchor_count": 33,
     "builder_version": "1.8.0",
     "file_count": 19,
-    "generated_at": "2026-05-26T19:00:25+00:00",
+    "generated_at": "2026-05-26T19:13:34+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1

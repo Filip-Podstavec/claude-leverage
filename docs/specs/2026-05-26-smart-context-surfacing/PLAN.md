@@ -1646,15 +1646,17 @@ git commit -m "chore(context-surface): merge=ours for context-map to reduce conf
 
 ## Phase 4 — Smoke test in a real repo
 
-### Task 24: Build manifest in coinsense after/ and verify shape
+### Task 24: Build manifest in a target repo and verify shape
 
-**Note:** This phase verifies the implementation against the real-world coinsense `after/` tree from the A/B experiment harness. Read-only validation — does NOT commit anything in coinsense.
+**Note:** This phase verifies the implementation against any real-world target tree the executor has handy (use this `claude-leverage` repo itself if no other target is available — it has anchors and ADRs to work with). Read-only validation — does NOT commit anything in the target.
 
-- [ ] **Step 1: Build the manifest in coinsense-ab/after/**
+Substitute `<TARGET_REPO>` and `<PLUGIN_REPO>` with absolute paths to whichever target you're verifying against and to this `claude-leverage` checkout, respectively.
+
+- [ ] **Step 1: Build the manifest in `<TARGET_REPO>`**
 
 ```bash
-cd /c/Users/filip/Desktop/Python/coinsense-ab/after
-python /c/Users/filip/Desktop/Python/claude-leverage/scripts/build-context-map.py
+cd <TARGET_REPO>
+python <PLUGIN_REPO>/scripts/build-context-map.py
 ```
 
 Expected output: a single line `Wrote ./.claude-leverage-context-map.json (<N> files, <M> anchors)` where N>0 and M>0.
@@ -1668,42 +1670,40 @@ with open('.claude-leverage-context-map.json') as f:
     m = json.load(f)
 print('files:', m['_meta']['file_count'])
 print('anchors:', m['_meta']['anchor_count'])
-# Spot check the limit-trap anchor
-for path, entry in m['files'].items():
-    for a in entry['anchors_in_file']:
-        if 'limit' in a['text'].lower() and 'CH 25.4' in a['text']:
-            print('FOUND limit-trap anchor:', path, 'L', a['line'])
-            break
+# Spot check: pick a known anchor from the target and verify presence
+for path, entry in list(m['files'].items())[:5]:
+    print(path, '→', len(entry['anchors_in_file']), 'anchors')
 "
 ```
 
-Expected: prints the file count, anchor count, and confirms the limit-trap anchor is in the manifest at the right location.
+Expected: prints the file count, anchor count, and a short summary of which paths have anchors.
 
 - [ ] **Step 3: Drive the hook manually with a real file path**
 
+Pick any file in the target that the manifest indexed, then:
+
 ```bash
-echo '{"tool_name":"Read","tool_input":{"file_path":"'$(pwd)'/classes/db/clickhouse_reader.py"}}' \
-  | /c/Users/filip/Desktop/Python/claude-leverage/scripts/hooks/context-surface.sh
+echo '{"tool_name":"Read","tool_input":{"file_path":"'$(pwd)'/<some-indexed-file>"}}' \
+  | <PLUGIN_REPO>/scripts/hooks/context-surface.sh
 ```
 
-Expected: JSON on stdout containing `additionalContext` with the limit-trap anchor surfaced.
+Expected: JSON on stdout containing `additionalContext` with the file's anchors surfaced.
 
-- [ ] **Step 4: Clean up the manifest from coinsense-ab/after/ (so it doesn't pollute the A/B harness)**
+- [ ] **Step 4: Clean up the manifest from the target if you don't want to commit it**
 
 ```bash
 rm .claude-leverage-context-map.json
 ```
 
-(No commit — this phase is read-only validation.)
+(No commit — this phase is read-only validation against an external target.)
 
 ### Task 25: Performance benchmark
 
 - [ ] **Step 1: Time the hook on a populated manifest**
 
-In the claude-leverage repo (after building its own manifest):
+In this `claude-leverage` repo (after building its own manifest):
 
 ```bash
-cd /c/Users/filip/Desktop/Python/claude-leverage
 python scripts/build-context-map.py
 time (for i in $(seq 1 50); do
   echo '{"tool_name":"Read","tool_input":{"file_path":"'$(pwd)'/scripts/hooks/context-surface.sh"}}' \
@@ -1867,17 +1867,19 @@ informed: stack users
 
 ## Context and Problem Statement
 
-The leverage stack's per-session token tax — measured at 116% increase in
-Sonnet 4.6 cost on a small helper-add task in the coinsense A/B run3
-experiment — comes primarily from the agent dutifully reading every
-leverage artifact (root `AGENTS.md`, per-dir `AGENTS.md`, AIDEV-anchor-
-bearing files) **preemptively** at orientation time, regardless of
-whether those artifacts are relevant to the current task.
+The leverage stack's per-session token tax — measured at **+116%**
+Sonnet 4.6 cost on a small helper-add task in an internal A/B
+benchmark (Run 3) — comes primarily from the agent dutifully reading
+every leverage artifact (root `AGENTS.md`, per-dir `AGENTS.md`,
+AIDEV-anchor-bearing files) **preemptively** at orientation time,
+regardless of whether those artifacts are relevant to the current task.
 
-Run 1+2 (endpoint task with `limit` parameter trap) showed the tax is
-worth paying when there's a documented gotcha to catch. Run 3 (helper
-task without a specific trap) showed the tax is pure overhead when there
-isn't.
+Earlier runs in the same benchmark (an endpoint-add task containing a
+documented DB-driver parameter-naming gotcha) showed the tax is worth
+paying when there's a real trap to catch — the leverage stack
+reproducibly caught a production bug both runs. Run 3 (helper task
+without a specific trap) showed the tax is pure overhead when there
+isn't one.
 
 How do we reduce the tax for non-trap tasks without losing the catch on
 trap-bearing ones?
@@ -1955,26 +1957,23 @@ anchors / ADRs / per-dir docs change.
 
 ## Validation
 
-- The hook must catch the `limit` parameter trap from the coinsense
-  experiment (Run 4 of the eval harness).
-- Per-session token cost on the helper task (Run 3 analog) should drop
-  by at least 30% with no degradation in artifact quality.
+- The hook must reproduce the trap-catch from the benchmark's earlier
+  runs (the endpoint-add task where the leverage stack avoided a
+  documented DB-driver parameter-naming gotcha that the bare baseline
+  tripped on) — a follow-up Run 4 with the hook active is the pass
+  criterion.
+- Per-session token cost on the helper-task analog should drop by at
+  least 30% with no degradation in artifact quality.
 - `pytest tests/test_context_surfacing.py` must remain green; new
   manifest + hook tests count as the regression net.
 
 ## References
 
 - `docs/specs/2026-05-26-smart-context-surfacing/PLAN.md` — full plan.
-- `coinsense-ab/results/run1/` and `coinsense-ab/results/run2/` — Opus
-  endpoint-task A/B data showing the `limit`-trap catch is reproducible
-  with the leverage stack on. Run-3 evidence (the Sonnet helper-task
-  result with the 116% cost overhead that motivated *this* design) lives
-  in the user's Claude Code transcript history at
-  `~/.claude/projects/C--Users-filip-Desktop-Python-coinsense-ab-{before,after}/`
-  — not committed because Run-3 task spec / `_RUN_NOTES.md` were captured
-  out-of-band. Comparison numbers documented in
-  `docs/specs/2026-05-26-smart-context-surfacing/PLAN.md` and reviewable
-  via `coinsense-ab/analyze-runs.py` against either transcript.
+- Internal A/B benchmark data motivating this design is held privately
+  by the author; the qualitative findings (reproducible trap-catch in
+  Runs 1+2 on endpoint task, +116% Sonnet cost overhead in Run 3 helper
+  task) are what's reported here.
 - Claude Code PreToolUse hook spec — `https://code.claude.com/docs/en/hooks`
 - Codex PreToolUse hook spec — `https://developers.openai.com/codex/hooks`
 ```
@@ -2140,7 +2139,7 @@ git commit -m "chore(v1.8.0): version bump"
   their PreToolUse specs).
 - Opt-out: set `CLAUDE_LEVERAGE_CTX_DISABLE=1` per session.
 - See [ADR 0008](docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md)
-  for the design rationale, motivated by the coinsense A/B Run 3 result
+  for the design rationale, motivated by the internal A/B benchmark Run 3 result
   (helper-add task without a specific trap showed 116% Sonnet cost
   overhead vs. baseline — pure tax with no catch).
 ```
@@ -2161,9 +2160,11 @@ git commit -m "docs(changelog): v1.8.0 — smart context surfacing"
 - [ ] **Step 1: Run the full pre-push gate**
 
 ```bash
-cd /c/Users/filip/Desktop/Python/claude-leverage
 bash scripts/smoke-plugin.sh
 ```
+
+(Run from the `claude-leverage` repo root — the smoke script `cd`s into its
+own dir at the top, so the calling shell's cwd doesn't matter.)
 
 - [ ] **Step 2: If anything fails, fix it and re-run.** Do NOT use `--no-verify` or skip the gate. Most-likely failure modes:
 
@@ -2225,7 +2226,7 @@ git diff --stat main..feat/smart-context-surfacing
 
 - [ ] **Step 3: Confirm we did NOT push** (`git status` should show "Your branch is ahead of 'origin/main' by N commits.")
 
-- [ ] **Step 4: Report back to the user** with the branch name + a 5-bullet summary of what was shipped, what's pending, and the next recommended action (e.g., re-run the coinsense A/B harness with this branch's hook active as Run 4 to validate the cost-vs-catch claim).
+- [ ] **Step 4: Report back to the user** with the branch name + a 5-bullet summary of what was shipped, what's pending, and the next recommended action (e.g., re-run the internal A/B benchmark with this branch's hook active as Run 4 to validate the cost-vs-catch claim).
 
 ---
 

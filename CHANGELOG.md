@@ -13,9 +13,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
   mechanism that cuts per-session token tax from the leverage stack's
   docs by surfacing only the AIDEV anchors relevant to the file the
   agent is about to read or edit, instead of forcing the agent to
-  pre-load every `AGENTS.md` upfront. Motivated by the coinsense A/B
-  Run-3 result (Sonnet 4.6 helper-task: +116% cost vs. baseline with
-  no specific gotcha to catch — pure overhead).
+  pre-load every `AGENTS.md` upfront. Motivated by an internal A/B
+  benchmark: on a small helper-add task with Sonnet 4.6, the stack
+  added +116% to baseline cost when no specific gotcha was present —
+  pure overhead worth measuring before designing the fix.
   - `scripts/build-context-map.py` walks `git ls-files`, extracts
     `AIDEV-NOTE`/`TODO`/`QUESTION` anchors (with optional
     `(by: YYYY-MM-DD)` deadlines), and writes

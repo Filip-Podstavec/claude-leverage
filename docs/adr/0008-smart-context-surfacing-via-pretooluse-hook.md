@@ -2,7 +2,7 @@
 status: accepted
 date: 2026-05-26
 deciders: Filip Podstavec
-consulted: claude-leverage's own A/B test harness
+consulted: an internal A/B benchmark harness for this plugin
 informed: stack users
 ---
 
@@ -11,16 +11,17 @@ informed: stack users
 ## Context and Problem Statement
 
 The leverage stack's per-session token tax — measured at **+116%** Sonnet 4.6
-cost on a small helper-add task in the coinsense A/B Run-3 experiment — comes
+cost on a small helper-add task in an internal A/B benchmark (Run 3) — comes
 primarily from the agent dutifully reading every leverage artifact (root
 `AGENTS.md`, per-dir `AGENTS.md`, files containing `AIDEV-*` anchors)
 **preemptively** at orientation time, regardless of whether those artifacts
 are relevant to the current task.
 
-Run-1 and Run-2 (endpoint task with the `limit` parameter trap) showed the tax
-is worth paying when there's a documented gotcha to catch — the leverage stack
-caught a real production bug. Run-3 (helper task without a specific trap)
-showed the tax is pure overhead when there isn't.
+Earlier runs in the same benchmark (an endpoint-add task containing a
+documented DB-driver parameter-naming gotcha) showed the tax is worth paying
+when there's a real trap to catch — the leverage stack reproducibly caught a
+production bug both runs. Run 3 (helper task without a specific trap) showed
+the tax is pure overhead when there isn't one.
 
 How do we reduce the tax for non-trap tasks without losing the catch on
 trap-bearing ones?
@@ -72,8 +73,8 @@ the convention pay zero cost.
 
 The hook defaults to **anchors-only** output. `CLAUDE_LEVERAGE_CTX_VERBOSE=1`
 opts into surfacing the per-dir `AGENTS.md` chain and related ADRs too —
-default-off because Run-3 showed those refs are taxed-without-catch in the
-common case.
+default-off because the benchmark's Run 3 showed those refs are
+taxed-without-catch in the common case.
 
 A `/refresh-context-map` skill lets the agent rebuild the manifest when
 anchors / ADRs / per-dir docs change. `.gitattributes` adds `merge=ours` for
@@ -111,11 +112,13 @@ hand-resolve chore — keep local, then rebuild.
 
 ## Validation
 
-- The hook must catch the `limit` parameter trap from the coinsense
-  experiment (Run-4 of the eval harness — pending).
-- Per-session token cost on the helper task (Run-3 analog) should drop by
-  at least 30% with no degradation in artifact quality.
-- `pytest tests/test_context_surfacing.py` is the regression net (30 tests
+- The hook must reproduce the trap-catch from the benchmark's earlier runs
+  (an endpoint-add task where the leverage stack avoided a documented
+  DB-driver parameter-naming gotcha that the bare baseline tripped on) —
+  a follow-up Run 4 with the hook active is the pass criterion.
+- Per-session token cost on the helper-task analog should drop by at least
+  30% with no degradation in artifact quality.
+- `pytest tests/test_context_surfacing.py` is the regression net (30+ tests
   passing as of this ADR's acceptance).
 - `bash scripts/smoke-plugin.sh` includes a new gate that runs
   `python scripts/build-context-map.py --check` so a forgotten rebuild
@@ -124,12 +127,9 @@ hand-resolve chore — keep local, then rebuild.
 ## References
 
 - `docs/specs/2026-05-26-smart-context-surfacing/PLAN.md` — full implementation plan.
-- `coinsense-ab/results/run1/` and `coinsense-ab/results/run2/` — Opus
-  endpoint-task A/B data showing the `limit`-trap catch is reproducible with
-  the leverage stack on.
-- Run-3 evidence (the Sonnet helper-task result with the 116% cost overhead
-  that motivated *this* design) lives in the user's Claude Code transcript
-  history at `~/.claude/projects/C--Users-filip-Desktop-Python-coinsense-ab-{before,after}/`
-  and is reviewable via `coinsense-ab/analyze-runs.py` against either transcript.
+- Internal A/B benchmark data motivating this design is held privately by
+  the author; the qualitative findings (reproducible trap-catch in Runs 1+2
+  on endpoint task, +116% Sonnet cost overhead in Run 3 helper task) are
+  what's reported here.
 - Claude Code PreToolUse hook spec — <https://code.claude.com/docs/en/hooks>
 - Codex PreToolUse hook spec — <https://developers.openai.com/codex/hooks>
