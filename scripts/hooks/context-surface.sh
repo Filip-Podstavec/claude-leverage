@@ -150,6 +150,104 @@ VERBOSE="${CLAUDE_LEVERAGE_CTX_VERBOSE:-0}"
 # Single Python subprocess does manifest load + lookup + formatting +
 # JSON encoding. Two subprocesses cost ~300-500ms p99 on Windows Python
 # cold-start; merging halves the budget.
+#
+# When debug logging is active, capture the output FIRST so we can log
+# its length/preview, then emit on stdout. Without debug, stream directly
+# to stdout to avoid the bash-variable-roundtrip overhead.
+if [ -n "$DEBUG_LOG" ]; then
+  ctx_out=$(MANIFEST_PATH="$manifest" FILE_REL="$file_rel" \
+    MAX_CHARS="$MAX_CHARS" MAX_SIBLINGS="$MAX_SIBLINGS" \
+    VERBOSE="$VERBOSE" \
+    "$python_bin" - <<'PY'
+import json, os, sys
+
+manifest_path = os.environ["MANIFEST_PATH"]
+file_rel = os.environ["FILE_REL"]
+max_chars = int(os.environ.get("MAX_CHARS", "4096"))
+max_siblings = int(os.environ.get("MAX_SIBLINGS", "5"))
+verbose = os.environ.get("VERBOSE", "0") not in ("", "0", "false", "False")
+
+try:
+    with open(manifest_path, "r", encoding="utf-8") as fh:
+        manifest = json.load(fh)
+except (OSError, json.JSONDecodeError) as e:
+    sys.stderr.write(f"[ctx-py] manifest load failed: {e!r}\n")
+    sys.exit(0)
+
+meta = manifest.get("_meta", {})
+schema = meta.get("schema_version", 1)
+if schema != 1:
+    sys.stderr.write(f"[ctx-py] schema mismatch: schema={schema}\n")
+    sys.exit(0)
+
+entry = manifest.get("files", {}).get(file_rel)
+if not entry:
+    sys.stderr.write(f"[ctx-py] file_rel not in manifest.files (file_rel={file_rel!r}, n_files={len(manifest.get('files',{}))})\n")
+    sys.exit(0)
+
+parts = ["[claude-leverage:context-surface]"]
+anchors_in_file = entry.get("anchors_in_file") or []
+if anchors_in_file:
+    parts.append(f"AIDEV anchors in {file_rel}:")
+    for a in anchors_in_file:
+        kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
+        deadline = f"(by:{a['deadline']})" if a.get("deadline") else ""
+        parts.append(f"  L{a['line']} {kind}{deadline}: {a.get('text','')}")
+
+anchors_in_dir = entry.get("anchors_in_dir") or []
+if anchors_in_dir:
+    parts.append("")
+    parts.append("Anchors in same directory:")
+    shown = anchors_in_dir[:max_siblings]
+    for a in shown:
+        kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
+        parts.append(f"  {a.get('file','?')}:{a.get('line','?')} {kind}: {a.get('text','')}")
+    if len(anchors_in_dir) > max_siblings:
+        parts.append(f"  (+{len(anchors_in_dir) - max_siblings} more — see manifest)")
+
+if verbose:
+    agents_md = entry.get("agents_md") or []
+    if agents_md:
+        parts.append("")
+        parts.append("For project conventions, see (Read on demand):")
+        parts.append(f"  {', '.join(agents_md)}")
+    adrs = entry.get("adrs") or []
+    if adrs:
+        parts.append("")
+        parts.append("Related ADRs:")
+        for a in adrs:
+            parts.append(f"  {a}")
+
+if len(parts) <= 1:
+    sys.stderr.write("[ctx-py] all-empty entry, suppressing\n")
+    sys.exit(0)
+
+out = "\n".join(parts)
+if len(out) > max_chars:
+    out = out[: max_chars - 50].rstrip() + f"\n... (truncated; cap={max_chars})"
+
+print(json.dumps({
+    "hookSpecificOutput": {
+        "hookEventName": "PreToolUse",
+        "additionalContext": out,
+    }
+}))
+sys.stderr.write(f"[ctx-py] emitted {len(out)} chars of additionalContext\n")
+PY
+    )
+  ctx_exit=$?
+  log_dbg "python exit=$ctx_exit output_len=${#ctx_out}"
+  if [ -n "$ctx_out" ]; then
+    log_dbg "python stdout preview: $(printf '%s' "$ctx_out" | tr '\n' '|' | head -c 300)"
+    printf '%s\n' "$ctx_out"
+  else
+    log_dbg "python stdout was EMPTY (Python took a silent sys.exit(0) branch — see stderr if captured)"
+  fi
+  log_dbg "script end reached"
+  exit 0
+fi
+
+# Production path (no debug logging) — stream directly, no variable capture.
 MANIFEST_PATH="$manifest" FILE_REL="$file_rel" \
   MAX_CHARS="$MAX_CHARS" MAX_SIBLINGS="$MAX_SIBLINGS" \
   VERBOSE="$VERBOSE" \

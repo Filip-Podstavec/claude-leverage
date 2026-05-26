@@ -5,6 +5,28 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.3] — 2026-05-26
+
+### Added (diagnostic — still tracking the silent-no-emit bug)
+
+- **`context-surface.sh`: capture Python heredoc output when debug log
+  is active.** v1.8.2 confirmed the hook IS being invoked end-to-end by
+  Claude Code (debug log shows tool=Read, file_rel computed correctly,
+  manifest found, "script end reached"), but no `[claude-leverage:context-surface]`
+  entry appears in transcripts. Manual repro with the same env vars
+  produces JSON correctly. Hypotheses left: Python's stdout written but
+  swallowed somewhere, OR a silent `sys.exit(0)` branch that doesn't
+  reproduce in isolation. To distinguish: this release captures the
+  Python output into a bash variable WHEN
+  `CLAUDE_LEVERAGE_CTX_DEBUG_LOG` is set, logs its length + preview,
+  and then prints it to stdout. Each `sys.exit(0)` branch in the Python
+  heredoc also writes a diagnostic line to stderr now (which Claude Code
+  shows in the transcript for non-zero exits, but at exit 0 the stderr
+  may or may not be captured — worth checking).
+- Production path (debug not set) is unchanged: streams Python stdout
+  directly to script stdout with no variable roundtrip and zero new
+  overhead.
+
 ## [1.8.2] — 2026-05-26
 
 ### Added
