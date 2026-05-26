@@ -35,14 +35,29 @@
 
 set -euo pipefail
 
+# Debug logging — set CLAUDE_LEVERAGE_CTX_DEBUG_LOG=/path/to/log to record
+# every invocation's outcome (always-invoked vs each early-exit reason).
+# Tag {invoked|opt-out|no-parser|wrong-tool|no-cwd|no-repo|no-manifest|no-file-path|no-python|no-entry|emit}.
+# Diagnostic-only; do not enable in production sessions long-term.
+DEBUG_LOG="${CLAUDE_LEVERAGE_CTX_DEBUG_LOG:-}"
+log_dbg() {
+  [ -n "$DEBUG_LOG" ] && printf '[%s] %s\n' "$(date -Iseconds 2>/dev/null || date +%s)" "$*" >> "$DEBUG_LOG" 2>/dev/null
+  return 0
+}
+log_dbg "invoked pid=$$"
+
 # Opt-out kill switch — hard-stop before any work.
 if [ "${CLAUDE_LEVERAGE_CTX_DISABLE:-0}" = "1" ]; then
+  log_dbg "exit: opt-out via CLAUDE_LEVERAGE_CTX_DISABLE=1"
   exit 0
 fi
 
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/json_parse.sh"
 
-has_parser || exit 0
+if ! has_parser; then
+  log_dbg "exit: no JSON parser on PATH (need jq, python3, or python)"
+  exit 0
+fi
 
 # canon_path: normalize a path so paths from different sources (tool_input
 # .file_path, git rev-parse, cygpath, raw env vars) compare equal. Same
@@ -75,25 +90,35 @@ read_stdin
 
 # Filter by tool name early — case-statement is essentially free vs the
 # regex matchers configured upstream in hooks.json.
-tool=$(get_field '.tool_name' 2>/dev/null) || exit 0
+tool=$(get_field '.tool_name' 2>/dev/null) || { log_dbg "exit: get_field tool_name failed"; exit 0; }
 case "$tool" in
-  Read|Edit|Write|MultiEdit) ;;
-  *) exit 0 ;;
+  Read|Edit|Write|MultiEdit) log_dbg "tool=$tool — matched, continuing" ;;
+  *) log_dbg "exit: tool=$tool — not in Read|Edit|Write|MultiEdit"; exit 0 ;;
 esac
 
 # Resolve repo root from cwd (hook input) or pwd fallback.
 cwd_hook=$(get_field '.cwd' 2>/dev/null)
-[ -n "$cwd_hook" ] || cwd_hook=$(pwd 2>/dev/null) || exit 0
-repo_root=$(git -C "$cwd_hook" rev-parse --show-toplevel 2>/dev/null) || exit 0
-[ -n "$repo_root" ] || exit 0
+[ -n "$cwd_hook" ] || cwd_hook=$(pwd 2>/dev/null) || { log_dbg "exit: cannot determine cwd"; exit 0; }
+log_dbg "cwd=$cwd_hook"
+repo_root=$(git -C "$cwd_hook" rev-parse --show-toplevel 2>/dev/null) || { log_dbg "exit: git rev-parse failed (cwd=$cwd_hook not in a git repo, or git not on PATH)"; exit 0; }
+[ -n "$repo_root" ] || { log_dbg "exit: repo_root empty"; exit 0; }
+log_dbg "repo_root=$repo_root"
 
 manifest="$repo_root/.claude-leverage-context-map.json"
-[ -f "$manifest" ] || exit 0
+if [ ! -f "$manifest" ]; then
+  log_dbg "exit: manifest missing at $manifest"
+  exit 0
+fi
+log_dbg "manifest=$manifest"
 
 # Extract + canonicalize file_path. canon_path handles backslash, drive-
 # letter case, and relative → absolute.
 file_raw=$(get_field '.tool_input.file_path' 2>/dev/null)
-[ -n "$file_raw" ] || exit 0
+if [ -z "$file_raw" ]; then
+  log_dbg "exit: tool_input.file_path empty (tool=$tool — unexpected for Read/Edit/Write/MultiEdit)"
+  exit 0
+fi
+log_dbg "file_raw=$file_raw"
 
 file_canon=$(canon_path "$file_raw")
 repo_canon=$(canon_path "$repo_root")
@@ -112,7 +137,11 @@ if command -v python3 >/dev/null 2>&1; then
 elif command -v python >/dev/null 2>&1; then
   python_bin="python"
 fi
-[ -n "$python_bin" ] || exit 0
+if [ -z "$python_bin" ]; then
+  log_dbg "exit: no python on PATH"
+  exit 0
+fi
+log_dbg "python_bin=$python_bin file_rel=$file_rel"
 
 MAX_CHARS="${CLAUDE_LEVERAGE_CTX_MAX_CHARS:-4096}"
 MAX_SIBLINGS="${CLAUDE_LEVERAGE_CTX_MAX_SIBLINGS:-5}"
@@ -198,7 +227,10 @@ out = "\n".join(parts)
 if len(out) > max_chars:
     out = out[: max_chars - 50].rstrip() + f"\n... (truncated; cap={max_chars})"
 
-# Emit the full hookSpecificOutput JSON in the same process.
+# Emit the full hookSpecificOutput JSON in the same process. The debug
+# log line on the bash side after the heredoc records whether anything
+# was actually emitted (Python's exit-0-with-no-output for "no entry"
+# vs exit-0-with-JSON for "emitted").
 print(json.dumps({
     "hookSpecificOutput": {
         "hookEventName": "PreToolUse",
@@ -206,4 +238,11 @@ print(json.dumps({
     }
 }))
 PY
+# Note: bash here cannot easily know if Python printed anything (we don't
+# capture stdout — Claude Code reads it directly). The log line below is
+# best-effort: it records that we reached the end of the script. The
+# distinction between "Python found an entry and emitted" vs "Python
+# silently sys.exit(0) on no-entry / corrupt manifest" lives inside the
+# heredoc and is not surfaced here.
+log_dbg "script end reached (Python heredoc completed without bash error)"
 exit 0

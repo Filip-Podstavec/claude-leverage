@@ -5,6 +5,24 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.2] — 2026-05-26
+
+### Added
+
+- **Optional debug logging in `context-surface.sh`.** A real-world Opus
+  endpoint-task run produced zero `hookSpecificOutput.PreToolUse` emissions
+  despite the manifest being present and the agent demonstrably calling
+  `Read` on anchor-bearing files (`classes/db/clickhouse_reader.py`). The
+  hook works correctly in isolated smoke tests on the same machine, so
+  there's a runtime mismatch we can't observe with the current
+  always-silent error paths. To unblock diagnosis without permanently
+  noising the hook, this release adds an opt-in trace log: set
+  `CLAUDE_LEVERAGE_CTX_DEBUG_LOG=/path/to/log` and the hook will append a
+  timestamped line at every invocation and at each early-exit branch
+  (opt-out / no-parser / wrong-tool / no-cwd / no-repo / no-manifest /
+  no-file-path / no-python / script-end). Off by default — zero overhead
+  when the env var isn't set.
+
 ## [1.8.1] — 2026-05-26
 
 ### Fixed

@@ -3,7 +3,7 @@
     "anchor_count": 34,
     "builder_version": "1.8.0",
     "file_count": 20,
-    "generated_at": "2026-05-26T19:26:06+00:00",
+    "generated_at": "2026-05-26T20:05:20+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1
@@ -227,7 +227,7 @@
         },
         {
           "file": "scripts/hooks/context-surface.sh",
-          "line": 59,
+          "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
           "type": "AIDEV-NOTE"
         },
@@ -295,7 +295,7 @@
         },
         {
           "file": "scripts/hooks/context-surface.sh",
-          "line": 59,
+          "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
           "type": "AIDEV-NOTE"
         },
@@ -358,7 +358,7 @@
         },
         {
           "file": "scripts/hooks/context-surface.sh",
-          "line": 59,
+          "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
           "type": "AIDEV-NOTE"
         },
@@ -454,7 +454,7 @@
       ],
       "anchors_in_file": [
         {
-          "line": 59,
+          "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
           "type": "AIDEV-NOTE"
         }
@@ -492,7 +492,7 @@
         },
         {
           "file": "scripts/hooks/context-surface.sh",
-          "line": 59,
+          "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
           "type": "AIDEV-NOTE"
         },
@@ -555,7 +555,7 @@
         },
         {
           "file": "scripts/hooks/context-surface.sh",
-          "line": 59,
+          "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
           "type": "AIDEV-NOTE"
         },
@@ -617,7 +617,7 @@
         },
         {
           "file": "scripts/hooks/context-surface.sh",
-          "line": 59,
+          "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
           "type": "AIDEV-NOTE"
         },
