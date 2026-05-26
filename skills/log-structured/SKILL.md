@@ -1,6 +1,6 @@
 ---
 name: log-structured
-description: |
+description: >
   USE WHEN auditing logging in a legacy codebase, after adopting the
   JSON-lines spec, or when user asks to clean up logging. Finds
   print/console.log/interpolated logger calls and suggests spec-

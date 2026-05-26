@@ -1,6 +1,6 @@
 ---
 name: repo-map
-description: |
+description: >
   USE WHEN adding/renaming/removing a top-level dir, before a release,
   or when user asks to regenerate the README architecture diagram.
   Refreshes the mermaid block in README between

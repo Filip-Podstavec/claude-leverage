@@ -5,7 +5,7 @@
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Codex CLI](https://img.shields.io/badge/Codex_CLI-compatible-1f6feb)](https://developers.openai.com/codex)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
-![Version](https://img.shields.io/badge/version-1.5.0-success)
+![Version](https://img.shields.io/badge/version-1.6.0-success)
 
 > A small, opinionated **AI-coding-agent suite** for Claude Code and Codex
 > CLI. Built for me first, public so I can install it across machines, and
@@ -58,6 +58,14 @@ properties guide every decision in this repo:
   → reminder to `/init-repo` so the convention layer (AIDEV anchors,
   structured logging, …) actually gets loaded. One-per-day per
   cwd/repo-root.
+- `skill-cheatsheet` — non-blocking SessionStart, gated on the repo
+  having a `claude-leverage:` marker in `AGENTS.md` (i.e., the user
+  has actively adopted the stack). Surfaces a compact list of
+  high-value skills + triggers once per 14 days per repo, via
+  SessionStart `additionalContext`. Mitigates the documented
+  skill-auto-activation gap (`description: |` block scalars where
+  the runtime parses only the first line). Override via
+  `CLAUDE_LEVERAGE_SKILL_HINT_DAYS` (0 = disabled).
 
 **Security review (skill + dedicated subagent):**
 - `/security-review` — audit current diff for OWASP-Top-10-shaped issues +
@@ -92,6 +100,12 @@ properties guide every decision in this repo:
 - `/arch-map` — bootstrap/refresh `architecture.yml` at repo root —
   machine-readable module metadata (role/stability/public_surface/...);
   hand-curated, `--validate` mode for CI
+- `/repo-doctor` — read-only AI-readiness audit. Scores ~15 dimensions
+  (AGENTS.md, ADRs, sessions, GLOSSARY.md, architecture.yml, AIDEV
+  anchor density, per-dir AGENTS.md, tests + test/source LOC ratio,
+  structured logging, .gitignore, README quickstart, language
+  manifest). Each gap → concrete fix action. `--score` / `--json` /
+  `--fail-on missing|todo|stale` for CI gating
 
 **Workflow commands (Claude Code only — use `!` preamble efficiency):**
 - `/flaky-test` — delegates to `flaky-test-isolator` subagent for N-run
@@ -128,7 +142,7 @@ explicitly when you want.)
 ```
 
 That's it for the plugin. **Restart Claude Code** (or run `/skill list` and
-`/agents` in a current session) to pick up all 12 skills and 2 subagents.
+`/agents` in a current session) to pick up all 13 skills and 2 subagents.
 
 ### Optional: portable statusline
 
@@ -184,7 +198,7 @@ The installer:
 2. Appends `@<repo-path>/AGENTS.md` to `~/.codex/AGENTS.md` so the canonical
    guidance loads on every Codex session.
 3. Copies `.codex/agents/*.toml` to `~/.codex/agents/`.
-4. Copies all 12 skills to `~/.agents/skills/claude-leverage/` so they work
+4. Copies all 13 skills to `~/.agents/skills/claude-leverage/` so they work
    in Codex sessions exactly as in Claude Code.
 
 **Idempotent**: re-running detects existing install via marker comments and
@@ -283,7 +297,7 @@ flowchart LR
 |-----------|---------|
 | [`agents/`](agents/) | Claude Code subagents (Markdown + YAML frontmatter) |
 | [`.codex/agents/`](.codex/agents/) | Codex subagents (TOML; auto-generated from `agents/`) |
-| [`skills/`](skills/) | 12 cross-tool skills (`agentskills.io` SKILL.md spec) |
+| [`skills/`](skills/) | 13 cross-tool skills (`agentskills.io` SKILL.md spec) |
 | [`commands/`](commands/) | 1 Claude Code slash command (`/flaky-test`) |
 | [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
 | [`.codex/`](.codex/) | Codex hook template + sandbox/approval defaults |
@@ -330,7 +344,7 @@ verification is:
 
 ```
 /plugin install claude-leverage@filip-podstavec
-/skill list                # confirm 12 skills appear
+/skill list                # confirm 13 skills appear
 /agents                    # confirm security-reviewer + flaky-test-isolator
 echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
 # Ask the agent to commit /tmp/test.txt — block-secrets-precommit should refuse.

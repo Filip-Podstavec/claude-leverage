@@ -1,6 +1,6 @@
 ---
 name: init-repo
-description: |
+description: >
   USE WHEN starting work in a project that lacks a claude-leverage
   AGENTS.md (no `claude-leverage:` marker blocks at git root), or when
   user asks to set up the stack here. Drops AGENTS.md + `.gitignore`

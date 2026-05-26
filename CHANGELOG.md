@@ -5,6 +5,63 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] — 2026-05-26
+
+### Added
+
+- **`/repo-doctor` skill — read-only AI-readiness audit.** Scores ~15
+  dimensions across Foundation (AGENTS.md root + CLAUDE.md +
+  per-dir AGENTS.md), Why (ADRs + session logs), What (GLOSSARY.md +
+  architecture.yml), In-code (AIDEV anchor density + overdue
+  deadlines), and Hygiene (tests + test/source LOC ratio +
+  structured logging + .gitignore + README quickstart + language
+  manifest). Each gap → concrete fix action (often `/X`). Flags:
+  `--score` (0–100 integer for CI), `--json` (machine-readable),
+  `--fail-on missing|todo|stale` (CI gate, non-zero exit), `--scope`
+  (narrow check group), `--quiet` (suppress passes). Test/source
+  LOC ratio target 0.5–1.0 per the [Count.co healthy benchmark](https://count.co/metric/repository-health-score).
+
+- **`skill-cheatsheet.sh` SessionStart hook.** Compact (~3-line)
+  nudge listing high-value skills + triggers, fires once per 14
+  days per repo via `additionalContext`. Gated tight: cwd must be
+  interesting (not `$HOME` / `/tmp` / system roots), must be inside
+  a git repo whose `AGENTS.md` contains a `claude-leverage:` marker
+  (i.e., user actively adopted the stack), and the per-repo state
+  file must be ≥ `CLAUDE_LEVERAGE_SKILL_HINT_DAYS` (default 14)
+  days old. Set the env var to 0 to disable entirely. Mitigates the
+  documented skill-auto-activation gap (see "Changed" below).
+
+- **ADR 0006** — `/repo-doctor`, folded-scalar SKILL descriptions,
+  and gated skill-cheatsheet hook. Documents *why* the three
+  changes belong together as one coherent discoverability layer,
+  why folded scalar over single-line, why the cheatsheet is gated
+  on adoption marker, and why `/repo-doctor` is separate from
+  `/init-repo` (one-shot bootstrap) and `/stack-check` (freshness
+  of existing).
+
+### Changed
+
+- **All 13 SKILL.md descriptions converted from `|` (literal block
+  scalar) to `>` (folded block scalar).** Reason: field reports
+  (agentengineermaster.com, scottspence.com, dev.to) document that
+  the 2026 Claude Code runtime sometimes parses only the first line
+  of a multi-line description when matching skills for
+  auto-activation — responsible for ~40% of "slash works, auto-fire
+  doesn't" cases. Folded scalar joins wrapped source lines with
+  spaces, yielding a single-string runtime value with no internal
+  `\n`. No semantic change to description content; YAML
+  representation only. Source remains as readable as before.
+- Skill count: 12 → 13. Hook count: 6 → 7. README, AGENTS.md,
+  CLAUDE.md, marketplace description, `scripts/smoke-plugin.sh`
+  lower bound (`>=13` now), `skills/README.md`, `docs/adr/README.md`
+  all updated.
+- README Version badge bumped to 1.6.0.
+
+### Fixed
+
+- Typo `halucinates` → `hallucinates` in `glossary-init` SKILL
+  description (introduced in v1.5.0).
+
 ## [1.5.0] — 2026-05-26
 
 ### Added

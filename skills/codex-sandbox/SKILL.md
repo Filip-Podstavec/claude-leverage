@@ -1,6 +1,6 @@
 ---
 name: codex-sandbox
-description: |
+description: >
   USE WHEN setting up Codex CLI in a project, tightening sandbox for
   prod/CI, or when user asks about Codex permissions. Interactive
   helper for per-project `.codex/config.toml`: `dev` / `prod` /

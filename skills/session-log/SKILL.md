@@ -1,6 +1,6 @@
 ---
 name: session-log
-description: |
+description: >
   USE WHEN ending a substantial working session — user says
   "thanks/tomorrow/wrap up", or session shipped 3+ commits with no log
   today, or user asks for a summary. Distills the conversation into

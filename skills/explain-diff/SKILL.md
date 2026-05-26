@@ -1,6 +1,6 @@
 ---
 name: explain-diff
-description: |
+description: >
   USE WHEN about to open a PR, when teammate asks "what's in this
   diff?", or when returning to a branch and needing self-orientation.
   Three modes: `--for pr|review|self`. Reads `git diff HEAD` (or

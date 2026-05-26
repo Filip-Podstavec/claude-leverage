@@ -1,6 +1,6 @@
 ---
 name: adr-new
-description: |
+description: >
   USE WHEN a load-bearing architectural decision is being made in
   conversation (database / framework / auth model / integration
   choice, or explicit rejection of an alternative) — one likely to be

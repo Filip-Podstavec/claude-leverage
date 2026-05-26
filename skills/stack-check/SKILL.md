@@ -1,6 +1,6 @@
 ---
 name: stack-check
-description: |
+description: >
   USE WHEN the `stack-freshness` SessionStart hook nudges
   ("stack last checked 42d ago"), or when user asks to check dep
   versions. Verifies Claude Code + Codex + plugin + CLI deps vs

@@ -11,6 +11,10 @@
           {
             "type": "command",
             "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/bare-repo-nudge.sh"
+          },
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/skill-cheatsheet.sh"
           }
         ]
       }

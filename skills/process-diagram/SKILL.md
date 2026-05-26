@@ -1,6 +1,6 @@
 ---
 name: process-diagram
-description: |
+description: >
   USE WHEN documenting a non-obvious workflow prose explains poorly,
   or when user describes a multi-step process and asks for a
   visualization. Generates a mermaid sequenceDiagram or flowchart,

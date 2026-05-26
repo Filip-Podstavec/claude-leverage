@@ -1,7 +1,7 @@
 ---
 name: glossary-init
-description: |
-  USE WHEN setting up a repo for AI-first work, when an agent halucinates
+description: >
+  USE WHEN setting up a repo for AI-first work, when an agent hallucinates
   domain term meaning, or when user asks to bootstrap / extend the
   repo's domain glossary. Surfaces candidate terms by identifier
   frequency, asks the user for 1-sentence definitions, writes

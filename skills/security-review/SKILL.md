@@ -1,6 +1,6 @@
 ---
 name: security-review
-description: |
+description: >
   USE BEFORE committing security-sensitive changes (auth, crypto,
   routes, user-input handling, secret loading, templates), or when
   the `security-nudge` Stop hook suggests it. Audits the current diff

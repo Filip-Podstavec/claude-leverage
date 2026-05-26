@@ -1,6 +1,6 @@
 ---
 name: arch-map
-description: |
+description: >
   USE WHEN setting up a repo for AI-first work, after a major directory
   restructure, or when an agent needs structured answers like "which
   modules are stable?" / "what's the public surface of X?" that the
