@@ -11,8 +11,8 @@
         "source": "url",
         "url": "https://github.com/Filip-Podstavec/claude-leverage.git"
       },
-      "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, 13 on-demand skills (incl. /repo-doctor AI-readiness audit), ADR + session-log conventions, portable statusline. Complements other skills-based plugins, not a replacement.",
-      "version": "1.6.0",
+      "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, 13 on-demand skills (incl. /repo-doctor — AI-readiness audit with code↔docs drift detection), ADR + session-log conventions, portable statusline. Complements other skills-based plugins, not a replacement.",
+      "version": "1.7.0",
       "category": "workflow",
       "keywords": [
         "ai-first",

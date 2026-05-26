@@ -5,6 +5,59 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] — 2026-05-26
+
+### Added
+
+- **`/repo-doctor` Sync section (Dimensions 16–20).** Five new
+  read-only checks for **code ↔ docs drift** — the failure mode
+  where descriptive artifacts (architecture.yml, GLOSSARY.md,
+  per-dir AGENTS.md, CHANGELOG, README) are *present* but
+  *actively misleading* because they describe a previous version
+  of the code. Concretely:
+  - **16. `architecture.yml` ↔ disk + symbol drift** —
+    declared `modules[].path` exists; each `public_surface`
+    symbol still grep-able; orphan dirs flagged.
+  - **17. `GLOSSARY.md` ↔ code drift** — each term still
+    referenced in code; each `Code:` path exists; top-K
+    high-frequency identifiers not in glossary surfaced as
+    missing.
+  - **18. Per-dir `AGENTS.md` staleness vs dir activity** — for
+    each `<dir>/AGENTS.md`, compute `gap_days = (dir_last_change
+    - agents_md_last_change)`; flag if `> 30` (override via
+    `CLAUDE_LEVERAGE_AGENTS_MD_DRIFT_DAYS`).
+  - **19. `CHANGELOG.md` ↔ version manifest** — top
+    `## [X.Y.Z]` heading matches primary manifest version
+    (`package.json` / `pyproject.toml` / `Cargo.toml` /
+    `.claude-plugin/plugin.json` / `composer.json`).
+  - **20. `README.md` slash-refs ↔ skill availability** — every
+    `/<name>` in README resolves to an installed
+    `skills/<name>/SKILL.md` or `commands/<name>.md`, or is
+    annotated as external.
+- **`--scope sync`** tunable — run only Dimensions 16–20 for a
+  fast "did my last commit invalidate any docs?" check.
+- **ADR 0007** — Sync drift detection in `/repo-doctor`.
+  Documents why drift detection belongs inside `/repo-doctor`
+  rather than a separate `/sync-check` skill (one mental model
+  for the user), why audit-first vs hook-first (audit catches
+  what already drifted; hook for v1.8+ if drift dimensions fire
+  often enough in field use), and why we don't auto-fix.
+
+### Changed
+
+- **Score divisor is now variable.** Pre-v1.7 always divided by
+  15. Post-v1.7 divides by `(20 − N/A count)` because Sync
+  dimensions correctly return N/A when their target artifact
+  doesn't exist (drift is meaningless when there's nothing to
+  drift from). The Summary line in the report now spells out
+  the N/A count so the `Score: X/100` number is interpretable.
+- `/repo-doctor` frontmatter description bumped 15 → 20
+  dimensions; explicitly names the Sync group; references both
+  ADR 0006 and ADR 0007.
+- README, AGENTS.md, marketplace.json, and `skills/README.md`
+  `/repo-doctor` descriptions refreshed to mention the Sync
+  dimension group.
+
 ## [1.6.0] — 2026-05-26
 
 ### Added

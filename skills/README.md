@@ -25,7 +25,7 @@ skills; users invoke skills, not subagents directly.
 | [`session-log/`](session-log/SKILL.md) | Write a distilled session log to `docs/sessions/` at end of a working session — context, decisions, open questions, next steps. The continuity layer between sessions. |
 | [`glossary-init/`](glossary-init/SKILL.md) | Bootstrap or extend `GLOSSARY.md` at repo root — domain terms specific to *this* repo. Surfaces candidates by identifier frequency; user supplies definitions. Read-only on code; never invents domain meaning. |
 | [`arch-map/`](arch-map/SKILL.md) | Bootstrap or refresh `architecture.yml` at repo root — machine-readable module metadata (path/role/stability/public_surface/depends_on/paired_with/owners). Hand-curated; the skill drafts, the user confirms. Validate-only mode for CI. |
-| [`repo-doctor/`](repo-doctor/SKILL.md) | Read-only AI-readiness audit. Scores ~15 dimensions (AGENTS.md, ADRs, sessions, GLOSSARY.md, architecture.yml, AIDEV density, per-dir AGENTS.md, tests + LOC ratio, logging, .gitignore, README, manifest). Each gap → concrete fix action. `--score` / `--json` / `--fail-on` for CI. |
+| [`repo-doctor/`](repo-doctor/SKILL.md) | Read-only AI-readiness audit. Scores ~20 dimensions across Foundation / Why / What / In-code / Hygiene / **Sync (code↔docs drift)**. Each gap → concrete fix action. `--score` / `--json` / `--fail-on` / `--scope` for CI gating. |
 
 ## Install
 

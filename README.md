@@ -5,7 +5,7 @@
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Codex CLI](https://img.shields.io/badge/Codex_CLI-compatible-1f6feb)](https://developers.openai.com/codex)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
-![Version](https://img.shields.io/badge/version-1.6.0-success)
+![Version](https://img.shields.io/badge/version-1.7.0-success)
 
 > A small, opinionated **AI-coding-agent suite** for Claude Code and Codex
 > CLI. Built for me first, public so I can install it across machines, and
@@ -100,12 +100,17 @@ properties guide every decision in this repo:
 - `/arch-map` — bootstrap/refresh `architecture.yml` at repo root —
   machine-readable module metadata (role/stability/public_surface/...);
   hand-curated, `--validate` mode for CI
-- `/repo-doctor` — read-only AI-readiness audit. Scores ~15 dimensions
-  (AGENTS.md, ADRs, sessions, GLOSSARY.md, architecture.yml, AIDEV
-  anchor density, per-dir AGENTS.md, tests + test/source LOC ratio,
-  structured logging, .gitignore, README quickstart, language
-  manifest). Each gap → concrete fix action. `--score` / `--json` /
-  `--fail-on missing|todo|stale` for CI gating
+- `/repo-doctor` — read-only AI-readiness audit. Scores ~20 dimensions
+  across **Foundation** (AGENTS.md, CLAUDE.md, per-dir AGENTS.md),
+  **Why** (ADRs, session logs), **What** (GLOSSARY.md,
+  architecture.yml), **In-code** (AIDEV anchor density, overdue),
+  **Hygiene** (tests + test/source LOC ratio, structured logging,
+  .gitignore, README quickstart, language manifest), and **Sync**
+  (code↔docs drift: arch-map vs disk, glossary vs code, per-dir
+  AGENTS.md staleness, CHANGELOG vs version, README slash-refs).
+  Each gap → concrete fix action. `--score` / `--json` /
+  `--fail-on missing|todo|stale` / `--scope foundation|why|what|hygiene|sync|all`
+  for CI gating
 
 **Workflow commands (Claude Code only — use `!` preamble efficiency):**
 - `/flaky-test` — delegates to `flaky-test-isolator` subagent for N-run

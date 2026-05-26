@@ -3,15 +3,19 @@ name: repo-doctor
 description: >
   USE WHEN inheriting a legacy repo, when user asks "what's missing for
   AI-first work here?", "is this repo agent-ready?", "audit my repo",
-  or when the bare-repo-nudge / cheatsheet hook suggests a checkup.
-  Read-only AI-readiness audit — scores ~15 dimensions (AGENTS.md,
-  ADRs, session logs, GLOSSARY.md, architecture.yml, AIDEV anchor
-  density, per-dir AGENTS.md, tests + test/source LOC ratio,
-  structured logging, .gitignore, README quickstart, language
-  manifest). Each gap → concrete fix action. Differentiated from
-  /init-repo (one-shot bootstrap, writes files) and /stack-check
-  (freshness of existing artifacts) — this skill answers the
-  completeness question. See ADR 0006 for design rationale.
+  "is anything out of sync with the code?", or when the
+  bare-repo-nudge / cheatsheet hook suggests a checkup. Read-only
+  AI-readiness audit — scores ~20 dimensions across Foundation
+  (AGENTS.md / CLAUDE.md / per-dir AGENTS.md), Why (ADRs + session
+  logs), What (GLOSSARY.md + architecture.yml), In-code (AIDEV
+  anchor density + overdue), Hygiene (tests, LOC ratio, structured
+  logging, .gitignore, README, manifest), AND Sync (code↔docs
+  drift: arch-map vs disk, glossary vs code, per-dir AGENTS.md vs
+  dir activity, CHANGELOG vs version, README slash-refs). Each gap
+  → concrete fix action. Differentiated from /init-repo (one-shot
+  bootstrap, writes files) and /stack-check (time-based freshness)
+  — this skill answers completeness AND drift in one pass. See ADR
+  0006 (initial design) and ADR 0007 (Sync addition) for rationale.
 allowed-tools:
   - Read
   - Grep
@@ -113,12 +117,24 @@ Do NOT invoke for:
 | README quickstart | ✅ present | — |
 | Language manifest | ✅ pyproject.toml | — |
 
+## Sync (code ↔ docs drift)
+
+| Check | Status | Fix |
+|---|---|---|
+| `architecture.yml` ↔ disk | ⚠️ 2 drifts: `public_surface: [LegacyClient]` not in code; `src/old/` orphan (on disk, not in YAML) | invoke `/arch-map` to refresh |
+| `GLOSSARY.md` ↔ code | ⚠️ term `Lead` no longer ref'd in code (last seen 4 months ago) | edit `GLOSSARY.md` or `/glossary-init --add` |
+| Per-dir `AGENTS.md` staleness | ✅ all in sync | — |
+| `CHANGELOG` ↔ version | ❌ `plugin.json` says 1.6.0, `CHANGELOG` top is 1.5.0 | add a `## [1.6.0]` entry to `CHANGELOG.md` |
+| `README` slash-refs ↔ skills | ✅ all 13 slash commands resolve | — |
+
 ## Recommended next 3 actions
 
-1. **`/arch-map`** — biggest unblock for refactor proposals; <5 min
-2. **`/glossary-init`** — `Lead` appears in 8 files; agent likely
+1. **`/arch-map`** — biggest unblock for refactor proposals; also fixes
+   sync drift on `public_surface: [LegacyClient]`; <5 min
+2. **`/glossary-init`** — `Account` appears in 12 files; agent likely
    hallucinating meaning
-3. Add per-dir `AGENTS.md` to `src/billing/`, `src/auth/`, `src/api/`
+3. Add a `## [1.6.0]` entry to `CHANGELOG.md` to close the
+   version-drift gap
 ```
 
 ## Dimensions
@@ -260,6 +276,110 @@ Do NOT invoke for:
     - ❌ if none found AND repo has source code files.
     - ✅ otherwise. Report which manifest(s) found.
 
+### Sync (5 checks — code ↔ docs drift detection)
+
+These dimensions check that the descriptive layer (architecture.yml,
+GLOSSARY.md, per-dir AGENTS.md, CHANGELOG, README) is still
+**synchronized with the code**. Differentiated from earlier
+dimensions (which check *presence*): a repo can have all artifacts
+present and still be in deep drift if those artifacts last described
+a previous version of the code.
+
+Every Sync dimension returns **N/A (excluded from divisor)** when its
+target artifact does not exist — drift is meaningless when there's
+nothing to drift from. The presence gap is already reported by the
+relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
+
+16. **`architecture.yml` ↔ disk + symbol drift** — parse
+    `architecture.yml`. For each `modules[].path`, `test -d` it. For
+    each `modules[].public_surface` entry (a string), grep its name
+    in the declared `path` subtree. Walk top-level dirs on disk (same
+    noise-path filter as Dim 8) and identify any plausible source dir
+    (≥100 LOC, has code files) that is NOT covered by any
+    `modules[].path` — those are **orphan modules**, candidates for
+    `/arch-map` to add.
+    - ✅ if no path drift AND no missing-symbol drift AND no orphans.
+    - ⚠️ if total drifts + orphans `≤ 2`.
+    - ❌ if total drifts + orphans `≥ 3`.
+    - N/A if `architecture.yml` does not exist.
+
+17. **`GLOSSARY.md` ↔ code drift** — parse `GLOSSARY.md`. For each
+    `## <Term>` heading, grep the term across tracked code files
+    (skip noise paths, skip the glossary itself). For each `Code:`
+    bullet path in the entry body, `test -e` it. Separately:
+    identify the top-5 most-referenced PascalCase / domain-shaped
+    identifiers in the repo (using the same heuristic as
+    `/glossary-init` step 4) that are NOT in the glossary AND
+    appear ≥10 times — those are **missing terms**.
+    - ✅ if no stale terms AND no broken `Code:` paths AND no
+      obvious missing terms.
+    - ⚠️ if `≤ 2` total issues (stale + broken + missing combined).
+    - ❌ if `≥ 3`.
+    - N/A if `GLOSSARY.md` does not exist.
+
+18. **Per-dir `AGENTS.md` staleness vs dir activity** — for each
+    `<dir>/AGENTS.md` (depth `≤ 3`, skip noise paths), compute:
+    - `agents_md_ts = git log -1 --format=%ct -- <dir>/AGENTS.md`
+    - `dir_ts = git log -1 --format=%ct -- <dir>` (any change in
+      the dir; for the comparison, ignore changes that touched
+      ONLY the AGENTS.md itself — see `--invert-grep` workaround
+      below).
+    - `gap_days = (dir_ts - agents_md_ts) / 86400`.
+
+    If `gap_days > N` (default 30; override via
+    `CLAUDE_LEVERAGE_AGENTS_MD_DRIFT_DAYS`), the AGENTS.md is
+    likely **describing a stale state** of the dir.
+    - ✅ if no per-dir AGENTS.md is stale (or if no per-dir
+      AGENTS.md exists — Dim 3 already flagged that).
+    - ⚠️ if `1–2` stale.
+    - ❌ if `≥ 3` stale.
+    - Report top 3 staleness offenders with `gap_days`.
+
+    Implementation note: filtering "changes that only touched
+    AGENTS.md" requires `git log -- <dir>` plus a follow-up
+    `git show --name-only` per commit, or an approximation: subtract
+    1 day from `agents_md_ts` before comparing. The approximation
+    is fine — we're looking for month-scale drift, not hour-scale.
+
+19. **`CHANGELOG.md` ↔ version manifest** — read the top-of-file
+    `## [X.Y.Z]` heading in `CHANGELOG.md` (first match). Compare
+    to the version in the **primary manifest** for this repo, in
+    order of precedence:
+    - `package.json#version`
+    - `pyproject.toml [project] version` or `[tool.poetry] version`
+    - `Cargo.toml [package] version`
+    - `.claude-plugin/plugin.json#version` (this stack)
+    - `composer.json#version`
+
+    Use the first manifest found.
+    - ✅ if `CHANGELOG_top == manifest_version`.
+    - ⚠️ if `manifest_version > CHANGELOG_top` by exactly one minor /
+      patch level (probably an unreleased version about to ship — a
+      legit transient state).
+    - ❌ if they differ in any other shape (unrelated versions, or
+      `CHANGELOG_top > manifest_version` which is "promised but not
+      shipped").
+    - N/A if neither `CHANGELOG.md` nor any recognized manifest
+      exists (a docs/scratch repo).
+
+20. **`README.md` slash-refs ↔ skill availability** — grep
+    `README.md` for `/[a-z][a-z0-9-]+` tokens (slash-prefixed
+    identifiers). Filter to plausible skill / command references
+    (drop e.g. file paths, regex examples, dates). For each `/foo`:
+    - If `skills/foo/SKILL.md` exists at repo root → resolved.
+    - If `commands/foo.md` exists → resolved.
+    - If text within 200 chars of the reference says "external" /
+      "from `<plugin>`" / "upstream" → resolved (external skill).
+    - Otherwise → unresolved.
+    - ✅ if all resolved.
+    - ⚠️ if `1–2` unresolved.
+    - ❌ if `≥ 3` unresolved.
+    - N/A if README.md has zero `/foo` slash-refs.
+
+    Distinct from `/stack-check`'s markdown link audit (which
+    checks file paths in markdown); this one checks slash-command
+    references against installed skills.
+
 ## Workflow
 
 1. **Resolve repo root.** `git rev-parse --show-toplevel`. If not in
@@ -267,7 +387,7 @@ Do NOT invoke for:
    walk tracked files".
 
 2. **Optionally narrow by `--scope`.** Run only the dimensions in the
-   requested scope group. Default: all 15.
+   requested scope group. Default: all 20.
 
 3. **Run each dimension's check.** Use the `allowed-tools` listed —
    `Read` for AGENTS.md / CLAUDE.md / README / GLOSSARY.md /
@@ -278,8 +398,15 @@ Do NOT invoke for:
    vendor, target, .next, .pytest_cache).
 
 4. **Compute the score** as simple sum: ✅ = 1.0, ⚠️ = 0.5, ❌ = 0.
-   Divide by 15 (or by the number of dimensions actually run if
-   `--scope` narrowed the set). Multiply by 100. Round.
+   Divide by the number of dimensions actually evaluated — that is,
+   20 minus the count of N/A verdicts (some Sync and Hygiene
+   dimensions return N/A when their target artifact doesn't exist
+   or the language has no convention to check). The divisor is
+   further narrowed by `--scope`. Multiply by 100. Round.
+
+   Document the N/A count in the report's Summary line so the
+   `Score: X/100` number is interpretable (e.g.
+   `Score: 67/100 (3 N/A: arch-yml-drift, glossary-drift, structured-logging)`).
 
 5. **Emit the report.** Markdown by default. With `--json`, emit a
    structured object:
@@ -337,7 +464,9 @@ Do NOT invoke for:
   repo-doctor --score)`.
 - `--json` — structured output (see step 5).
 - `--fail-on missing|todo|stale` — exit non-zero per step 7.
-- `--scope foundation|why|what|hygiene|all` — narrow the check set.
+- `--scope foundation|why|what|hygiene|sync|all` — narrow the check
+  set. `sync` runs only Dimensions 16–20 (drift detection); useful
+  for "did my last commit invalidate any docs?" runs.
 - `--quiet` — suppress passing rows.
 - `--no-recommend` — skip the "Recommended next 3 actions" section.
 

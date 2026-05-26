@@ -275,7 +275,7 @@ crosses the threshold.
 | `/session-log` | Write a distilled session log to `docs/sessions/` at end of session |
 | `/glossary-init` | Bootstrap/extend `GLOSSARY.md` at repo root — domain terms specific to this repo, surfaced by identifier frequency, defined by the user |
 | `/arch-map` | Bootstrap/refresh `architecture.yml` at repo root — machine-readable module metadata (role/stability/public_surface/...); has `--validate` mode for CI |
-| `/repo-doctor` | Read-only AI-readiness audit — scores ~15 dimensions, per-gap concrete fix action; `--score` / `--json` / `--fail-on` for CI |
+| `/repo-doctor` | Read-only AI-readiness audit — scores ~20 dimensions across Foundation / Why / What / In-code / Hygiene / Sync (code↔docs drift). Per-gap concrete fix action; `--score` / `--json` / `--fail-on` / `--scope` for CI |
 | `/flaky-test` | Run a single test N times, group failures by signature |
 
 ## Build / test
