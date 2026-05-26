@@ -70,9 +70,21 @@ else
 fi
 
 # ----------------------------------------------------------------------
-# 4. shellcheck (if available)
+# 4. context-map manifest is up to date
 # ----------------------------------------------------------------------
-say "4. shellcheck scripts/hooks/"
+say "4. .claude-leverage-context-map.json matches git ls-files"
+if python scripts/build-context-map.py --check --quiet >$SCRATCH/ctxmap.log 2>&1; then
+  say_pass "manifest in sync"
+else
+  say_fail "manifest drift — run: python scripts/build-context-map.py"
+  cat $SCRATCH/ctxmap.log >&2
+  failed=$((failed + 1))
+fi
+
+# ----------------------------------------------------------------------
+# 5. shellcheck (if available)
+# ----------------------------------------------------------------------
+say "5. shellcheck scripts/hooks/"
 if command -v shellcheck >/dev/null 2>&1; then
   if shellcheck -S warning scripts/hooks/*.sh >$SCRATCH/shellcheck.log 2>&1; then
     say_pass "no shellcheck warnings"
@@ -86,9 +98,9 @@ else
 fi
 
 # ----------------------------------------------------------------------
-# 5. hooks load with sample JSON
+# 6. hooks load with sample JSON
 # ----------------------------------------------------------------------
-say "5. every hook returns 0 on minimal stdin"
+say "6. every hook returns 0 on minimal stdin"
 for hook in scripts/hooks/*.sh; do
   name=$(basename "$hook")
   case "$name" in
@@ -103,9 +115,9 @@ for hook in scripts/hooks/*.sh; do
 done
 
 # ----------------------------------------------------------------------
-# 6. install-codex end-to-end against scratch
+# 7. install-codex end-to-end against scratch
 # ----------------------------------------------------------------------
-say "6. install-codex.sh end-to-end (scratch dirs)"
+say "7. install-codex.sh end-to-end (scratch dirs)"
 if CODEX_HOME="$SCRATCH/codex" \
    CLAUDE_LEVERAGE_AGENTS_HOME="$SCRATCH/agents" \
    bash scripts/install-codex.sh >$SCRATCH/install.log 2>&1; then

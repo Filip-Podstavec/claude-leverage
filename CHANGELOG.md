@@ -5,6 +5,53 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] — 2026-05-26
+
+### Added
+
+- **Smart context surfacing (PreToolUse hook + manifest).** New opt-in
+  mechanism that cuts per-session token tax from the leverage stack's
+  docs by surfacing only the AIDEV anchors relevant to the file the
+  agent is about to read or edit, instead of forcing the agent to
+  pre-load every `AGENTS.md` upfront. Motivated by the coinsense A/B
+  Run-3 result (Sonnet 4.6 helper-task: +116% cost vs. baseline with
+  no specific gotcha to catch — pure overhead).
+  - `scripts/build-context-map.py` walks `git ls-files`, extracts
+    `AIDEV-NOTE`/`TODO`/`QUESTION` anchors (with optional
+    `(by: YYYY-MM-DD)` deadlines), and writes
+    `.claude-leverage-context-map.json` at the repo root, atomically.
+    NUL-byte sniff skips binaries; word-boundary ADR cross-ref avoids
+    false matches like `src/api.pyc` matching `src/api.py`.
+  - `scripts/hooks/context-surface.sh` (`PreToolUse` on
+    `Read|Edit|Write|MultiEdit`) does an O(1) manifest lookup and emits
+    `hookSpecificOutput.additionalContext`. Single Python heredoc keeps
+    cold-start cost down. Graceful no-op when manifest missing, file
+    unknown, entry empty, JSON corrupt, or schema version mismatches —
+    **repos that don't adopt pay zero cost**.
+  - `/refresh-context-map` skill for rebuilding the manifest after
+    anchor/per-dir AGENTS.md/ADR changes or post-merge.
+  - `.gitattributes` `merge=ours` for the manifest — a 234-entry sorted
+    JSON should never be a hand-merge chore.
+  - Cross-tool by design: identical `hookSpecificOutput.additionalContext`
+    schema works on Claude Code and Codex per both runtimes' PreToolUse
+    specs (researched 2026-05-26).
+  - Opt-out per session: `CLAUDE_LEVERAGE_CTX_DISABLE=1`. Verbose mode
+    (`CLAUDE_LEVERAGE_CTX_VERBOSE=1`) also surfaces per-dir AGENTS.md
+    chain + related ADR refs; off by default per Run-3 finding that
+    refs are taxed-without-catch in the common case.
+  - 30 regression tests in `tests/test_context_surfacing.py` cover
+    binary-file gate, ADR word-boundary, atomic write, partial-flush
+    manifest, all-empty entry, Windows backslash path, schema-version
+    mismatch, opt-out, truncation cap, verbose mode toggle, etc.
+- See [ADR 0008](docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md)
+  for the design rationale and the consequence ledger.
+
+### Changed
+
+- `scripts/smoke-plugin.sh` adds a new gate: `python scripts/build-context-map.py --check`
+  flags drift between the committed manifest and what regen would produce,
+  so a forgotten rebuild surfaces in CI exactly the way version-sync drift does.
+
 ## [1.7.0] — 2026-05-26
 
 ### Added

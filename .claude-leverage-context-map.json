@@ -1,0 +1,908 @@
+{
+  "_meta": {
+    "anchor_count": 33,
+    "builder_version": "1.8.0",
+    "file_count": 19,
+    "generated_at": "2026-05-26T19:00:25+00:00",
+    "generator": "scripts/build-context-map.py",
+    "repo_root": ".",
+    "schema_version": 1
+  },
+  "files": {
+    "AGENTS.md": {
+      "adrs": [
+        "docs/adr/0001-pivot-from-token-savings-to-dev-stack.md",
+        "docs/adr/0002-agents-md-canonical-claude-md-import.md",
+        "docs/adr/0003-no-embedding-rag-hybrid-manifest-and-grep.md",
+        "docs/adr/0004-adr-and-session-log-are-user-invoked-no-auto-fire-hook.md",
+        "docs/adr/0005-structured-discoverability-glossary-and-architecture-yml.md",
+        "docs/adr/0006-repo-doctor-skill-discoverability-and-folded-scalar.md",
+        "docs/adr/0007-sync-drift-detection-in-repo-doctor.md",
+        "docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md"
+      ],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [],
+      "anchors_in_file": [
+        {
+          "deadline": "2026-08-01",
+          "line": 174,
+          "text": "replace the polling loop with webhooks",
+          "type": "AIDEV-TODO"
+        },
+        {
+          "deadline": "2026-07-15",
+          "line": 175,
+          "text": "is the encoding always UTF-8 here?",
+          "type": "AIDEV-QUESTION"
+        }
+      ]
+    },
+    "docs/specs/2026-05-24-pivot/03-ai-first-code.md": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [],
+      "anchors_in_file": [
+        {
+          "line": 29,
+          "text": "this guard prevents the race documented in JIRA-1234;",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 36,
+          "text": "switch to the new auth handler when ABCD-456 lands;",
+          "type": "AIDEV-TODO"
+        },
+        {
+          "line": 39,
+          "text": "why are we double-encoding here?",
+          "type": "AIDEV-QUESTION"
+        }
+      ]
+    },
+    "docs/specs/2026-05-26-smart-context-surfacing/PLAN.md": {
+      "adrs": [
+        "docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md"
+      ],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [],
+      "anchors_in_file": [
+        {
+          "line": 248,
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 249,
+          "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
+          "type": "AIDEV-QUESTION"
+        }
+      ]
+    },
+    "scripts/build-context-map.py": {
+      "adrs": [
+        "docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md"
+      ],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 39,
+          "text": "model id mapping. The Codex CLI accepts model strings; pick",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 137,
+          "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.ps1",
+          "line": 44,
+          "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 136,
+          "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 33,
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 34,
+          "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
+          "type": "AIDEV-QUESTION"
+        },
+        {
+          "line": 101,
+          "text": "real anchor\\n\"}`, and prose",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 102,
+          "text": "...\" inside docstrings.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 174,
+          "text": "skip the manifest itself \u2014 its own JSON literals",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/gen-codex-agents.py": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 33,
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 34,
+          "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
+          "type": "AIDEV-QUESTION"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 101,
+          "text": "real anchor\\n\"}`, and prose",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 102,
+          "text": "...\" inside docstrings.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 174,
+          "text": "skip the manifest itself \u2014 its own JSON literals",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.ps1",
+          "line": 44,
+          "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 136,
+          "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 39,
+          "text": "model id mapping. The Codex CLI accepts model strings; pick",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 137,
+          "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/hooks/ai-first-nudge.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/hooks/bare-repo-nudge.sh",
+          "line": 39,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 82,
+          "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/security-nudge.sh",
+          "line": 19,
+          "text": "Stop hooks fire on EVERY session end. Keep this fast and",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 37,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 100,
+          "text": "the marker pattern is intentionally permissive \u2014 any line",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/stack-freshness.sh",
+          "line": 27,
+          "text": "SessionStart hooks run on EVERY new Claude/Codex session.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 31,
+          "text": "this hook never modifies state besides the session-nudges",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 72,
+          "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/hooks/bare-repo-nudge.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 31,
+          "text": "this hook never modifies state besides the session-nudges",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 72,
+          "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 82,
+          "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/security-nudge.sh",
+          "line": 19,
+          "text": "Stop hooks fire on EVERY session end. Keep this fast and",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 37,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 100,
+          "text": "the marker pattern is intentionally permissive \u2014 any line",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/stack-freshness.sh",
+          "line": 27,
+          "text": "SessionStart hooks run on EVERY new Claude/Codex session.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 39,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/hooks/block-secrets-precommit.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 31,
+          "text": "this hook never modifies state besides the session-nudges",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 72,
+          "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/bare-repo-nudge.sh",
+          "line": 39,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/security-nudge.sh",
+          "line": 19,
+          "text": "Stop hooks fire on EVERY session end. Keep this fast and",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 37,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 100,
+          "text": "the marker pattern is intentionally permissive \u2014 any line",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/stack-freshness.sh",
+          "line": 27,
+          "text": "SessionStart hooks run on EVERY new Claude/Codex session.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 82,
+          "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/hooks/security-nudge.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 31,
+          "text": "this hook never modifies state besides the session-nudges",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 72,
+          "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/bare-repo-nudge.sh",
+          "line": 39,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 82,
+          "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 37,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 100,
+          "text": "the marker pattern is intentionally permissive \u2014 any line",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/stack-freshness.sh",
+          "line": 27,
+          "text": "SessionStart hooks run on EVERY new Claude/Codex session.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 19,
+          "text": "Stop hooks fire on EVERY session end. Keep this fast and",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/hooks/skill-cheatsheet.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 31,
+          "text": "this hook never modifies state besides the session-nudges",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 72,
+          "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/bare-repo-nudge.sh",
+          "line": 39,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 82,
+          "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/security-nudge.sh",
+          "line": 19,
+          "text": "Stop hooks fire on EVERY session end. Keep this fast and",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/stack-freshness.sh",
+          "line": 27,
+          "text": "SessionStart hooks run on EVERY new Claude/Codex session.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 37,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 100,
+          "text": "the marker pattern is intentionally permissive \u2014 any line",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/hooks/stack-freshness.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 31,
+          "text": "this hook never modifies state besides the session-nudges",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 72,
+          "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/bare-repo-nudge.sh",
+          "line": 39,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 82,
+          "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/security-nudge.sh",
+          "line": 19,
+          "text": "Stop hooks fire on EVERY session end. Keep this fast and",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 37,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 100,
+          "text": "the marker pattern is intentionally permissive \u2014 any line",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 27,
+          "text": "SessionStart hooks run on EVERY new Claude/Codex session.",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/install-codex.ps1": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 33,
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 34,
+          "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
+          "type": "AIDEV-QUESTION"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 101,
+          "text": "real anchor\\n\"}`, and prose",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 102,
+          "text": "...\" inside docstrings.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 174,
+          "text": "skip the manifest itself \u2014 its own JSON literals",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 39,
+          "text": "model id mapping. The Codex CLI accepts model strings; pick",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 137,
+          "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 136,
+          "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 44,
+          "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/install-codex.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 33,
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 34,
+          "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
+          "type": "AIDEV-QUESTION"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 101,
+          "text": "real anchor\\n\"}`, and prose",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 102,
+          "text": "...\" inside docstrings.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 174,
+          "text": "skip the manifest itself \u2014 its own JSON literals",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 39,
+          "text": "model id mapping. The Codex CLI accepts model strings; pick",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 137,
+          "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.ps1",
+          "line": 44,
+          "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 136,
+          "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "templates/AGENTS.md.example": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [],
+      "anchors_in_file": [
+        {
+          "deadline": "2026-08-01",
+          "line": 148,
+          "text": "replace the polling loop with webhooks   # preferred",
+          "type": "AIDEV-TODO"
+        }
+      ]
+    },
+    "templates/logging/go.md": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "templates/logging/python.md",
+          "line": 14,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/python.md",
+          "line": 52,
+          "text": "contextvars are per-task in asyncio, per-thread otherwise \u2014",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/python.md",
+          "line": 96,
+          "text": "stdlib LogRecord puts our extra dict's keys directly on",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/rust.md",
+          "line": 29,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/typescript.md",
+          "line": 20,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 12,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 70,
+          "text": "ReplaceAttr fires for every record AND every key inside;",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "templates/logging/python.md": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "templates/logging/go.md",
+          "line": 12,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/go.md",
+          "line": 70,
+          "text": "ReplaceAttr fires for every record AND every key inside;",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/rust.md",
+          "line": 29,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/typescript.md",
+          "line": 20,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 14,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 52,
+          "text": "contextvars are per-task in asyncio, per-thread otherwise \u2014",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 96,
+          "text": "stdlib LogRecord puts our extra dict's keys directly on",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "templates/logging/rust.md": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "templates/logging/go.md",
+          "line": 12,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/go.md",
+          "line": 70,
+          "text": "ReplaceAttr fires for every record AND every key inside;",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/python.md",
+          "line": 14,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/python.md",
+          "line": 52,
+          "text": "contextvars are per-task in asyncio, per-thread otherwise \u2014",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/python.md",
+          "line": 96,
+          "text": "stdlib LogRecord puts our extra dict's keys directly on",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/typescript.md",
+          "line": 20,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 29,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "templates/logging/typescript.md": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "templates/logging/go.md",
+          "line": 12,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/go.md",
+          "line": 70,
+          "text": "ReplaceAttr fires for every record AND every key inside;",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/python.md",
+          "line": 14,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/python.md",
+          "line": 52,
+          "text": "contextvars are per-task in asyncio, per-thread otherwise \u2014",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/python.md",
+          "line": 96,
+          "text": "stdlib LogRecord puts our extra dict's keys directly on",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "templates/logging/rust.md",
+          "line": 29,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 20,
+          "text": "structured logging per the AGENTS.md JSON-lines spec.",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "workflows/security-first-feature.md": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [],
+      "anchors_in_file": [
+        {
+          "deadline": "2026-08-01",
+          "line": 177,
+          "text": "replace the string-concat SQL in",
+          "type": "AIDEV-TODO"
+        }
+      ]
+    }
+  }
+}
