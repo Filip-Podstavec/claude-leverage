@@ -53,8 +53,10 @@ discoverability layer:
    wrapped lines with spaces, producing a single-string description
    with no internal `\n`. This sidesteps the "runtime parses only
    the first line" failure mode entirely — the entire description
-   *is* the first line. Mechanical change across all 14 skills
-   (12 pre-v1.6.0 + 2 from v1.5.0 + the new `/repo-doctor`).
+   *is* the first line. Mechanical change across all 13 skills
+   (the 12 that existed at the start of v1.6.0 — themselves the 10 in
+   v1.4.5 plus `/glossary-init` and `/arch-map` from v1.5.0 — plus
+   the newly-added `/repo-doctor`).
 
 3. **`skill-cheatsheet.sh` SessionStart hook** — gated, rate-limited
    nudge listing the high-value skills + their reminders. Fires only
