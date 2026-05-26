@@ -66,6 +66,18 @@ properties guide every decision in this repo:
   skill-auto-activation gap (`description: |` block scalars where
   the runtime parses only the first line). Override via
   `CLAUDE_LEVERAGE_SKILL_HINT_DAYS` (0 = disabled).
+- `context-surface` — **opt-in** PreToolUse hook on
+  `Read|Edit|Write|MultiEdit`. Reads a pre-built manifest at
+  `.claude-leverage-context-map.json` (produced by `scripts/build-context-map.py`,
+  or `/refresh-context-map` skill) and emits the AIDEV anchors that
+  apply to the file the agent is about to touch via
+  `hookSpecificOutput.additionalContext`. Cuts per-session token tax —
+  agent no longer has to read every `AGENTS.md` preemptively to catch
+  documented gotchas; the right anchors are surfaced at the moment of
+  edit. Graceful no-op when manifest is missing. Verbose mode
+  (`CLAUDE_LEVERAGE_CTX_VERBOSE=1`) also emits per-dir `AGENTS.md` chain
+  + ADR refs. Opt-out: `CLAUDE_LEVERAGE_CTX_DISABLE=1`. See
+  [ADR 0008](docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md).
 
 **Security review (skill + dedicated subagent):**
 - `/security-review` — audit current diff for OWASP-Top-10-shaped issues +
@@ -111,6 +123,11 @@ properties guide every decision in this repo:
   Each gap → concrete fix action. `--score` / `--json` /
   `--fail-on missing|todo|stale` / `--scope foundation|why|what|hygiene|sync|all`
   for CI gating
+- `/refresh-context-map` — rebuild `.claude-leverage-context-map.json`,
+  the manifest powering the `context-surface` PreToolUse hook. Run after
+  anchor / per-dir `AGENTS.md` / ADR changes, or after a `git merge`
+  (manifest auto-resolves to local via `.gitattributes merge=ours`, but
+  is then stale relative to the merged tree until rebuilt)
 
 **Workflow commands (Claude Code only — use `!` preamble efficiency):**
 - `/flaky-test` — delegates to `flaky-test-isolator` subagent for N-run
@@ -147,7 +164,7 @@ explicitly when you want.)
 ```
 
 That's it for the plugin. **Restart Claude Code** (or run `/skill list` and
-`/agents` in a current session) to pick up all 13 skills and 2 subagents.
+`/agents` in a current session) to pick up all 14 skills and 2 subagents.
 
 ### Optional: portable statusline
 
@@ -203,7 +220,7 @@ The installer:
 2. Appends `@<repo-path>/AGENTS.md` to `~/.codex/AGENTS.md` so the canonical
    guidance loads on every Codex session.
 3. Copies `.codex/agents/*.toml` to `~/.codex/agents/`.
-4. Copies all 13 skills to `~/.agents/skills/claude-leverage/` so they work
+4. Copies all 14 skills to `~/.agents/skills/claude-leverage/` so they work
    in Codex sessions exactly as in Claude Code.
 
 **Idempotent**: re-running detects existing install via marker comments and
@@ -302,7 +319,7 @@ flowchart LR
 |-----------|---------|
 | [`agents/`](agents/) | Claude Code subagents (Markdown + YAML frontmatter) |
 | [`.codex/agents/`](.codex/agents/) | Codex subagents (TOML; auto-generated from `agents/`) |
-| [`skills/`](skills/) | 13 cross-tool skills (`agentskills.io` SKILL.md spec) |
+| [`skills/`](skills/) | 14 cross-tool skills (`agentskills.io` SKILL.md spec) — adds `/refresh-context-map` in v1.8.0 |
 | [`commands/`](commands/) | 1 Claude Code slash command (`/flaky-test`) |
 | [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
 | [`.codex/`](.codex/) | Codex hook template + sandbox/approval defaults |
@@ -349,7 +366,7 @@ verification is:
 
 ```
 /plugin install claude-leverage@filip-podstavec
-/skill list                # confirm 13 skills appear
+/skill list                # confirm 14 skills appear
 /agents                    # confirm security-reviewer + flaky-test-isolator
 echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
 # Ask the agent to commit /tmp/test.txt — block-secrets-precommit should refuse.

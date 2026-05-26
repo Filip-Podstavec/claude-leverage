@@ -40,12 +40,12 @@ job easier than the *previous* one's, every time, automatically.
 ## What's in it
 
 Concretely:
-- 7 hooks (security guardrails + maintenance nudges, all non-blocking unless
-  blocking a real safety issue)
-- 13 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
+- 8 hooks (security guardrails + maintenance nudges + smart context surfacing,
+  all non-blocking unless blocking a real safety issue)
+- 14 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
   `/stack-check`, `/init-repo`, `/log-structured`, `/explain-diff`,
   `/codex-sandbox`, `/adr-new`, `/session-log`, `/glossary-init`,
-  `/arch-map`, `/repo-doctor`)
+  `/arch-map`, `/repo-doctor`, `/refresh-context-map`)
 - 1 Claude-only slash command (`/flaky-test`)
 - 2 subagents (`security-reviewer`, `flaky-test-isolator`)
 - 1 portable statusline
@@ -259,6 +259,29 @@ routes, payment, templates), run `/security-review` before committing. The
 `security-nudge` Stop hook will suggest this automatically when the diff
 crosses the threshold.
 
+## Smart context surfacing (opt-in, repo-side artifact)
+
+Optional mechanism that surfaces just-in-time context for the file the agent
+is about to read or edit, via the `context-surface` PreToolUse hook (on
+`Read|Edit|Write|MultiEdit`). Activated by running `/refresh-context-map`
+(or `python scripts/build-context-map.py`) once; the resulting
+`.claude-leverage-context-map.json` is committed to the repo so every session
+sees a fresh-enough copy. `.gitattributes` `merge=ours` makes merge conflicts
+on the manifest auto-resolve to local — rebuild via `/refresh-context-map`
+after.
+
+The hook surfaces:
+- `AIDEV-NOTE` / `TODO` / `QUESTION` anchors inside the file
+- Anchors in sibling files in the same directory
+- (Verbose mode `CLAUDE_LEVERAGE_CTX_VERBOSE=1`) chain of per-directory
+  `AGENTS.md` from the file's dir to repo root + ADR files that mention
+  the file path
+
+Per-tool-call latency: ~80-300ms (single Python cold-start). Opt-out per
+session via `CLAUDE_LEVERAGE_CTX_DISABLE=1`. **Graceful no-op in repos
+without a manifest** (zero impact on users who don't adopt). See
+[ADR 0008](docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md).
+
 ## Commands available in this stack
 
 | Command | What it does |
@@ -276,6 +299,7 @@ crosses the threshold.
 | `/glossary-init` | Bootstrap/extend `GLOSSARY.md` at repo root — domain terms specific to this repo, surfaced by identifier frequency, defined by the user |
 | `/arch-map` | Bootstrap/refresh `architecture.yml` at repo root — machine-readable module metadata (role/stability/public_surface/...); has `--validate` mode for CI |
 | `/repo-doctor` | Read-only AI-readiness audit — scores ~20 dimensions across Foundation / Why / What / In-code / Hygiene / Sync (code↔docs drift). Per-gap concrete fix action; `--score` / `--json` / `--fail-on` / `--scope` for CI |
+| `/refresh-context-map` | Rebuild `.claude-leverage-context-map.json` (the manifest powering the `context-surface` PreToolUse hook). Run after anchor / per-dir AGENTS.md / ADR changes, or after a merge |
 | `/flaky-test` | Run a single test N times, group failures by signature |
 
 ## Build / test

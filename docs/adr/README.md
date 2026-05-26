@@ -32,6 +32,7 @@ the original choice.
 - [0005 — Structured discoverability layer: GLOSSARY.md + architecture.yml](0005-structured-discoverability-glossary-and-architecture-yml.md)
 - [0006 — `/repo-doctor` skill, folded-scalar SKILL descriptions, and gated skill-cheatsheet hook](0006-repo-doctor-skill-discoverability-and-folded-scalar.md)
 - [0007 — Sync drift detection in `/repo-doctor` (Dimensions 16–20)](0007-sync-drift-detection-in-repo-doctor.md)
+- [0008 — Smart context surfacing via PreToolUse hook (cuts per-session token tax)](0008-smart-context-surfacing-via-pretooluse-hook.md)
 
 (Keep this index in sync with the files in this directory; `/adr-new` will
 append to it automatically.)

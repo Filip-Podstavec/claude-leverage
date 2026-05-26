@@ -58,6 +58,19 @@ Scripts in `../scripts/hooks/`:
   suggesting `/stack-check` (so the model actually sees it — stderr
   from SessionStart is invisible to the model context window). Override
   via `CLAUDE_LEVERAGE_FRESHNESS_DAYS` env var (`=0` disables).
+- **`context-surface.sh`** (PreToolUse, matcher `Read|Edit|Write|MultiEdit`)
+  — **Opt-in.** Reads a pre-built manifest at
+  `.claude-leverage-context-map.json` (produced by
+  `scripts/build-context-map.py`) and surfaces the AIDEV anchors that
+  apply to the file the agent is about to touch, via
+  `hookSpecificOutput.additionalContext`. Cuts the per-session token tax
+  that comes from preemptively loading every leverage doc — surfaces just
+  the slice that matters at the moment of edit. **Silent no-op** when the
+  manifest is missing (so users who haven't run `/refresh-context-map`
+  pay zero cost). Verbose mode (`CLAUDE_LEVERAGE_CTX_VERBOSE=1`) also
+  emits per-dir `AGENTS.md` chain + ADR refs. Opt-out:
+  `CLAUDE_LEVERAGE_CTX_DISABLE=1`. See
+  [ADR 0008](../docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md).
 - **`bare-repo-nudge.sh`** (SessionStart) — Network-free. Two-branch
   proactive nudge for the cases where claude-leverage's *convention*
   layer would otherwise be inert:
