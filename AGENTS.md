@@ -42,9 +42,10 @@ job easier than the *previous* one's, every time, automatically.
 Concretely:
 - 5 hooks (security guardrails + maintenance nudges, all non-blocking unless
   blocking a real safety issue)
-- 10 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
+- 12 cross-tool skills (`/security-review`, `/repo-map`, `/process-diagram`,
   `/stack-check`, `/init-repo`, `/log-structured`, `/explain-diff`,
-  `/codex-sandbox`, `/adr-new`, `/session-log`)
+  `/codex-sandbox`, `/adr-new`, `/session-log`, `/glossary-init`,
+  `/arch-map`)
 - 1 Claude-only slash command (`/flaky-test`)
 - 2 subagents (`security-reviewer`, `flaky-test-isolator`)
 - 1 portable statusline
@@ -272,6 +273,8 @@ crosses the threshold.
 | `/codex-sandbox` | Interactive helper for `.codex/config.toml` sandbox + approval modes |
 | `/adr-new` | Bootstrap a new numbered Architecture Decision Record in `docs/adr/` |
 | `/session-log` | Write a distilled session log to `docs/sessions/` at end of session |
+| `/glossary-init` | Bootstrap/extend `GLOSSARY.md` at repo root — domain terms specific to this repo, surfaced by identifier frequency, defined by the user |
+| `/arch-map` | Bootstrap/refresh `architecture.yml` at repo root — machine-readable module metadata (role/stability/public_surface/...); has `--validate` mode for CI |
 | `/flaky-test` | Run a single test N times, group failures by signature |
 
 ## Build / test

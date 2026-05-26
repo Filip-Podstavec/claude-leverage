@@ -23,6 +23,8 @@ skills; users invoke skills, not subagents directly.
 | [`codex-sandbox/`](codex-sandbox/SKILL.md) | Interactive helper to configure per-project `.codex/config.toml` sandbox + approval modes. |
 | [`adr-new/`](adr-new/SKILL.md) | Bootstrap a new numbered Architecture Decision Record (MADR-flavored) in `docs/adr/`. Immutable status once accepted. |
 | [`session-log/`](session-log/SKILL.md) | Write a distilled session log to `docs/sessions/` at end of a working session — context, decisions, open questions, next steps. The continuity layer between sessions. |
+| [`glossary-init/`](glossary-init/SKILL.md) | Bootstrap or extend `GLOSSARY.md` at repo root — domain terms specific to *this* repo. Surfaces candidates by identifier frequency; user supplies definitions. Read-only on code; never invents domain meaning. |
+| [`arch-map/`](arch-map/SKILL.md) | Bootstrap or refresh `architecture.yml` at repo root — machine-readable module metadata (path/role/stability/public_surface/depends_on/paired_with/owners). Hand-curated; the skill drafts, the user confirms. Validate-only mode for CI. |
 
 ## Install
 

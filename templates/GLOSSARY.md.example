@@ -1,0 +1,74 @@
+<!-- claude-leverage:glossary v1 -->
+# Glossary
+
+> **Drop this into the root of any project where you want a domain
+> glossary that AI agents read before assuming what a term means.**
+> `/glossary-init` does this automatically with candidates surfaced
+> from your code. Edit the entries below; the marker comment on the
+> first line is load-bearing — keep it.
+
+Domain terms specific to *this* repo. Hand-curated. Update via
+`/glossary-init --add <term>` or by editing this file directly.
+
+**Read this before assuming a term means what it does elsewhere** —
+domain vocabulary diverges between projects. A `Lead` in a CRM is not
+a `Lead` in journalism, even if both ship as a Python class named
+`Lead`.
+
+## Conventions
+
+- One entry per term, H2 heading = the term as it appears in code.
+- 1–2 sentence definition. State what it **is** and what distinguishes
+  it from similar terms.
+- Optional bullet list: `Aliases` (other names this concept has),
+  `Code` (1–3 representative paths).
+- Entries sorted alphabetically by term (case-insensitive).
+- If you need a term for one team-internal concept, define it here. If
+  you need many terms for cross-cutting concepts, consider a
+  `docs/conventions/` subdirectory and link from this file.
+
+---
+
+## Account
+
+A billing entity. One Account → one or more Tenants. Holds payment
+method, billing address, and tax ID. Distinct from `Tenant` (which is
+the *operational* unit, not the billing unit).
+
+- Aliases: billing-account
+- Code: `src/billing/account.py`, `src/billing/account_test.py`
+
+## Invoice
+
+A finalized billing document sent to an Account at the end of a billing
+cycle. Distinct from `Charge` (one-off card transaction) and `LineItem`
+(component of an Invoice). An Invoice may contain LineItems from
+multiple Tenants on the same Account.
+
+- Code: `src/billing/invoice.py`
+
+## Lead
+
+In this repo: a **journalist's article lead** — the opening paragraph
+of a story. Distinct from CRM "Lead" (sales prospect), which we do not
+have a concept for here. If you see `Lead` in code, assume it's an
+article lead unless explicitly named otherwise (e.g. `SalesLead`).
+
+- Aliases: article-lead, story-lead, opener
+- Code: `src/content/lead.py`
+
+## Tenant
+
+A customer organization — the operational unit of multi-tenancy. One
+Tenant → many Users; one Account (billing) → one or more Tenants. We
+isolate Tenant data at the database row level (every table has
+`tenant_id`); see [ADR 0007](docs/adr/0007-tenant-row-isolation.md) for
+why row-level instead of schema-per-tenant.
+
+- Aliases: org, organization, workspace
+- Code: `src/auth/tenant.py`, `src/billing/account.py`
+
+---
+
+<!-- Delete the four example entries above when adopting this template.
+     Keep the conventions block + the marker on line 1. -->

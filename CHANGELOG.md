@@ -5,6 +5,47 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] — 2026-05-26
+
+### Added
+
+- **`/glossary-init` skill + `GLOSSARY.md` convention.** Hand-curated
+  domain glossary at repo root. The skill surfaces candidate terms by
+  frequency analysis of identifiers (classes, type aliases, dataclasses
+  per language) and asks the user for 1-sentence definitions —
+  **never invents domain meaning**. Idempotent (re-running adds new
+  terms without overwriting existing). Closes the "what does `Lead`
+  mean in *this* repo?" hallucination class that AGENTS.md prose
+  doesn't address cheaply per session.
+
+- **`/arch-map` skill + `architecture.yml` convention.** Hand-curated,
+  machine-readable module metadata at repo root: `path` + `role` +
+  `stability` + optional `public_surface` / `depends_on` /
+  `paired_with` / `owners`. Schema version `v1`. Complements
+  `/repo-map`'s human-readable mermaid block — agents can load this
+  YAML once and answer structured queries (which modules are
+  `stable`? what's the public surface of `agents/`?) without
+  re-walking the tree. `--validate` mode for CI.
+
+- **`templates/GLOSSARY.md.example`** + **`templates/architecture.yml.example`**
+  — drop-in templates for other repos adopting the convention.
+
+- **ADR 0005** — Structured discoverability layer: GLOSSARY.md +
+  architecture.yml. Documents *why* both files live at root (parallel
+  with AGENTS.md, not under `docs/`), why YAML over JSON for arch-map,
+  why we don't go to per-folder YAML (against the 2026 AGENTS.md-
+  per-folder convergent standard), and why neither auto-fires on a
+  hook (follows ADR 0004's user-invoked philosophy).
+
+### Changed
+
+- Skill count: 10 → 12. README, AGENTS.md, CLAUDE.md, marketplace
+  description, and `scripts/smoke-plugin.sh` lower bound updated.
+- README Version badge bumped to 1.5.0 (was stale at 1.3.3 from prior
+  release).
+- `CLAUDE.md` skills list refreshed: dropped stale `/commit-smart`
+  reference (removed in v1.4.4) while adding the two new skills.
+
 ## [1.4.5] — 2026-05-25
 
 ### Fixed

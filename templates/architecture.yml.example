@@ -1,0 +1,83 @@
+# claude-leverage:architecture-map v1
+# Hand-curated structured architecture metadata. Update via /arch-map
+# or by hand-editing this file. Schema: claude-leverage v1.
+# See: https://github.com/Filip-Podstavec/claude-leverage/blob/main/skills/arch-map/SKILL.md
+#
+# Drop this template into the root of a repo to give AI agents a one-load
+# structured map of module roles, stability levels, and public surfaces.
+# Complements AGENTS.md (prose) and /repo-map's mermaid block (visual).
+#
+# Required fields: repo.{name,primary_lang,one_line};
+# modules[].{path,role,stability}.
+# Optional fields: modules[].{public_surface,depends_on,paired_with,owners}.
+
+repo:
+  name: "<project-name>"
+  primary_lang: "<python | typescript | go | rust | python+typescript | ...>"
+  one_line: "<one-sentence concrete description: what this repo is and for whom>"
+
+modules:
+  # ---------------------------------------------------------------------------
+  # Replace the entries below with your own modules. /arch-map will draft
+  # them from a directory walk if you delete this file and re-run.
+  # ---------------------------------------------------------------------------
+
+  - path: "src/"
+    role: "Main application code"
+    stability: stable
+    public_surface:
+      - "main.py"
+      - "api/__init__.py"
+    owners:
+      - "@platform-team"
+
+  - path: "src/billing/"
+    role: "Invoicing, charges, and ledger reconciliation"
+    stability: stable
+    public_surface:
+      - "Invoice"
+      - "Charge"
+      - "LineItem"
+    depends_on:
+      - "src/auth/"
+    owners:
+      - "@billing-team"
+
+  - path: "src/auth/"
+    role: "Authentication, session management, tenant isolation"
+    stability: stable
+    public_surface:
+      - "Tenant"
+      - "User"
+      - "Session"
+      - "middleware.py"
+    owners:
+      - "@platform-team"
+
+  - path: "src/experimental/"
+    role: "Work-in-progress features behind feature flags"
+    stability: experimental
+    public_surface: []
+
+  - path: "src/legacy/"
+    role: "Pre-v2 API surface — scheduled for removal in Q4 2026"
+    stability: deprecated
+    public_surface: []
+    depends_on:
+      - "src/auth/"
+
+  - path: "scripts/"
+    role: "Build, deploy, one-off ops"
+    stability: evolving
+
+  - path: "tests/"
+    role: "Test suite (integration + e2e; unit tests co-located with code)"
+    stability: stable
+
+# ---------------------------------------------------------------------------
+# Stability levels:
+#   stable        — public surface is load-bearing; renames need an ADR.
+#   evolving      — public surface may change; pin imports.
+#   experimental  — may be deleted entirely; don't depend on this from outside.
+#   deprecated    — scheduled for removal; new code should not reference it.
+# ---------------------------------------------------------------------------

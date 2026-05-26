@@ -5,7 +5,7 @@
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 [![Codex CLI](https://img.shields.io/badge/Codex_CLI-compatible-1f6feb)](https://developers.openai.com/codex)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
-![Version](https://img.shields.io/badge/version-1.3.3-success)
+![Version](https://img.shields.io/badge/version-1.5.0-success)
 
 > A small, opinionated **AI-coding-agent suite** for Claude Code and Codex
 > CLI. Built for me first, public so I can install it across machines, and
@@ -86,6 +86,12 @@ properties guide every decision in this repo:
   Record. Immutable status, captures *why* for the next agent in 6 months
 - `/session-log` — distill the current session into `docs/sessions/`. The
   continuity layer between sessions — distillate, not transcript
+- `/glossary-init` — bootstrap/extend `GLOSSARY.md` at repo root for
+  domain terms specific to *this* repo. Surfaces candidates by identifier
+  frequency; never invents definitions (the user types them)
+- `/arch-map` — bootstrap/refresh `architecture.yml` at repo root —
+  machine-readable module metadata (role/stability/public_surface/...);
+  hand-curated, `--validate` mode for CI
 
 **Workflow commands (Claude Code only — use `!` preamble efficiency):**
 - `/flaky-test` — delegates to `flaky-test-isolator` subagent for N-run
@@ -122,7 +128,7 @@ explicitly when you want.)
 ```
 
 That's it for the plugin. **Restart Claude Code** (or run `/skill list` and
-`/agents` in a current session) to pick up all 10 skills and 2 subagents.
+`/agents` in a current session) to pick up all 12 skills and 2 subagents.
 
 ### Optional: portable statusline
 
@@ -178,7 +184,7 @@ The installer:
 2. Appends `@<repo-path>/AGENTS.md` to `~/.codex/AGENTS.md` so the canonical
    guidance loads on every Codex session.
 3. Copies `.codex/agents/*.toml` to `~/.codex/agents/`.
-4. Copies all 10 skills to `~/.agents/skills/claude-leverage/` so they work
+4. Copies all 12 skills to `~/.agents/skills/claude-leverage/` so they work
    in Codex sessions exactly as in Claude Code.
 
 **Idempotent**: re-running detects existing install via marker comments and
@@ -277,7 +283,7 @@ flowchart LR
 |-----------|---------|
 | [`agents/`](agents/) | Claude Code subagents (Markdown + YAML frontmatter) |
 | [`.codex/agents/`](.codex/agents/) | Codex subagents (TOML; auto-generated from `agents/`) |
-| [`skills/`](skills/) | 10 cross-tool skills (`agentskills.io` SKILL.md spec) |
+| [`skills/`](skills/) | 12 cross-tool skills (`agentskills.io` SKILL.md spec) |
 | [`commands/`](commands/) | 1 Claude Code slash command (`/flaky-test`) |
 | [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
 | [`.codex/`](.codex/) | Codex hook template + sandbox/approval defaults |
@@ -324,7 +330,7 @@ verification is:
 
 ```
 /plugin install claude-leverage@filip-podstavec
-/skill list                # confirm 10 skills appear
+/skill list                # confirm 12 skills appear
 /agents                    # confirm security-reviewer + flaky-test-isolator
 echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
 # Ask the agent to commit /tmp/test.txt — block-secrets-precommit should refuse.
