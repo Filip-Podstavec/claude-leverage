@@ -34,22 +34,30 @@ day, with no carry-over context.
 
 ## Reported runs
 
-| Run | Configuration   | Status                                          |
-|-----|-----------------|-------------------------------------------------|
-| 7   | Pure A/B        | Included                                        |
-| 9   | Artifact-only   | Included                                        |
-| 10  | Artifact-only   | **Excluded** — network instability mid-run      |
-| 11  | Artifact-only   | Included                                        |
-| 12  | Artifact-only   | Included                                        |
+Canonical dataset (numbered as shown in the chart):
+
+| Run | Configuration   | BEFORE  | AFTER   | Δ        |
+|-----|-----------------|--------:|--------:|---------:|
+| 1   | Pure A/B        | $23.35  | $21.21  | −9.1 %   |
+| 2   | Artifact-only   | $29.98  | $12.97  | −56.7 %  |
+| 3   | Artifact-only   | $18.42  | $11.78  | −36.1 %  |
+| 4   | Artifact-only   | $20.09  | $18.18  | −9.5 %   |
+| 5   | Pure A/B        | $17.83  | $16.36  | −8.2 %   |
 
 Plus one Sonnet 4.6 run on a different task type (structured-logging
-migration) for cross-model sanity: **−40 % cost**, not in the chart
-(different model and task, listed separately in the README).
+migration) for cross-model sanity: **−40 % cost** (not in the chart;
+different model and task, listed separately in the top-level README).
 
-Earlier runs (1–5) used pre-v1.8.3 plugin versions where the
-`context-surface` hook was either absent or unreliable due to
-plugin-install state ambiguity; they are not part of the canonical
-dataset. v1.8.3 was the first reliably-working version of the hook.
+Two additional runs were executed but excluded from the canonical
+dataset due to **network instability mid-run** (the operator was on
+an intermittent connection); they produced contaminated transcripts
+and are not surfaced in summaries.
+
+Earlier exploratory runs used pre-v1.8.3 plugin versions where the
+`context-surface` PreToolUse hook was either absent or unreliable due
+to plugin-install state ambiguity; they are not part of the canonical
+dataset. Plugin v1.8.3 was the first reliably-working version of the
+hook.
 
 ## Metrics
 

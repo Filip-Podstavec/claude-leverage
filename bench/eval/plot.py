@@ -11,12 +11,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Opus 4.7 runs on the endpoint-implementation task.
-# One run dropped (network instability during benchmark) — see bench/eval/README.md.
+# Two additional runs dropped (network instability during benchmark) — see
+# bench/eval/README.md for the canonical-vs-invalidated split.
 RUNS = [
-    ("Run 7\n(pure A/B)",       23.35, 21.21),
-    ("Run 9\n(artifact-only)",  29.98, 12.97),
-    ("Run 11\n(artifact-only)", 18.42, 11.78),
-    ("Run 12\n(artifact-only)", 20.09, 18.18),
+    ("Run 1\n(pure A/B)",       23.35, 21.21),
+    ("Run 2\n(artifact-only)",  29.98, 12.97),
+    ("Run 3\n(artifact-only)",  18.42, 11.78),
+    ("Run 4\n(artifact-only)",  20.09, 18.18),
+    ("Run 5\n(pure A/B)",       17.83, 16.36),
 ]
 
 labels = [r[0] for r in RUNS]
@@ -53,7 +55,7 @@ for i, (b, a) in enumerate(zip(before, after)):
 
 ax.set_ylabel("Run cost (USD)")
 ax.set_title(
-    "claude-leverage A/B: cost per run, Claude Opus 4.7\n"
+    "claude-leverage A/B: cost per run, Claude Opus 4.7  (n=5)\n"
     "endpoint-implementation task on a ~30k LOC Python codebase"
 )
 ax.set_xticks(x)

@@ -170,21 +170,21 @@ service). Two trees of the same codebase:
   `context-surface` PreToolUse hook.
 
 Identical implementation task in both arms: add a new paginated HTTP
-endpoint following the conventions documented in each tree. Four
+endpoint following the conventions documented in each tree. Five
 Claude Opus 4.7 runs, plus one Claude Sonnet 4.6 run on a different
 task type (structured-logging migration) for cross-model sanity.
 
 ![A/B benchmark results](bench/eval/results.png)
 
-### Headline (n=4, Opus 4.7)
+### Headline (n=5, Opus 4.7)
 
 | Metric | BEFORE | AFTER | Δ |
 |---|---:|---:|---:|
-| Mean run cost | $22.96 | $16.04 | **−27.9 %** |
-| Median run cost | $21.72 | $15.58 | **−22.8 %** |
-| Files read before first edit | 21.75 | 18.5 | −14.9 % |
-| Load-bearing AIDEV-NOTE trap caught | 0 / 4 | **4 / 4** | |
-| Cost direction | — | cheaper in **4 / 4** runs | |
+| Mean run cost | $21.93 | $16.10 | **−26.6 %** |
+| Median run cost | $20.09 | $16.36 | **−18.6 %** |
+| Files read before first edit | 22.4 | 18.8 | −16.1 % |
+| Load-bearing AIDEV-NOTE trap caught | 0 / 5 | **5 / 5** | |
+| Cost direction | — | cheaper in **5 / 5** runs | |
 
 Plus the separate Sonnet 4.6 run on a logging-migration task: **−40 % cost**.
 
@@ -199,18 +199,18 @@ the saved budget producing **richer, more convention-aware output**:
   often drops to zero. The agent knows where to look because per-
   directory `AGENTS.md` is auto-surfaced by the `context-surface` hook.
 - Fewer files re-read before the first edit (orientation cost ↓ in
-  3 of 4 runs).
-- **But sometimes *more* output tokens produced.** Run 12 AFTER
+  4 of 5 runs).
+- **But sometimes *more* output tokens produced.** Run 4 AFTER
   generated +9.2 % output vs BEFORE, yet the total run still cost
   −9.5 % less.
 
-That "more output" is the **maintainability dividend**. Across all 4
+That "more output" is the **maintainability dividend**. Across all 5
 AFTER runs, the agent:
 
 - Caught a documented load-bearing AIDEV-NOTE trap (a database-driver
   gotcha where the most natural parameter naming would silently produce
   wrong query results in production). The BEFORE agent caught it in
-  **0 / 4** runs.
+  **0 / 5** runs.
 - Used the per-domain `routers/` split instead of dumping the new
   endpoint into the monolithic API file.
 - Used the LRU-cached SQL loader instead of the legacy direct-read form.
@@ -229,12 +229,12 @@ code that doesn't have to be rewritten later.**
 
 ### Caveats (please read before extrapolating)
 
-- Single codebase, single task type, four Opus runs. Plus one Sonnet
+- Single codebase, single task type, five Opus runs. Plus one Sonnet
   run on a different task. This is a *first signal*, not a proof.
-- Cost variance is high (std ≈ $5; delta std ≈ 22 percentage points).
-  The qualitative signal (4 / 4 trap-catch, consistent convention
-  adherence) is more reliable than the cost delta itself.
-- One run was invalidated due to network instability during the
+- Cost variance is high (std ≈ $4 per arm; delta std ≈ 20 percentage
+  points). The qualitative signal (5 / 5 trap-catch, consistent
+  convention adherence) is more reliable than the cost delta itself.
+- Two runs were invalidated due to network instability during the
   benchmark and excluded from the table above.
 - Numbers should not be extrapolated to "X % cost savings on your
   codebase". They should be read as: "claude-leverage measurably
