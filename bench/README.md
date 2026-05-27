@@ -1,12 +1,17 @@
 # bench/
 
-The benchmark suite that motivated the v1.0.0 pivot is **archived** under
-[`archive-token-savings-thesis/`](archive-token-savings-thesis/).
+Two evaluation suites live here:
 
-That directory is frozen: the raw data, charts, harness, and retired agents
-stay as honest evidence of what was tested and what it showed. The top-level
-[README](../README.md) and [`docs/specs/2026-05-24-pivot/`](../docs/specs/2026-05-24-pivot/)
-reference it from the "Honest history" section.
+- [`eval/`](eval/) — **current** A/B benchmark behind the headline numbers
+  in the top-level README. Endpoint-implementation task on a real client
+  codebase, four Opus 4.7 runs plus one Sonnet 4.6 run on a different task
+  type. Plot script + methodology + generated chart.
+- [`archive-token-savings-thesis/`](archive-token-savings-thesis/) —
+  **archived** harness from the v0.x token-savings hypothesis that
+  motivated the v1.0.0 pivot. Frozen: raw data, charts, retired agents
+  stay as honest evidence of what was tested. Referenced from the top-
+  level README's "Honest history" section.
 
-If you want to reproduce the experiment, see
+To reproduce the archived experiment see
 [`archive-token-savings-thesis/HOWTO.md`](archive-token-savings-thesis/HOWTO.md).
+To reproduce the current one see [`eval/README.md`](eval/README.md).

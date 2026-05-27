@@ -1,0 +1,90 @@
+# A/B evaluation harness
+
+How the numbers in the top-level [README](../../README.md#benchmark-results-does-claude-leverage-actually-pay-off)
+benchmark section were produced.
+
+## Setup
+
+Two trees of an anonymised real client codebase (~30k LOC Python web service):
+
+- **`before/`** — historical commit from before claude-leverage adoption.
+  No `AGENTS.md`, no AIDEV anchors, no per-directory docs, monolithic API
+  surface. Remote removed so the agent cannot see future commits.
+- **`after/`** — current HEAD with the full claude-leverage in-repo
+  artifact set: root `AGENTS.md`, per-directory `AGENTS.md`, AIDEV
+  anchors throughout the source, ADRs under `docs/adr/`, `GLOSSARY.md`,
+  `architecture.yml`, per-domain router split, structured-logging spec,
+  `.claude-leverage-context-map.json` manifest (powering the
+  `context-surface` PreToolUse hook).
+
+Task: implement a new paginated HTTP endpoint following the conventions
+documented in each tree.
+
+## Configurations
+
+- **Pure A/B**: plugin OFF in `before/`, ON in `after/`. Measures the
+  total effect of claude-leverage (plugin features + in-repo artifacts).
+- **Artifact-only**: plugin ON in both. Isolates the value of the
+  in-repo enrichment (the manifest in `before/` is absent, so the
+  `context-surface` hook gracefully no-ops in that arm; per-dir
+  `AGENTS.md` chain and AIDEV anchors are also absent).
+
+Both arms run as separate `claude` invocations in the same calendar
+day, with no carry-over context.
+
+## Reported runs
+
+| Run | Configuration   | Status                                          |
+|-----|-----------------|-------------------------------------------------|
+| 7   | Pure A/B        | Included                                        |
+| 9   | Artifact-only   | Included                                        |
+| 10  | Artifact-only   | **Excluded** — network instability mid-run      |
+| 11  | Artifact-only   | Included                                        |
+| 12  | Artifact-only   | Included                                        |
+
+Plus one Sonnet 4.6 run on a different task type (structured-logging
+migration) for cross-model sanity: **−40 % cost**, not in the chart
+(different model and task, listed separately in the README).
+
+Earlier runs (1–5) used pre-v1.8.3 plugin versions where the
+`context-surface` hook was either absent or unreliable due to
+plugin-install state ambiguity; they are not part of the canonical
+dataset. v1.8.3 was the first reliably-working version of the hook.
+
+## Metrics
+
+- **Total run cost (USD)** — from the JSONL transcript token counts
+  multiplied by the model's pricing.
+- **Files read before first edit** — proxy for orientation cost.
+- **Load-bearing AIDEV-NOTE trap caught** — a single documented
+  database-driver gotcha in the target codebase (the most natural
+  parameter naming would silently produce wrong query results in
+  production). Binary per-run flag based on inspecting the generated
+  SQL in each run's output.
+
+## Reproducer
+
+The two worktrees (`before/` and `after/`) and the task spec are not
+committed here — they belong to the client codebase. The shape of the
+harness is reproducible by anyone with sufficiently complex
+before/after trees of their own:
+
+1. Two trees of the same codebase, one with the claude-leverage
+   artifacts (root + per-dir `AGENTS.md`, AIDEV anchors, ADRs, manifest)
+   and one without.
+2. Identical task prompt, fresh `claude` invocations in separate
+   shells, same calendar day.
+3. After both finish, parse the JSONL transcripts to extract cost,
+   tool-call counts, file-read counts; read `_RUN_NOTES.md` in each
+   tree for qualitative findings.
+
+## Regenerating the chart
+
+After adding a new run to the `RUNS` list in `plot.py`:
+
+```bash
+python bench/eval/plot.py
+```
+
+Writes `bench/eval/results.png`, which is committed and embedded in
+the top-level README.

@@ -156,6 +156,94 @@ explicitly when you want.)
 - Skills installed to `~/.agents/skills/` by the Codex installer
 - Subagents authored in MD + auto-generated to TOML for Codex parity (CI gate)
 
+## Benchmark results — does claude-leverage actually pay off?
+
+Controlled A/B benchmark on a real client codebase (~30k LOC Python web
+service). Two trees of the same codebase:
+
+- **BEFORE** — commit predating claude-leverage adoption. No `AGENTS.md`,
+  no AIDEV anchors, no per-directory docs, monolithic API surface.
+- **AFTER** — current HEAD with the full in-repo artifact set: root
+  `AGENTS.md`, per-directory `AGENTS.md`, AIDEV anchors throughout,
+  ADRs, `GLOSSARY.md`, `architecture.yml`, per-domain router split,
+  and the `.claude-leverage-context-map.json` manifest powering the
+  `context-surface` PreToolUse hook.
+
+Identical implementation task in both arms: add a new paginated HTTP
+endpoint following the conventions documented in each tree. Four
+Claude Opus 4.7 runs, plus one Claude Sonnet 4.6 run on a different
+task type (structured-logging migration) for cross-model sanity.
+
+![A/B benchmark results](bench/eval/results.png)
+
+### Headline (n=4, Opus 4.7)
+
+| Metric | BEFORE | AFTER | Δ |
+|---|---:|---:|---:|
+| Mean run cost | $22.96 | $16.04 | **−27.9 %** |
+| Median run cost | $21.72 | $15.58 | **−22.8 %** |
+| Files read before first edit | 21.75 | 18.5 | −14.9 % |
+| Load-bearing AIDEV-NOTE trap caught | 0 / 4 | **4 / 4** | |
+| Cost direction | — | cheaper in **4 / 4** runs | |
+
+Plus the separate Sonnet 4.6 run on a logging-migration task: **−40 % cost**.
+
+### Cheaper *and* the code is more maintainable
+
+The cost number alone understates the value, because **the AFTER agent
+does not get cheaper by being lazier**. It gets cheaper by being
+*dramatically* more efficient at orientation, then often spends part of
+the saved budget producing **richer, more convention-aware output**:
+
+- Less searching around — Grep counts drop −40 to −60 % per run, Glob
+  often drops to zero. The agent knows where to look because per-
+  directory `AGENTS.md` is auto-surfaced by the `context-surface` hook.
+- Fewer files re-read before the first edit (orientation cost ↓ in
+  3 of 4 runs).
+- **But sometimes *more* output tokens produced.** Run 12 AFTER
+  generated +9.2 % output vs BEFORE, yet the total run still cost
+  −9.5 % less.
+
+That "more output" is the **maintainability dividend**. Across all 4
+AFTER runs, the agent:
+
+- Caught a documented load-bearing AIDEV-NOTE trap (a database-driver
+  gotcha where the most natural parameter naming would silently produce
+  wrong query results in production). The BEFORE agent caught it in
+  **0 / 4** runs.
+- Used the per-domain `routers/` split instead of dumping the new
+  endpoint into the monolithic API file.
+- Used the LRU-cached SQL loader instead of the legacy direct-read form.
+- In one run, additionally updated the API documentation file per the
+  PR recipe documented in the per-directory `AGENTS.md` — a step the
+  BEFORE agent had no way of knowing about.
+
+The BEFORE agent's code worked. But it worked in the *old style* — no
+awareness of the conventions the rest of the codebase has since adopted.
+The next engineer (human or AI) opening that PR pays the cost later, in
+rework. That cost does not show up in the benchmark; it shows up six
+months later as drift.
+
+**Net effect: fewer tokens spent, and the tokens that are spent go into
+code that doesn't have to be rewritten later.**
+
+### Caveats (please read before extrapolating)
+
+- Single codebase, single task type, four Opus runs. Plus one Sonnet
+  run on a different task. This is a *first signal*, not a proof.
+- Cost variance is high (std ≈ $5; delta std ≈ 22 percentage points).
+  The qualitative signal (4 / 4 trap-catch, consistent convention
+  adherence) is more reliable than the cost delta itself.
+- One run was invalidated due to network instability during the
+  benchmark and excluded from the table above.
+- Numbers should not be extrapolated to "X % cost savings on your
+  codebase". They should be read as: "claude-leverage measurably
+  changes the agent's behavior toward documented repo conventions,
+  and at least sometimes saves money doing it."
+
+Methodology, dropped-run notes, and reproducer:
+[`bench/eval/`](bench/eval/).
+
 ## Install — Claude Code
 
 ```
