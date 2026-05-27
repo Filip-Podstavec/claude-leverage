@@ -63,6 +63,15 @@ hook.
 
 - **Total run cost (USD)** — from the JSONL transcript token counts
   multiplied by the model's pricing.
+- **Active runtime (minutes)** — wall-clock time minus user-idle
+  pauses. Computed as the sum of inter-event gaps in the JSONL
+  transcript with gaps longer than 60 s dropped. Raw wall-clock is
+  meaningless across these runs because some operator pauses
+  (other-window context-switching, AFK breaks) ran into the tens of
+  minutes; the 60 s cutoff cleanly separates "agent working" from
+  "operator away". The 120 s cutoff produces near-identical means
+  (within 0.2 minutes), so the metric is not sensitive to the
+  threshold choice.
 - **Files read before first edit** — proxy for orientation cost.
 - **Load-bearing AIDEV-NOTE trap caught** — a single documented
   database-driver gotcha in the target codebase (the most natural

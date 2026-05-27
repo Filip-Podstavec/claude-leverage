@@ -182,6 +182,7 @@ task type (structured-logging migration) for cross-model sanity.
 |---|---:|---:|---:|
 | Mean run cost | $21.93 | $16.10 | **−26.6 %** |
 | Median run cost | $20.09 | $16.36 | **−18.6 %** |
+| Mean active runtime (minutes) | 9.8 | 8.6 | **−12.1 %** |
 | Files read before first edit | 22.4 | 18.8 | −16.1 % |
 | Load-bearing AIDEV-NOTE trap caught | 0 / 5 | **5 / 5** | |
 | Cost direction | — | cheaper in **5 / 5** runs | |
@@ -203,6 +204,12 @@ the saved budget producing **richer, more convention-aware output**:
 - **But sometimes *more* output tokens produced.** Run 4 AFTER
   generated +9.2 % output vs BEFORE, yet the total run still cost
   −9.5 % less.
+- **Wall-clock confirms the cost signal.** With idle-pause time
+  filtered out (gaps longer than 60 s ignored), AFTER also completes
+  the task faster on average — mean active runtime 9.8 min BEFORE
+  vs 8.6 min AFTER (−12.1 %). The time saving is smaller than the
+  cost saving (−26.6 %) because part of the orientation budget gets
+  reinvested into richer output, not pocketed.
 
 That "more output" is the **maintainability dividend**. Across all 5
 AFTER runs, the agent:
