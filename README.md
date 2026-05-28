@@ -2,10 +2,10 @@
 
 <img src="assets/banner.svg" alt="claude-leverage" width="640">
 
-**Ship fast with AI agents — and leave a repo the *next* agent can still safely change in six months.**
+**Write code AI-first — structured so the *next* agent can orient fast, change it safely, and keep it maintainable for years, without the bloat.**
 
-[![Claude Code — first-class](https://img.shields.io/badge/Claude_Code-first--class-8b5cf6?style=for-the-badge&logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
-[![Codex CLI — first-class](https://img.shields.io/badge/Codex_CLI-first--class-10a37f?style=for-the-badge&logo=openai&logoColor=white)](https://developers.openai.com/codex)
+[![Claude Code — first-class](https://img.shields.io/badge/Claude_Code-first--class-8b5cf6?style=for-the-badge)](https://docs.anthropic.com/en/docs/claude-code)
+[![Codex CLI — first-class](https://img.shields.io/badge/Codex_CLI-first--class-10a37f?style=for-the-badge)](https://developers.openai.com/codex)
 
 <sub>Convention layer (<code>AGENTS.md</code>) is also read by any AGENTS.md-aware tool — Cursor, Windsurf, Copilot…</sub>
 

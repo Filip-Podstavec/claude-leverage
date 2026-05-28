@@ -79,11 +79,15 @@ exhaustive detail lives behind collapsibles.
 
 1. **Hero (centered, `<div align="center">`)**
    - SVG banner (`assets/banner.svg`) via `<img>`.
-   - One-line tagline: *"Ship fast with AI agents — and leave a repo the next
-     agent can still safely change in six months."*
-   - **Works-with row:** two `for-the-badge` logo badges — **Claude Code**
+   - One-line tagline: *"Write code AI-first — structured so the next agent can
+     orient fast, change it safely, and keep it maintainable for years, without
+     the bloat."*
+   - **Works-with row:** two `for-the-badge` text badges — **Claude Code**
      (→ `https://docs.anthropic.com/en/docs/claude-code`) and **Codex CLI**
-     (→ `https://developers.openai.com/codex`).
+     (→ `https://developers.openai.com/codex`). Logos were dropped: shields.io
+     embeds named logos as a nested `data:image/svg+xml` `<image>`, which fails
+     to render through GitHub's image proxy (the badge shows locally but not on
+     GitHub).
    - Secondary portability line (honest-framing #1).
    - **Badge row:** CI · MIT · `v1.8.3` · `14 skills` · `8 hooks` ·
      `2 subagents`.
