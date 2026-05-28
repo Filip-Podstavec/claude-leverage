@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-labelledby="title desc">
+  <title id="title">claude-leverage</title>
+  <desc id="desc">Secure, self-maintaining, cross-tool AI-dev stack for Claude Code and Codex</desc>
+  <rect width="640" height="160" rx="18" fill="#0f172a"/>
+  <text x="320" y="78" text-anchor="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+        font-size="46" font-weight="700" fill="#e2e8f0">
+    <tspan fill="#8b5cf6">$ </tspan>claude-leverage
+  </text>
+  <text x="320" y="112" text-anchor="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+        font-size="16.5" fill="#94a3b8">
+    secure &#183; self-maintaining &#183; cross-tool AI-dev stack
+  </text>
+  <rect x="255" y="130" width="130" height="3" rx="1.5" fill="#8b5cf6"/>
+</svg>

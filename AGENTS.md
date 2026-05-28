@@ -95,6 +95,7 @@ hooks/hooks.json              Claude Code hook config — paths point at scripts
 scripts/hooks/                Hook shell scripts, shared by both tools
 scripts/                      Installers, generators, version checks, smoke-plugin.sh
 statusline/                   Portable statusline script
+assets/                       README banner (banner.svg) + static image assets
 claude-md-snippets/           Opt-in CLAUDE.md / AGENTS.md routing rules (installable via /init-repo)
 templates/                    Per-repo AGENTS.md examples + structured-logging starter kits
 agents-docs/, commands-docs/  Per-dir docs that can't live inside agents/ or
