@@ -79,9 +79,9 @@ exhaustive detail lives behind collapsibles.
 
 1. **Hero (centered, `<div align="center">`)**
    - SVG banner (`assets/banner.svg`) via `<img>`.
-   - One-line tagline: *"Write code AI-first — structured so the next agent can
-     orient fast, change it safely, and keep it maintainable for years, without
-     the bloat."*
+   - One-line tagline: *"Make any repo AI-first — write sustainable code from the
+     start, or refactor a legacy codebase to prepare it for agent-driven
+     development."*
    - **Works-with row:** two `for-the-badge` text badges — **Claude Code**
      (→ `https://docs.anthropic.com/en/docs/claude-code`) and **Codex CLI**
      (→ `https://developers.openai.com/codex`). Logos were dropped: shields.io

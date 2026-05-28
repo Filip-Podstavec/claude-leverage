@@ -2,7 +2,7 @@
 
 <img src="assets/banner.svg" alt="claude-leverage" width="640">
 
-**Write code AI-first — structured so the *next* agent can orient fast, change it safely, and keep it maintainable for years, without the bloat.**
+**Make any repo AI-first — write sustainable code from the start, or refactor a legacy codebase to prepare it for agent-driven development.**
 
 [![Claude Code — first-class](https://img.shields.io/badge/Claude_Code-first--class-8b5cf6?style=for-the-badge)](https://docs.anthropic.com/en/docs/claude-code)
 [![Codex CLI — first-class](https://img.shields.io/badge/Codex_CLI-first--class-10a37f?style=for-the-badge)](https://developers.openai.com/codex)
