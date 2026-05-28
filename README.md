@@ -2,12 +2,12 @@
 
 <img src="assets/banner.svg" alt="claude-leverage" width="640">
 
-**Make any repo AI-first — write sustainable code from the start, or refactor a legacy codebase to prepare it for agent-driven development.**
+**Make any repo AI-first - write sustainable code from the start, or refactor a legacy codebase to prepare it for agent-driven development.**
 
-[![Claude Code — first-class](https://img.shields.io/badge/Claude_Code-first--class-8b5cf6?style=for-the-badge)](https://docs.anthropic.com/en/docs/claude-code)
-[![Codex CLI — first-class](https://img.shields.io/badge/Codex_CLI-first--class-10a37f?style=for-the-badge)](https://developers.openai.com/codex)
+[![Claude Code - first-class](https://img.shields.io/badge/Claude_Code-first--class-8b5cf6?style=for-the-badge)](https://docs.anthropic.com/en/docs/claude-code)
+[![Codex CLI - first-class](https://img.shields.io/badge/Codex_CLI-first--class-10a37f?style=for-the-badge)](https://developers.openai.com/codex)
 
-<sub>Convention layer (<code>AGENTS.md</code>) is also read by any AGENTS.md-aware tool — Cursor, Windsurf, Copilot…</sub>
+<sub>Convention layer (<code>AGENTS.md</code>) is also read by any AGENTS.md-aware tool - Cursor, Windsurf, Copilot…</sub>
 
 <br>
 
@@ -48,12 +48,12 @@
 Shipping at velocity with AI agents is easy. Shipping in a way that the *next*
 agent (human or AI) opening the repo in six months can still safely modify is
 the hard part. That second part is what the hooks, conventions, and skills here
-automate — not just at session start, but continuously as the repo grows.
+automate - not just at session start, but continuously as the repo grows.
 
 <table>
 <tr><th align="left">Without a stack</th><th align="left">With claude-leverage</th></tr>
 <tr>
-<td>Context dies between sessions — every agent re-learns the repo from scratch.</td>
+<td>Context dies between sessions - every agent re-learns the repo from scratch.</td>
 <td>AIDEV anchors + the <code>context-surface</code> hook surface the right facts at the moment of edit.</td>
 </tr>
 <tr>
@@ -72,21 +72,21 @@ automate — not just at session start, but continuously as the repo grows.
 
 Three properties guide every decision in this repo:
 
-1. **Security by default** — deterministic hooks, no model needed.
-2. **Self-maintaining as the repo grows** — non-blocking nudges surface
+1. **Security by default** - deterministic hooks, no model needed.
+2. **Self-maintaining as the repo grows** - non-blocking nudges surface
    maintenance debt early.
-3. **Cross-tool by design** — same `AGENTS.md`, same `SKILL.md`, same hook
+3. **Cross-tool by design** - same `AGENTS.md`, same `SKILL.md`, same hook
    scripts in Claude Code and Codex. Author once.
 
 ## Who it's for
 
-- **Freelancer on client repos** — you ship features across many client
+- **Freelancer on client repos** - you ship features across many client
   codebases through agents, and each one has to stay safe to hand back. The
   security hooks and `AGENTS.md` conventions travel with you.
-- **Team inheriting a legacy repo** — you've opened a six-month-old codebase
+- **Team inheriting a legacy repo** - you've opened a six-month-old codebase
   with no docs. `/repo-doctor` scores its AI-readiness and names the
   highest-leverage gaps; the bootstrap skills make it navigable fast.
-- **Solo builder shipping at velocity** — you want speed without the repo
+- **Solo builder shipping at velocity** - you want speed without the repo
   rotting into unmaintainable AI-slop. Self-maintenance nudges plus ADR/session
   memory keep intent intact.
 
@@ -101,13 +101,13 @@ Three properties guide every decision in this repo:
 
 Then make the repo AI-ready, top-down:
 
-1. **`/repo-doctor`** — read-only AI-readiness audit. Scores ~20 dimensions
+1. **`/repo-doctor`** - read-only AI-readiness audit. Scores ~20 dimensions
    (Foundation / Why / What / In-code / Hygiene / Sync) and names the gaps that
    matter most.
-2. **Fix the top gaps it reports** — usually `/init-repo` (drop in a root
+2. **Fix the top gaps it reports** - usually `/init-repo` (drop in a root
    `AGENTS.md`), then `/arch-map` and `/glossary-init` for machine-readable
    module metadata and domain terms.
-3. **`/refresh-context-map`** — build the manifest that powers just-in-time
+3. **`/refresh-context-map`** - build the manifest that powers just-in-time
    context surfacing, so the right anchors appear at edit time.
 
 **Starting a fresh repo?** Install, then run `/init-repo` to drop in
@@ -171,7 +171,7 @@ context window %, model name, git branch.
 
 Claude-Code-only (Codex has no statusline). Single Python file, no `jq`
 dependency, works on Windows under Git Bash. Color thresholds: green <60 %,
-yellow 60–84 %, red ≥85 %.
+yellow 60-84 %, red ≥85 %.
 
 ```bash
 # Copy into ~/.claude/ (overwrites only if you have no statusline configured)
@@ -194,20 +194,20 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
 ## What you get
 
 <details>
-<summary><strong>Always-on safety</strong> — hooks, no setup, no model invocation</summary>
+<summary><strong>Always-on safety</strong> - hooks, no setup, no model invocation</summary>
 
-- `block-secrets-precommit` — refuses `git commit` if staged diff contains
+- `block-secrets-precommit` - refuses `git commit` if staged diff contains
   API keys / tokens / private keys (per-line allowlist via marker comment)
-- `block-dangerous-git` — refuses `git push --force`, `--no-verify`,
+- `block-dangerous-git` - refuses `git push --force`, `--no-verify`,
   `git reset --hard` on protected branches
-- `ai-first-nudge` — non-blocking: ≥50 net-new LOC without AIDEV-NOTE on
+- `ai-first-nudge` - non-blocking: ≥50 net-new LOC without AIDEV-NOTE on
   non-test files OR new source-dir without AGENTS.md → one-line suggestion
-- `security-nudge` — non-blocking Stop hook: ≥80 net-new LOC touching
+- `security-nudge` - non-blocking Stop hook: ≥80 net-new LOC touching
   sensitive paths → suggests `/security-review`
-- `stack-freshness` — non-blocking SessionStart: 30+ days since last
+- `stack-freshness` - non-blocking SessionStart: 30+ days since last
   `/stack-check` → one-line reminder via SessionStart `additionalContext`
   (no network)
-- `bare-repo-nudge` — non-blocking SessionStart, two-branch nudge:
+- `bare-repo-nudge` - non-blocking SessionStart, two-branch nudge:
   (A) cwd is not a git repo AND not `$HOME`/`/tmp`/system → reminder
   to `git init` + `/init-repo`; (B) cwd IS a git repo but root has no
   `AGENTS.md` / `CLAUDE.md` AND has a project marker file
@@ -215,7 +215,7 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
   → reminder to `/init-repo` so the convention layer (AIDEV anchors,
   structured logging, …) actually gets loaded. One-per-day per
   cwd/repo-root.
-- `skill-cheatsheet` — non-blocking SessionStart, gated on the repo
+- `skill-cheatsheet` - non-blocking SessionStart, gated on the repo
   having a `claude-leverage:` marker in `AGENTS.md` (i.e., the user
   has actively adopted the stack). Surfaces a compact list of
   high-value skills + triggers once per 14 days per repo, via
@@ -223,12 +223,12 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
   skill-auto-activation gap (`description: |` block scalars where
   the runtime parses only the first line). Override via
   `CLAUDE_LEVERAGE_SKILL_HINT_DAYS` (0 = disabled).
-- `context-surface` — **opt-in** PreToolUse hook on
+- `context-surface` - **opt-in** PreToolUse hook on
   `Read|Edit|Write|MultiEdit`. Reads a pre-built manifest at
   `.claude-leverage-context-map.json` (produced by `scripts/build-context-map.py`,
   or `/refresh-context-map` skill) and emits the AIDEV anchors that
   apply to the file the agent is about to touch via
-  `hookSpecificOutput.additionalContext`. Cuts per-session token tax —
+  `hookSpecificOutput.additionalContext`. Cuts per-session token tax -
   agent no longer has to read every `AGENTS.md` preemptively to catch
   documented gotchas; the right anchors are surfaced at the moment of
   edit. Graceful no-op when manifest is missing. Verbose mode
@@ -239,9 +239,9 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
 </details>
 
 <details>
-<summary><strong>Security review</strong> — skill + dedicated subagent</summary>
+<summary><strong>Security review</strong> - skill + dedicated subagent</summary>
 
-- `/security-review` — audit current diff for OWASP-Top-10-shaped issues +
+- `/security-review` - audit current diff for OWASP-Top-10-shaped issues +
   `package.json` / `requirements.txt` typosquatting heuristic. Read-only
   Sonnet subagent returns Critical / Important / Nice schema with
   `file:line`. No dependency on any other plugin.
@@ -249,39 +249,39 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
 </details>
 
 <details>
-<summary><strong>Repo-maintenance skills</strong> — invoke periodically</summary>
+<summary><strong>Repo-maintenance skills</strong> - invoke periodically</summary>
 
-- `/repo-map` — refresh the architecture mermaid block in README between
+- `/repo-map` - refresh the architecture mermaid block in README between
   idempotent markers; optional dep-graph block via `madge` / `pydeps`
-- `/process-diagram <name>` — sequence/flowchart for a named workflow,
+- `/process-diagram <name>` - sequence/flowchart for a named workflow,
   inserted into target markdown between markers, mmdc-validated
-- `/stack-check` — Claude Code + Codex + plugin + CLI dep versions vs
+- `/stack-check` - Claude Code + Codex + plugin + CLI dep versions vs
   `stack.toml`, plus stale-anchor walk + AGENTS.md sanity audit
-- `/log-structured` — audit non-structured logging, suggest spec-compliant
+- `/log-structured` - audit non-structured logging, suggest spec-compliant
   replacements per the JSON-lines convention
 
 </details>
 
 <details>
-<summary><strong>Setup &amp; handoff skills</strong> — per-project / per-decision</summary>
+<summary><strong>Setup &amp; handoff skills</strong> - per-project / per-decision</summary>
 
-- `/init-repo` — bootstrap a fresh project: AGENTS.md from per-language
+- `/init-repo` - bootstrap a fresh project: AGENTS.md from per-language
   template, `.gitignore` patterns, optional structured-logging starter
-- `/codex-sandbox` — configure per-project `.codex/config.toml` sandbox +
+- `/codex-sandbox` - configure per-project `.codex/config.toml` sandbox +
   approval modes (dev / prod / custom)
-- `/explain-diff` — plain-English 3–5 bullet diff narration in three
+- `/explain-diff` - plain-English 3-5 bullet diff narration in three
   audience modes (`--for pr / review / self`)
-- `/adr-new` — bootstrap a numbered MADR-flavored Architecture Decision
+- `/adr-new` - bootstrap a numbered MADR-flavored Architecture Decision
   Record. Immutable status, captures *why* for the next agent in 6 months
-- `/session-log` — distill the current session into `docs/sessions/`. The
-  continuity layer between sessions — distillate, not transcript
-- `/glossary-init` — bootstrap/extend `GLOSSARY.md` at repo root for
+- `/session-log` - distill the current session into `docs/sessions/`. The
+  continuity layer between sessions - distillate, not transcript
+- `/glossary-init` - bootstrap/extend `GLOSSARY.md` at repo root for
   domain terms specific to *this* repo. Surfaces candidates by identifier
   frequency; never invents definitions (the user types them)
-- `/arch-map` — bootstrap/refresh `architecture.yml` at repo root —
+- `/arch-map` - bootstrap/refresh `architecture.yml` at repo root -
   machine-readable module metadata (role/stability/public_surface/...);
   hand-curated, `--validate` mode for CI
-- `/repo-doctor` — read-only AI-readiness audit. Scores ~20 dimensions
+- `/repo-doctor` - read-only AI-readiness audit. Scores ~20 dimensions
   across **Foundation** (AGENTS.md, CLAUDE.md, per-dir AGENTS.md),
   **Why** (ADRs, session logs), **What** (GLOSSARY.md,
   architecture.yml), **In-code** (AIDEV anchor density, overdue),
@@ -292,7 +292,7 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
   Each gap → concrete fix action. `--score` / `--json` /
   `--fail-on missing|todo|stale` / `--scope foundation|why|what|hygiene|sync|all`
   for CI gating
-- `/refresh-context-map` — rebuild `.claude-leverage-context-map.json`,
+- `/refresh-context-map` - rebuild `.claude-leverage-context-map.json`,
   the manifest powering the `context-surface` PreToolUse hook. Run after
   anchor / per-dir `AGENTS.md` / ADR changes, or after a `git merge`
   (manifest auto-resolves to local via `.gitattributes merge=ours`, but
@@ -301,23 +301,23 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
 </details>
 
 <details>
-<summary><strong>Workflow commands</strong> — Claude Code only</summary>
+<summary><strong>Workflow commands</strong> - Claude Code only</summary>
 
-- `/flaky-test` — delegates to `flaky-test-isolator` subagent for N-run
+- `/flaky-test` - delegates to `flaky-test-isolator` subagent for N-run
   stability analysis
 
 (For commits, the vanilla Claude commit workflow + the
 `block-secrets-precommit` / `block-dangerous-git` hooks already cover
 secret scanning, Conventional Commits style, refusing `.env`, refusing
 `--no-verify`, and refusing force-push. v1.4.4 removed the
-`/commit-smart` slash command — it added a treacherous auto-push to
+`/commit-smart` slash command - it added a treacherous auto-push to
 something that should be opt-in. Just commit with vanilla and push
 explicitly when you want.)
 
 </details>
 
 <details>
-<summary><strong>Conventions</strong> — enforced via documentation + nudges</summary>
+<summary><strong>Conventions</strong> - enforced via documentation + nudges</summary>
 
 - AIDEV-NOTE / AIDEV-TODO / AIDEV-QUESTION anchor comments (with optional
   ISO-8601 deadlines: `AIDEV-TODO(by: 2026-08-01)`)
@@ -385,7 +385,7 @@ sequenceDiagram
 Reading the diagram: explicit user invocations are solid arrows
 (`User -> CC`), automatic hook firings are dashed `Hook -> User`
 returns, subagent delegation is one `Task` round-trip. Nothing in the
-maintenance layer (ADRs, session logs) is auto-fired — the agent
+maintenance layer (ADRs, session logs) is auto-fired - the agent
 recognizes the moment from the trigger-aware skill descriptions and
 the convention documented in `AGENTS.md`.
 
@@ -433,9 +433,9 @@ flowchart LR
 **Does claude-leverage actually pay off?** Controlled A/B benchmark on a real
 client codebase (~30k LOC Python web service). Two trees of the same codebase:
 
-- **BEFORE** — commit predating claude-leverage adoption. No `AGENTS.md`,
+- **BEFORE** - commit predating claude-leverage adoption. No `AGENTS.md`,
   no AIDEV anchors, no per-directory docs, monolithic API surface.
-- **AFTER** — current HEAD with the full in-repo artifact set: root
+- **AFTER** - current HEAD with the full in-repo artifact set: root
   `AGENTS.md`, per-directory `AGENTS.md`, AIDEV anchors throughout,
   ADRs, `GLOSSARY.md`, `architecture.yml`, per-domain router split,
   and the `.claude-leverage-context-map.json` manifest powering the
@@ -457,7 +457,7 @@ task type (structured-logging migration) for cross-model sanity.
 | Mean active runtime (minutes) | 9.8 | 8.6 | **−12.1 %** |
 | Files read before first edit | 22.4 | 18.8 | −16.1 % |
 | Load-bearing AIDEV-NOTE trap caught | 0 / 5 | **5 / 5** | |
-| Cost direction | — | cheaper in **5 / 5** runs | |
+| Cost direction | - | cheaper in **5 / 5** runs | |
 
 Plus the separate Sonnet 4.6 run on a logging-migration task: **−40 % cost**.
 
@@ -468,7 +468,7 @@ does not get cheaper by being lazier**. It gets cheaper by being
 *dramatically* more efficient at orientation, then often spends part of
 the saved budget producing **richer, more convention-aware output**:
 
-- Less searching around — Grep counts drop −40 to −60 % per run, Glob
+- Less searching around - Grep counts drop −40 to −60 % per run, Glob
   often drops to zero. The agent knows where to look because per-
   directory `AGENTS.md` is auto-surfaced by the `context-surface` hook.
 - Fewer files re-read before the first edit (orientation cost ↓ in
@@ -478,7 +478,7 @@ the saved budget producing **richer, more convention-aware output**:
   −9.5 % less.
 - **Wall-clock confirms the cost signal.** With idle-pause time
   filtered out (gaps longer than 60 s ignored), AFTER also completes
-  the task faster on average — mean active runtime 9.8 min BEFORE
+  the task faster on average - mean active runtime 9.8 min BEFORE
   vs 8.6 min AFTER (−12.1 %). The time saving is smaller than the
   cost saving (−26.6 %) because part of the orientation budget gets
   reinvested into richer output, not pocketed.
@@ -494,10 +494,10 @@ AFTER runs, the agent:
   endpoint into the monolithic API file.
 - Used the LRU-cached SQL loader instead of the legacy direct-read form.
 - In one run, additionally updated the API documentation file per the
-  PR recipe documented in the per-directory `AGENTS.md` — a step the
+  PR recipe documented in the per-directory `AGENTS.md` - a step the
   BEFORE agent had no way of knowing about.
 
-The BEFORE agent's code worked. But it worked in the *old style* — no
+The BEFORE agent's code worked. But it worked in the *old style* - no
 awareness of the conventions the rest of the codebase has since adopted.
 The next engineer (human or AI) opening that PR pays the cost later, in
 rework. That cost does not show up in the benchmark; it shows up six
@@ -528,20 +528,20 @@ Methodology, dropped-run notes, and reproducer:
 
 ## How it compares
 
-claude-leverage and `superpowers` solve **different** problems — one is a
+claude-leverage and `superpowers` solve **different** problems - one is a
 guardrail + convention + memory layer, the other is a set of process-discipline
 skills. They're complementary; the table is a positioning aid, not a scoreboard.
 
 | Capability | claude-leverage | superpowers | vanilla CC / Codex |
 |---|:---:|:---:|:---:|
-| Deterministic security hooks (secrets, dangerous git) | ✅ | — | — |
-| Cross-tool: one source for Claude Code **and** Codex | ✅ | Claude only | — |
-| AIDEV anchor + structured-logging conventions | ✅ | — | — |
-| Durable memory (ADRs, session logs) | ✅ | — | — |
-| Self-maintenance nudges (stale anchors, missing AGENTS.md) | ✅ | — | — |
-| Process-discipline skills (TDD, brainstorming, debugging) | — | ✅ | — |
+| Deterministic security hooks (secrets, dangerous git) | ✅ | - | - |
+| Cross-tool: one source for Claude Code **and** Codex | ✅ | Claude only | - |
+| AIDEV anchor + structured-logging conventions | ✅ | - | - |
+| Durable memory (ADRs, session logs) | ✅ | - | - |
+| Self-maintenance nudges (stale anchors, missing AGENTS.md) | ✅ | - | - |
+| Process-discipline skills (TDD, brainstorming, debugging) | - | ✅ | - |
 
-*They solve different problems — run both together.*
+*They solve different problems - run both together.*
 
 ## What's inside
 
@@ -549,7 +549,7 @@ skills. They're complementary; the table is a positioning aid, not a scoreboard.
 |-----------|---------|
 | [`agents/`](agents/) | Claude Code subagents (Markdown + YAML frontmatter) |
 | [`.codex/agents/`](.codex/agents/) | Codex subagents (TOML; auto-generated from `agents/`) |
-| [`skills/`](skills/) | 14 cross-tool skills (`agentskills.io` SKILL.md spec) — adds `/refresh-context-map` in v1.8.0 |
+| [`skills/`](skills/) | 14 cross-tool skills (`agentskills.io` SKILL.md spec) - adds `/refresh-context-map` in v1.8.0 |
 | [`commands/`](commands/) | 1 Claude Code slash command (`/flaky-test`) |
 | [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
 | [`.codex/`](.codex/) | Codex hook template + sandbox/approval defaults |
@@ -572,7 +572,7 @@ Per the [research](docs/specs/research/research_dual_codex_claude.md):
 `CLAUDE.md` natively but its `@<path>` import lets `CLAUDE.md` be a one-line
 redirect to `AGENTS.md`. Hook event vocabularies match between the two tools
 (`PreToolUse`, `PostToolUse`, `SessionStart`, `Stop`), so the same shell
-scripts work for both — only the trigger config differs. Subagents must be
+scripts work for both - only the trigger config differs. Subagents must be
 authored twice (MD+YAML for Claude, TOML for Codex), but `scripts/gen-codex-agents.py`
 keeps them in sync and CI fails on drift.
 
@@ -582,8 +582,8 @@ The full design rationale is in
 ## Honest history
 
 This repo began as a v0.x experiment in routing work across Sonnet/Haiku
-subagents to save tokens. Opus 4.7's prompt caching inverted the economics —
-inline "read large, emit small" became cheaper than per-invocation dispatch — so
+subagents to save tokens. Opus 4.7's prompt caching inverted the economics -
+inline "read large, emit small" became cheaper than per-invocation dispatch - so
 the token-savings thesis stopped paying for itself, and v1.0.0 pivoted to what
 the data still supports: deterministic security hooks, on-demand skills, and
 self-maintaining conventions.
@@ -615,7 +615,7 @@ verification is:
 /skill list                # confirm 14 skills appear
 /agents                    # confirm security-reviewer + flaky-test-isolator
 echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
-# Ask the agent to commit /tmp/test.txt — block-secrets-precommit should refuse.
+# Ask the agent to commit /tmp/test.txt - block-secrets-precommit should refuse.
 ```
 
 </details>
@@ -659,4 +659,4 @@ else { Remove-Item -Force "$env:USERPROFILE\.codex\hooks.json" }
 
 ## License
 
-[MIT](LICENSE) — see also [CONTRIBUTING.md](CONTRIBUTING.md).
+[MIT](LICENSE) - see also [CONTRIBUTING.md](CONTRIBUTING.md).
