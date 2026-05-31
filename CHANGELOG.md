@@ -46,6 +46,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
   ⚠️** (lean target). Bands evaluated largest-first. The stack-check/repo-doctor
   severity asymmetry is deliberate — see ADR 0009.
 
+- **`/session-log` confidentiality guardrail.** Session logs are committed and
+  pushed (sometimes to public repos), but neither the skill nor
+  `docs/sessions/README.md` warned against logging secrets / client names /
+  internal reasoning. Added a Hard rule + a `Confidentiality pass` workflow step
+  + a README note. Notes that `block-secrets-precommit` catches key-shaped
+  secrets but not confidential prose — that judgment is the author's.
+
 ### Known follow-up
 
 - This repo's own root `AGENTS.md` is 18.7 KiB, over the new 8 KiB target.

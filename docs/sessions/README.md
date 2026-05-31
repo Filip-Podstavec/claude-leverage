@@ -20,6 +20,13 @@ decided, what's still open, what should happen next.
 - Link to relevant ADRs (`docs/adr/`), specs (`docs/specs/`), and
   commits. The session log is the *connective tissue* — pointers, not
   encyclopedias.
+- **Confidential by exclusion.** These files are committed and pushed —
+  sometimes to a public repo. Keep secrets, credentials, client names,
+  internal business reasoning, and security details *out*. The
+  `block-secrets-precommit` hook stops key-shaped secrets at commit time,
+  but it can't catch confidential prose — distill the sensitive specific
+  out and keep the decision. Gitignore this directory only as a last
+  resort in a fully public repo (you lose cross-agent continuity if you do).
 
 ## Index
 

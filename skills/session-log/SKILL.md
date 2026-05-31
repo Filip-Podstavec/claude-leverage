@@ -74,17 +74,34 @@ that compress a multi-hour conversation into actionable continuity.
    - Each section filled from step 4. Use `<TODO>` for anything you
      genuinely can't infer; better an honest gap than a fabrication.
 
-6. **Hard cap on length.** If your draft is over 80 lines, reduce. Cut
+6. **Confidentiality pass.** This file gets committed and pushed —
+   sometimes to a public repo. Before writing, scrub anything that
+   shouldn't ship: secrets, credentials, client names, internal business
+   reasoning, security details. Keep the *decision*, drop the sensitive
+   specific ("chose vendor X for pricing reasons" → "chose the payments
+   vendor; rationale in the private tracker"). See the Hard rule below.
+
+7. **Hard cap on length.** If your draft is over 80 lines, reduce. Cut
    the "what was done" bullets to the load-bearing 5–8. Move tactical
    detail into commit messages, ADRs, or specs. The session log is
    *pointers + decisions + next-actions*, not a play-by-play.
 
-7. **Report.** Print the file path and one line:
+8. **Report.** Print the file path and one line:
    > "Next session: start by reading `docs/sessions/<filename>` plus
    > the last 1–2 prior session logs."
 
 ## Hard rules
 
+- **Logs are committed — write for a public reader.** `docs/sessions/` is
+  a tracked, durable artifact that gets pushed, sometimes to a public
+  repo. Never put secrets, credentials, client names, internal business
+  reasoning, or security details in a log. The `block-secrets-precommit`
+  hook catches key-shaped secrets at commit time, but it **cannot** catch
+  confidential *prose* — that judgment is yours. Distill the sensitive
+  specifics out: write "the client" not the name; reference a private
+  ticket by ID rather than pasting its content. Gitignore `docs/sessions/`
+  only as a last resort in a fully public repo where even the distilled
+  narrative shouldn't ship (you lose cross-agent continuity if you do).
 - **Distillate, not transcript.** If the user asks "include the full
   conversation," push back. The full conversation is in Claude
   Code's session history; the journal is for future-agent
