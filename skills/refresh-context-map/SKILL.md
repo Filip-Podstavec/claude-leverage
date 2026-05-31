@@ -50,6 +50,26 @@ from the repo root. The script:
 The PreToolUse hook reads this manifest on every `Read/Edit/Write/MultiEdit`
 and injects a per-file context slice via `hookSpecificOutput.additionalContext`.
 
+## Hard rules
+
+- **Never hand-edit `.claude-leverage-context-map.json`.** It's generated. Edit
+  the source (anchors, per-dir `AGENTS.md`, ADRs) and rebuild. A hand-edited
+  manifest drifts from the tree, and the next rebuild silently overwrites it.
+- **The manifest IS committed — it is not gitignored.** Unusual for a generated
+  artifact, but deliberate: every clone and every session gets a fresh-enough
+  copy with no build step. `.gitattributes` sets `merge=ours` so merge conflicts
+  on it auto-resolve to local — rebuild afterward (see "When to invoke").
+- **Read-only on source.** This skill only ever writes the manifest; it never
+  touches the files it indexes.
+
+## If the rebuild fails
+
+A failed rebuild is safe. If `python` is missing or the script errors, the
+manifest is simply not updated — the PreToolUse hook then reads a stale (or
+absent) manifest and **no-ops gracefully**, surfacing slightly less context. It
+never blocks a tool call. So a failed rebuild degrades the feature; it does not
+break your session. Fix the Python environment and re-run when convenient.
+
 ## Verifying the rebuild
 
 After running, the script prints a summary line:

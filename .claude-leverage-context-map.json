@@ -3,7 +3,7 @@
     "anchor_count": 34,
     "builder_version": "1.8.0",
     "file_count": 20,
-    "generated_at": "2026-05-26T20:14:09+00:00",
+    "generated_at": "2026-05-31T17:30:30+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1
@@ -27,13 +27,13 @@
       "anchors_in_file": [
         {
           "deadline": "2026-08-01",
-          "line": 174,
+          "line": 197,
           "text": "replace the polling loop with webhooks",
           "type": "AIDEV-TODO"
         },
         {
           "deadline": "2026-07-15",
-          "line": 175,
+          "line": 198,
           "text": "is the encoding always UTF-8 here?",
           "type": "AIDEV-QUESTION"
         }
@@ -783,7 +783,7 @@
       "anchors_in_file": [
         {
           "deadline": "2026-08-01",
-          "line": 148,
+          "line": 168,
           "text": "replace the polling loop with webhooks   # preferred",
           "type": "AIDEV-TODO"
         }
