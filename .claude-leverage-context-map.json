@@ -3,7 +3,7 @@
     "anchor_count": 34,
     "builder_version": "1.8.0",
     "file_count": 20,
-    "generated_at": "2026-05-31T17:30:30+00:00",
+    "generated_at": "2026-05-31T19:23:25+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1
@@ -18,7 +18,8 @@
         "docs/adr/0005-structured-discoverability-glossary-and-architecture-yml.md",
         "docs/adr/0006-repo-doctor-skill-discoverability-and-folded-scalar.md",
         "docs/adr/0007-sync-drift-detection-in-repo-doctor.md",
-        "docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md"
+        "docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md",
+        "docs/adr/0009-agents-md-lean-budget-and-size-tiers.md"
       ],
       "agents_md": [
         "AGENTS.md"
@@ -27,13 +28,13 @@
       "anchors_in_file": [
         {
           "deadline": "2026-08-01",
-          "line": 197,
+          "line": 212,
           "text": "replace the polling loop with webhooks",
           "type": "AIDEV-TODO"
         },
         {
           "deadline": "2026-07-15",
-          "line": 198,
+          "line": 213,
           "text": "is the encoding always UTF-8 here?",
           "type": "AIDEV-QUESTION"
         }
@@ -775,7 +776,9 @@
       ]
     },
     "templates/AGENTS.md.example": {
-      "adrs": [],
+      "adrs": [
+        "docs/adr/0009-agents-md-lean-budget-and-size-tiers.md"
+      ],
       "agents_md": [
         "AGENTS.md"
       ],
@@ -783,7 +786,7 @@
       "anchors_in_file": [
         {
           "deadline": "2026-08-01",
-          "line": 168,
+          "line": 193,
           "text": "replace the polling loop with webhooks   # preferred",
           "type": "AIDEV-TODO"
         }

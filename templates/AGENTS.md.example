@@ -40,6 +40,31 @@ order:
 This ordering is progressive disclosure: minimum context at session
 start, deeper docs on demand.
 
+## Keeping this file lean
+
+This file loads into **every** agent session — the most expensive context the
+repo owns. Codex caps the project doc it assembles (root `AGENTS.md` plus any
+merged per-directory ones) at ~32 KiB (`project_doc.max_bytes`) and **silently
+drops** the rest, so bytes past that line are invisible to Codex agents. Treat
+~8 KiB as the working ceiling.
+
+Keep inline only what is **always true and load-bearing** — conventions spec,
+reading order, repo layout, security must-knows. Push topic *depth* into `docs/`
+and link to it (runbooks, full logging kits, ADR rationale, specs, per-language
+minutiae). Phrase each link so the agent knows *when* to open it ("when working
+on the billing ledger, read `docs/runbooks/ledger.md`"), never a bare reference
+it has no reason to follow.
+
+Cross-tool caveat: Claude Code follows `@path` imports in `CLAUDE.md`; Codex
+merges nested `AGENTS.md` files but does **not** auto-follow markdown links —
+and those merged per-dir files spend the same ~32 KiB budget. So keep
+must-always-know rules inline here, not behind a link, and remember every
+per-dir `AGENTS.md` you add draws on the shared budget too.
+
+(This template ships as a menu: keep your stack's language block and delete the
+others, drop the AI-specific section if it doesn't apply — then aim for under
+~8 KiB.)
+
 ## Repo layout
 
 <!-- 5–15 lines max. Top-level dirs only. Add per-directory AGENTS.md inside

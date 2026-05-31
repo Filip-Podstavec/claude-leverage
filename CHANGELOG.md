@@ -25,12 +25,32 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
   explicitly avoiding the heroic big-bang PR. Linked from `README.md` and
   `workflows/README.md`.
 
+- **`Keeping this file lean` convention** in `templates/AGENTS.md.example` and
+  root `AGENTS.md`: AGENTS.md loads every session and Codex silently truncates
+  the assembled project doc past ~32 KiB (`project_doc.max_bytes`), so topic
+  depth belongs in `docs/` behind *when-to-read* links, not always-on. Working
+  target ~8 KiB. Rationale in [ADR 0009](docs/adr/0009-agents-md-lean-budget-and-size-tiers.md).
+
 ### Changed
 
 - **`/refresh-context-map` skill** gained a `Hard rules` section (never
   hand-edit the manifest; the manifest is committed, not gitignored; read-only
   on source) and an `If the rebuild fails` note (a failed rebuild degrades
   gracefully — the hook no-ops on a stale/absent manifest, never blocks).
+- **`/stack-check` AGENTS.md sanity** now reports two size tiers — **warn over
+  8 KiB** (lean target) and **flag over 32 KiB** (Codex hard cap) — instead of
+  only the 32 KiB warning. Per-dir AGENTS.md inherit the two-tier check and the
+  note that they share the same Codex budget.
+- **`/repo-doctor` Dimension 1 (root AGENTS.md)** severity remap: **> 32 KiB is
+  now a hard ❌** (silent Codex data loss, not a style nit) and **> 8 KiB is a
+  ⚠️** (lean target). Bands evaluated largest-first. The stack-check/repo-doctor
+  severity asymmetry is deliberate — see ADR 0009.
+
+### Known follow-up
+
+- This repo's own root `AGENTS.md` is 18.7 KiB, over the new 8 KiB target.
+  Tracked as a deadlined `AIDEV-TODO` for a focused slimming PR rather than
+  bundled here (ADR 0009 records why).
 
 ### Fixed
 

@@ -152,26 +152,38 @@ quiet for the next N days.
    parenthetical text as a date.
 
 6. **Sanity-check AGENTS.md** (if present in cwd or repo root):
-   - File size: warn if > 32 KiB (Codex hard cap; content beyond is
-     silently dropped).
+   - File size, two tiers (report the size either way):
+     - **warn over 8 KiB** — lean target exceeded; an always-loaded file
+       this large dilutes attention. Suggest extracting topic depth to
+       `docs/` behind a when-to-read link.
+     - **flag over 32 KiB** — Codex caps the assembled project doc at
+       `project_doc.max_bytes` (default 32768) and silently drops the rest,
+       so content past that byte is invisible to Codex agents.
+     Both tiers are advisory here and do not stop the timestamp reset (step
+     9). `/repo-doctor` escalates the 32 KiB tier to a hard ❌ — that split
+     is intentional (see ADR 0009): `/stack-check` informs, `/repo-doctor`
+     gates.
    - Broken `@<path>` imports: grep for `^@` lines, verify each
      referenced file exists relative to the importer.
    - Stale file references: extract `path/to/file.ext`-shaped strings
      from the body and check existence (best-effort; lots of false
      positives, so report only the obvious ones — e.g. when AGENTS.md
      mentions `scripts/foo.sh` and `scripts/foo.sh` does not exist).
-   Per-directory AGENTS.md files (`**/AGENTS.md`, depth ≤ 3) get the
-   same size check.
+   Per-directory AGENTS.md files (`**/AGENTS.md`, depth ≤ 3) get the same
+   two-tier size check — and they share the same ~32 KiB Codex budget as the
+   root file, so a large root plus several per-dir files can truncate even
+   when no single file exceeds the cap.
 
    Reported after the anchors section:
 
    ```markdown
    ## AGENTS.md sanity
 
-   - `AGENTS.md` — 4.2 KiB, ok
+   - `AGENTS.md` — 11.3 KiB, **over 8 KiB lean target** (extract topic
+     depth to `docs/` behind a when-to-read link)
    - `src/billing/AGENTS.md` — 1.1 KiB, ok
    - `src/api/AGENTS.md` — **38.4 KiB, over Codex 32 KiB cap** (Codex
-     will silently drop content beyond byte 32768; consider splitting)
+     will silently drop content beyond byte 32768; split it)
    - Broken imports: _none_
    - Possibly stale references: 1 (`scripts/old_runner.sh` mentioned
      but not found)

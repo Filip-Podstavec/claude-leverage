@@ -113,6 +113,21 @@ bench/archive-token-savings-thesis/
 
 ## Maintenance rules
 
+### Keep AGENTS.md lean
+
+This file loads every session, and Codex silently truncates the assembled
+project doc past ~32 KiB (`project_doc.max_bytes`); the working target is
+~8 KiB. Keep always-true load-bearing rules inline; push topic depth to `docs/`
+behind a *when-to-read* link. `/stack-check` warns over 8 KiB and flags over
+32 KiB; `/repo-doctor` Dimension 1 mirrors it (⚠️ over 8 KiB, ❌ over 32 KiB).
+The full convention ships to client repos in `templates/AGENTS.md.example`
+("Keeping this file lean"). See
+[ADR 0009](docs/adr/0009-agents-md-lean-budget-and-size-tiers.md).
+
+<!-- AIDEV-TODO(by: 2026-07-15): this AGENTS.md is 18.7 KiB, over the 8 KiB
+     target. Extract depth (long-form Repo layout, Maintenance rules, Code
+     conventions) into docs/ with when-to-read links, per ADR 0009. -->
+
 ### README / per-dir docs
 
 When you add/remove/rename any agent, command, skill, hook, or top-level dir:
