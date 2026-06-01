@@ -8,6 +8,12 @@ describe how to **wire them together** for real tasks.
 
 ## Available workflows
 
+- [**`onboarding-a-legacy-repo.md`**](onboarding-a-legacy-repo.md) — You just
+  inherited a repo with none of the stack's conventions. How to make it AI-ready
+  **incrementally** (audit with `/repo-doctor`, lay the `/init-repo` foundation,
+  capture vocabulary + module map, then fix logging and add anchors as you touch
+  code) instead of one heroic big-bang PR.
+
 - [**`security-first-feature.md`**](security-first-feature.md) — Shipping
   a new auth / payment / template / route safely with the stack. The
   two explicit skill invocations (`/init-repo` once, `/security-review`

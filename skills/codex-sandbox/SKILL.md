@@ -13,7 +13,7 @@ allowed-tools:
   - Bash(ls:*)
   - Bash(test:*)
   - Bash(git rev-parse:*)
-argument-hint: "[target-dir] [--profile dev|staging|prod|custom] [--noninteractive]"
+argument-hint: "[target-dir] [--profile dev|prod|custom] [--noninteractive]"
 ---
 
 # /codex-sandbox
@@ -58,11 +58,11 @@ mode = "<on-request | on-failure | never>"
 | `prod` | `read-only` | `never` | Production / CI runs. Agent can only read; any write requires running outside the sandbox. |
 | `custom` | (asks) | (asks) | Anything else; skill walks you through each field. |
 
-> Earlier drafts proposed a `staging` profile with "audit logging" — that
-> claim was incorrect (Codex config has no audit-log field). For CI /
-> staging behavior, use `dev` if you want approvals or `prod` if you want
-> the safer read-only sandbox, and pipe Codex's own stderr to your log
-> aggregator if you need an audit trail.
+> There is deliberately no `staging` profile: Codex config exposes no
+> audit-log field, so a "staging" tier would differ from `dev` / `prod` in
+> name only. For CI, use `dev` (keeps approvals) or `prod` (read-only
+> sandbox); pipe Codex's stderr to your log aggregator if you need an audit
+> trail.
 
 Field names below are what Codex currently documents. If the spec
 evolves, this skill will need a refresh — `/stack-check` does not yet

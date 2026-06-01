@@ -395,7 +395,8 @@ actual version check + AIDEV anchor health + AGENTS.md sanity audit
 only fires on explicit invocation.
 
 For deeper walkthroughs see
-[`workflows/security-first-feature.md`](workflows/security-first-feature.md)
+[`workflows/onboarding-a-legacy-repo.md`](workflows/onboarding-a-legacy-repo.md),
+[`workflows/security-first-feature.md`](workflows/security-first-feature.md),
 and [`workflows/maintaining-as-it-grows.md`](workflows/maintaining-as-it-grows.md).
 
 <details>

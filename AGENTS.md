@@ -113,6 +113,21 @@ bench/archive-token-savings-thesis/
 
 ## Maintenance rules
 
+### Keep AGENTS.md lean
+
+This file loads every session, and Codex silently truncates the assembled
+project doc past ~32 KiB (`project_doc.max_bytes`); the working target is
+~8 KiB. Keep always-true load-bearing rules inline; push topic depth to `docs/`
+behind a *when-to-read* link. `/stack-check` warns over 8 KiB and flags over
+32 KiB; `/repo-doctor` Dimension 1 mirrors it (⚠️ over 8 KiB, ❌ over 32 KiB).
+The full convention ships to client repos in `templates/AGENTS.md.example`
+("Keeping this file lean"). See
+[ADR 0009](docs/adr/0009-agents-md-lean-budget-and-size-tiers.md).
+
+<!-- AIDEV-TODO(by: 2026-07-15): this AGENTS.md is 18.7 KiB, over the 8 KiB
+     target. Extract depth (long-form Repo layout, Maintenance rules, Code
+     conventions) into docs/ with when-to-read links, per ADR 0009. -->
+
 ### README / per-dir docs
 
 When you add/remove/rename any agent, command, skill, hook, or top-level dir:
@@ -149,7 +164,27 @@ CI fails if generator output drifts from committed TOML.
 ## Code conventions
 
 These apply to code you ship in this repo AND are the conventions this stack
-documents for other repos (via `templates/AGENTS.md.example` once it lands).
+documents for other repos (via `templates/AGENTS.md.example`).
+
+### Write less, fit in
+
+The north star: the *next* agent should find this code easier to work on than
+you did. More code, more comments, more abstraction usually makes that *harder*.
+Prefer the smallest change that works.
+
+- **Match the surrounding code.** Naming, structure, error handling, comment
+  density, and idioms should look like the rest of the module — new code
+  shouldn't be identifiable as "the AI-written part." Where the existing code is
+  inconsistent, follow this AGENTS.md and the cleanest nearby example rather than
+  copying a one-off.
+- **Comments explain WHY, not WHAT.** The code already says what it does; a
+  comment that restates the line below it is noise that goes stale. Comment the
+  non-obvious — the constraint, the gotcha, the reason for the unusual choice.
+- **No speculative abstraction.** Don't add config, parameters, layers, or
+  "flexible" interfaces for a use case that doesn't exist yet — solve the case in
+  front of you. When a change makes code dead, delete it rather than leaving it
+  "just in case" (git remembers; if the dead code carried an `AIDEV-` anchor,
+  note the removal in the commit message).
 
 ### AIDEV-* anchor comments
 
@@ -165,8 +200,10 @@ one requires an explicit decision in the commit/PR message.
 
 Add anchors at non-obvious decision points (regulatory carve-outs, performance
 workarounds, ordering dependencies, idempotency tricks). Do NOT decorate every
-function — that's clutter. The PostToolUse `ai-first-nudge` hook prints a
-non-blocking suggestion when ≥50 net-new LOC ship without any anchor.
+function — that's clutter, and the same goes for logs: an anchor (or a structured
+log) on every line is the same noise as a comment on every line. The PostToolUse
+`ai-first-nudge` hook prints a non-blocking suggestion when ≥50 net-new LOC ship
+without any anchor.
 
 **Deadlines (optional).** `AIDEV-TODO` and `AIDEV-QUESTION` accept an
 optional ISO-8601 deadline:

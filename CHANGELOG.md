@@ -5,6 +5,68 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] — 2026-05-31
+
+### Added
+
+- **`Write less, fit in` code-convention section** in both
+  `templates/AGENTS.md.example` (the artifact installed into client repos) and
+  the root `AGENTS.md`. Until now every convention the stack documented was
+  additive (add anchors, add logs, add per-dir docs) with no counterweight
+  against AI slop. The new section codifies three subtractive principles —
+  match the surrounding code, comments explain WHY not WHAT, no speculative
+  abstraction — framed under the same north star ("make the next agent's job
+  easier"). The AIDEV-anchor sections now also call out that an anchor (or a
+  structured log) on every line is the same noise as a comment on every line.
+- **`workflows/onboarding-a-legacy-repo.md`** — end-to-end guide for the
+  canonical scenario: an agent inherits a repo with none of the stack's
+  conventions and makes it AI-ready **incrementally** (audit → foundation →
+  vocabulary + module map → opportunistic logging + anchor-as-you-touch),
+  explicitly avoiding the heroic big-bang PR. Linked from `README.md` and
+  `workflows/README.md`.
+
+- **`Keeping this file lean` convention** in `templates/AGENTS.md.example` and
+  root `AGENTS.md`: AGENTS.md loads every session and Codex silently truncates
+  the assembled project doc past ~32 KiB (`project_doc.max_bytes`), so topic
+  depth belongs in `docs/` behind *when-to-read* links, not always-on. Working
+  target ~8 KiB. Rationale in [ADR 0009](docs/adr/0009-agents-md-lean-budget-and-size-tiers.md).
+
+### Changed
+
+- **`/refresh-context-map` skill** gained a `Hard rules` section (never
+  hand-edit the manifest; the manifest is committed, not gitignored; read-only
+  on source) and an `If the rebuild fails` note (a failed rebuild degrades
+  gracefully — the hook no-ops on a stale/absent manifest, never blocks).
+- **`/stack-check` AGENTS.md sanity** now reports two size tiers — **warn over
+  8 KiB** (lean target) and **flag over 32 KiB** (Codex hard cap) — instead of
+  only the 32 KiB warning. Per-dir AGENTS.md inherit the two-tier check and the
+  note that they share the same Codex budget.
+- **`/repo-doctor` Dimension 1 (root AGENTS.md)** severity remap: **> 32 KiB is
+  now a hard ❌** (silent Codex data loss, not a style nit) and **> 8 KiB is a
+  ⚠️** (lean target). Bands evaluated largest-first. The stack-check/repo-doctor
+  severity asymmetry is deliberate — see ADR 0009.
+
+- **`/session-log` confidentiality guardrail.** Session logs are committed and
+  pushed (sometimes to public repos), but neither the skill nor
+  `docs/sessions/README.md` warned against logging secrets / client names /
+  internal reasoning. Added a Hard rule + a `Confidentiality pass` workflow step
+  + a README note. Notes that `block-secrets-precommit` catches key-shaped
+  secrets but not confidential prose — that judgment is the author's.
+
+### Known follow-up
+
+- This repo's own root `AGENTS.md` is 18.7 KiB, over the new 8 KiB target.
+  Tracked as a deadlined `AIDEV-TODO` for a focused slimming PR rather than
+  bundled here (ADR 0009 records why).
+
+### Fixed
+
+- **`/codex-sandbox` `argument-hint`** advertised a `--profile staging` option
+  that does not exist (the body's profile table, picker, and tunables only offer
+  `dev|prod|custom`). Corrected the hint and reworded the "no staging profile"
+  note from changelog-style archaeology to a forward statement that keeps the
+  *why* (Codex config has no audit-log field).
+
 ## [1.8.3] — 2026-05-26
 
 ### Added (diagnostic — still tracking the silent-no-emit bug)

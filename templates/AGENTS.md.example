@@ -40,6 +40,31 @@ order:
 This ordering is progressive disclosure: minimum context at session
 start, deeper docs on demand.
 
+## Keeping this file lean
+
+This file loads into **every** agent session — the most expensive context the
+repo owns. Codex caps the project doc it assembles (root `AGENTS.md` plus any
+merged per-directory ones) at ~32 KiB (`project_doc.max_bytes`) and **silently
+drops** the rest, so bytes past that line are invisible to Codex agents. Treat
+~8 KiB as the working ceiling.
+
+Keep inline only what is **always true and load-bearing** — conventions spec,
+reading order, repo layout, security must-knows. Push topic *depth* into `docs/`
+and link to it (runbooks, full logging kits, ADR rationale, specs, per-language
+minutiae). Phrase each link so the agent knows *when* to open it ("when working
+on the billing ledger, read `docs/runbooks/ledger.md`"), never a bare reference
+it has no reason to follow.
+
+Cross-tool caveat: Claude Code follows `@path` imports in `CLAUDE.md`; Codex
+merges nested `AGENTS.md` files but does **not** auto-follow markdown links —
+and those merged per-dir files spend the same ~32 KiB budget. So keep
+must-always-know rules inline here, not behind a link, and remember every
+per-dir `AGENTS.md` you add draws on the shared budget too.
+
+(This template ships as a menu: keep your stack's language block and delete the
+others, drop the AI-specific section if it doesn't apply — then aim for under
+~8 KiB.)
+
 ## Repo layout
 
 <!-- 5–15 lines max. Top-level dirs only. Add per-directory AGENTS.md inside
@@ -129,6 +154,26 @@ Notes for agents:
 These are the conventions claude-leverage documents and enforces (see the
 `AGENTS.md` of the claude-leverage repo for the full rationale).
 
+### Write less, fit in
+
+The north star: the *next* agent should find this code easier to work on than
+you did. More code, more comments, more abstraction usually makes that *harder*.
+Prefer the smallest change that works.
+
+- **Match the surrounding code.** Naming, structure, error handling, comment
+  density, and idioms should look like the rest of the module — new code
+  shouldn't be identifiable as "the AI-written part." Where the existing code is
+  inconsistent, follow this AGENTS.md and the cleanest nearby example rather than
+  copying a one-off.
+- **Comments explain WHY, not WHAT.** The code already says what it does; a
+  comment that restates the line below it is noise that goes stale. Comment the
+  non-obvious — the constraint, the gotcha, the reason for the unusual choice.
+- **No speculative abstraction.** Don't add config, parameters, layers, or
+  "flexible" interfaces for a use case that doesn't exist yet — solve the case in
+  front of you. When a change makes code dead, delete it rather than leaving it
+  "just in case" (git remembers; if the dead code carried an `AIDEV-` anchor,
+  note the removal in the commit message).
+
 ### AIDEV-* anchor comments
 
 Three grep-able prefixes for load-bearing facts in code:
@@ -153,6 +198,11 @@ Three forms are recognized (pick whichever reads best):
 Free-form notes in the parens (e.g. `AIDEV-TODO(Q3 2026)` or
 `AIDEV-TODO(after migration)`) are **not** parsed as deadlines — that
 anchor falls under age-based tracking instead.
+
+Add anchors at non-obvious decision points (constraints, gotchas, ordering
+dependencies), not on every function. An anchor (or a structured log) on every
+line is the same noise as a comment on every line — load-bearing facts and real
+events only.
 
 The `ai-first-nudge` PostToolUse hook from claude-leverage prints a
 non-blocking suggestion when ≥50 net-new LOC ship in a single file without

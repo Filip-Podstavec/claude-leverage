@@ -141,9 +141,14 @@ Do NOT invoke for:
 
 ### Foundation (3 checks — loaded every session, agent-facing)
 
-1. **`AGENTS.md` (root)** — `test -f AGENTS.md`.
+1. **`AGENTS.md` (root)** — `test -f AGENTS.md`. Evaluate the size bands
+   largest-first (a 40 KiB file is a fail, not a warn):
    - ❌ if missing.
-   - ⚠️ if size > 32 KiB (Codex silently drops content beyond that cap).
+   - ❌ if size > 32 KiB — Codex silently drops content beyond
+     `project_doc.max_bytes` (32768), so part of the file is invisible to
+     Codex agents. This is data loss, not a style nit.
+   - ⚠️ if size > 8 KiB — lean target exceeded; extract topic depth to
+     `docs/` behind a when-to-read link. See ADR 0009.
    - ✅ otherwise. Report size in KiB.
 
 2. **`CLAUDE.md` (root)** — `test -f CLAUDE.md`.
