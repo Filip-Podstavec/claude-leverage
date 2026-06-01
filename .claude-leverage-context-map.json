@@ -3,14 +3,16 @@
     "anchor_count": 34,
     "builder_version": "1.8.0",
     "file_count": 20,
-    "generated_at": "2026-06-01T07:07:10+00:00",
+    "generated_at": "2026-06-01T11:17:26+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1
   },
   "files": {
     "docs/conventions.md": {
-      "adrs": [],
+      "adrs": [
+        "docs/adr/0010-naming-detect-and-conform-over-house-style.md"
+      ],
       "agents_md": [
         "AGENTS.md"
       ],
@@ -18,13 +20,13 @@
       "anchors_in_file": [
         {
           "deadline": "2026-08-01",
-          "line": 47,
+          "line": 86,
           "text": "replace the polling loop with webhooks",
           "type": "AIDEV-TODO"
         },
         {
           "deadline": "2026-07-15",
-          "line": 48,
+          "line": 87,
           "text": "is the encoding always UTF-8 here?",
           "type": "AIDEV-QUESTION"
         }
@@ -767,7 +769,8 @@
     },
     "templates/AGENTS.md.example": {
       "adrs": [
-        "docs/adr/0009-agents-md-lean-budget-and-size-tiers.md"
+        "docs/adr/0009-agents-md-lean-budget-and-size-tiers.md",
+        "docs/adr/0010-naming-detect-and-conform-over-house-style.md"
       ],
       "agents_md": [
         "AGENTS.md"
@@ -776,7 +779,7 @@
       "anchors_in_file": [
         {
           "deadline": "2026-08-01",
-          "line": 193,
+          "line": 200,
           "text": "replace the polling loop with webhooks   # preferred",
           "type": "AIDEV-TODO"
         }

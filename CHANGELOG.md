@@ -5,12 +5,28 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.10.0] — 2026-06-01
+
+### Added
+
+- **`Name to fit in` naming convention** in both `templates/AGENTS.md.example`
+  (the artifact installed into client repos) and the root `AGENTS.md`, with the
+  mechanics in [`docs/conventions.md`](docs/conventions.md) ("Naming") and the
+  rationale in [ADR 0010](docs/adr/0010-naming-detect-and-conform-over-house-style.md).
+  Closes two recurring AI naming failure modes: casing
+  drift (the model imposing its language default `snake_case`/`camelCase` instead
+  of detecting and conforming to the repo's actual style, per kind and per local
+  module) and wrong granularity (names that are too vague — `get()` — or too
+  verbose/leaking — `getting_data_from_mobile()`). Deliberately
+  detect-and-conform, **not** a prescribed house style — a house style would
+  contradict the stack's "fit in" north star and be wrong in most client repos.
 
 ### Changed
 
 - **Slimmed the root `AGENTS.md` from ~19 KiB to ~7.7 KiB** — the focused
-  follow-up the 1.9.0 lean-budget ADR ([0009]) deadlined as an `AIDEV-TODO`.
+  follow-up the 1.9.0 lean-budget ADR
+  ([0009](docs/adr/0009-agents-md-lean-budget-and-size-tiers.md)) deadlined as an
+  `AIDEV-TODO`.
   Always-on load-bearing rules stay inline (mission, reading order, `Write
   less, fit in`, AIDEV anchors, security guardrails, build/test, keep-lean
   rule); topic depth moved behind *when-to-read* links to two new docs:

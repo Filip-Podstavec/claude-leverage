@@ -10,6 +10,45 @@ These conventions apply to code you ship in this repo AND are what the stack
 documents for other repos via
 [`templates/AGENTS.md.example`](../templates/AGENTS.md.example).
 
+## Naming
+
+The inline rule is `Name to fit in` (`AGENTS.md` → "Write less, fit in"). The
+discipline behind it, and why it is detect-and-conform rather than a house style,
+is in [ADR 0010](adr/0010-naming-detect-and-conform-over-house-style.md). The
+mechanics:
+
+**Casing / separator — detect, then conform.** There is no stack-wide "correct"
+style; the correct style is whatever the surrounding code already uses. A model's
+language default (Python → `snake_case`, JS → `camelCase`) is a *prior*, not a
+license to impose. Before naming anything new:
+
+- **Scan first.** Look at sibling files and nearby identifiers of the *same kind*
+  to read off the convention. `grep` a few existing definitions if unsure.
+- **Match per kind.** Casing legitimately differs by kind even within one repo —
+  `PascalCase` types, `camelCase`/`snake_case` functions and locals,
+  `UPPER_SNAKE` constants, `kebab-case` files/CLI flags. Conform each kind to its
+  own neighbours, not to a single global rule.
+- **Local over global.** In a repo with inconsistent history, match the *local
+  module* you're editing over the repo-wide majority — fitting the immediate
+  context beats a "correct" name that clashes with everything around it.
+- **Idioms only if the repo uses them.** Predicate prefixes (`is_`/`has_`/
+  `should_`), hungarian-ish suffixes, `_async` markers, etc. — adopt them only
+  when the surrounding code already does. Don't import a convention the repo
+  never chose.
+
+**Granularity / clarity — universal.** Independent of the repo, a name states
+intent at the right altitude:
+
+- **Too vague** (`get()`, `data()`, `handle()`, `process()`, `tmp`) forces the
+  reader to open the body to learn what it does.
+- **Too verbose / leaking** (`getting_data_from_mobile()`,
+  `user_list_array_final2`) bakes implementation detail or history into the name,
+  so it reads as noise and goes stale when the internals change.
+- **Right** names the *what/why* at the call site's level of abstraction:
+  `fetch_mobile_profile()`, `pending_invoices`, `is_expired`. If a good name is
+  hard to find, the unit is often doing too much — that's a design signal, not a
+  naming problem.
+
 ## Repo layout
 
 ```
