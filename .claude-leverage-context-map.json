@@ -3,24 +3,14 @@
     "anchor_count": 34,
     "builder_version": "1.8.0",
     "file_count": 20,
-    "generated_at": "2026-05-31T19:23:25+00:00",
+    "generated_at": "2026-06-01T07:07:10+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1
   },
   "files": {
-    "AGENTS.md": {
-      "adrs": [
-        "docs/adr/0001-pivot-from-token-savings-to-dev-stack.md",
-        "docs/adr/0002-agents-md-canonical-claude-md-import.md",
-        "docs/adr/0003-no-embedding-rag-hybrid-manifest-and-grep.md",
-        "docs/adr/0004-adr-and-session-log-are-user-invoked-no-auto-fire-hook.md",
-        "docs/adr/0005-structured-discoverability-glossary-and-architecture-yml.md",
-        "docs/adr/0006-repo-doctor-skill-discoverability-and-folded-scalar.md",
-        "docs/adr/0007-sync-drift-detection-in-repo-doctor.md",
-        "docs/adr/0008-smart-context-surfacing-via-pretooluse-hook.md",
-        "docs/adr/0009-agents-md-lean-budget-and-size-tiers.md"
-      ],
+    "docs/conventions.md": {
+      "adrs": [],
       "agents_md": [
         "AGENTS.md"
       ],
@@ -28,13 +18,13 @@
       "anchors_in_file": [
         {
           "deadline": "2026-08-01",
-          "line": 212,
+          "line": 47,
           "text": "replace the polling loop with webhooks",
           "type": "AIDEV-TODO"
         },
         {
           "deadline": "2026-07-15",
-          "line": 213,
+          "line": 48,
           "text": "is the encoding always UTF-8 here?",
           "type": "AIDEV-QUESTION"
         }
