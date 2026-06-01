@@ -165,6 +165,13 @@ Prefer the smallest change that works.
   shouldn't be identifiable as "the AI-written part." Where the existing code is
   inconsistent, follow this AGENTS.md and the cleanest nearby example rather than
   copying a one-off.
+- **Name to fit in.** Detect the convention this repo already uses and conform —
+  don't impose your language default. Casing/separator style is per-repo *and*
+  per-kind (e.g. `camelCase`/`snake_case`/`kebab-case` for names, `PascalCase`
+  for types, `UPPER_SNAKE` for constants); match each kind to its neighbours, and
+  in a mixed repo follow the local module over the global majority. Pitch
+  granularity at the symbol's intent — descriptive without rambling, neither
+  `get()` nor `getting_data_from_mobile()`.
 - **Comments explain WHY, not WHAT.** The code already says what it does; a
   comment that restates the line below it is noise that goes stale. Comment the
   non-obvious — the constraint, the gotcha, the reason for the unusual choice.

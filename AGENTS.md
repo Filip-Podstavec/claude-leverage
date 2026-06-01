@@ -72,6 +72,10 @@ smallest change that works.
   density, and idioms should look like the rest of the module — new code
   shouldn't be identifiable as "the AI-written part." Where existing code is
   inconsistent, follow this AGENTS.md and the cleanest nearby example.
+- **Name to fit in.** Detect the repo's casing/separator style (camelCase /
+  snake_case / kebab-case; PascalCase for types) and follow it — don't impose
+  your language default. Pitch granularity at the function's intent — neither
+  `get()` nor `getting_data_from_mobile()`.
 - **Comments explain WHY, not WHAT.** The code already says what it does; a
   comment restating the line below it is noise that goes stale. Comment the
   non-obvious — the constraint, the gotcha, the reason for the unusual choice.
