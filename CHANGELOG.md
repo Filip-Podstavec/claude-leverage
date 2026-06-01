@@ -5,6 +5,22 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Slimmed the root `AGENTS.md` from ~19 KiB to ~7.7 KiB** — the focused
+  follow-up the 1.9.0 lean-budget ADR ([0009]) deadlined as an `AIDEV-TODO`.
+  Always-on load-bearing rules stay inline (mission, reading order, `Write
+  less, fit in`, AIDEV anchors, security guardrails, build/test, keep-lean
+  rule); topic depth moved behind *when-to-read* links to two new docs:
+  [`docs/conventions.md`](docs/conventions.md) (repo layout, structured-logging
+  spec, per-dir AGENTS.md, `/adr-new` & `/session-log` timing, module org) and
+  [`docs/maintaining.md`](docs/maintaining.md) (README/per-dir sync, plugin
+  marketplace, Codex subagent parity, design specs). The `#write-less-fit-in`
+  anchor (linked from `workflows/onboarding-a-legacy-repo.md`) is preserved.
+  No change to `templates/AGENTS.md.example` or any shipped plugin behavior.
+
 ## [1.9.0] — 2026-05-31
 
 ### Added
