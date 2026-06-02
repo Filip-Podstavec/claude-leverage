@@ -28,12 +28,18 @@ STACK_FRESHNESS = HOOKS_DIR / "stack-freshness.sh"
 BARE_REPO_NUDGE = HOOKS_DIR / "bare-repo-nudge.sh"
 SECURITY_NUDGE = HOOKS_DIR / "security-nudge.sh"
 BLOCK_DANGEROUS_GIT = HOOKS_DIR / "block-dangerous-git.sh"
+BLOCK_SECRETS = HOOKS_DIR / "block-secrets-precommit.sh"
 
 
 BASH = shutil.which("bash")
+GIT = shutil.which("git")
 pytestmark = pytest.mark.skipif(
     BASH is None,
     reason="bash not on PATH — hook behavior tests need a POSIX shell",
+)
+requires_git = pytest.mark.skipif(
+    GIT is None,
+    reason="git not on PATH — secret-scan tests need a real staged diff",
 )
 
 
@@ -581,3 +587,193 @@ def test_block_dangerous_git_blocks_backslash_escape_evasion(tmp_path: Path) -> 
         f"backslash-escape evasion should still block; got exit {result.returncode}, "
         f"stderr={result.stderr!r}"
     )
+
+
+# ---------------------------------------------------------------------------
+# block-secrets-precommit: staged-diff secret scanning
+# ---------------------------------------------------------------------------
+#
+# The hook only inspects `git commit` commands, scans the ADDED lines of the
+# staged diff, honors the `claude-leverage-allow-secret` per-line marker, and
+# redacts the matched value in its preview. These tests build a real git repo
+# in tmp_path so `git diff --cached` has something to read.
+#
+# Fake secrets are split across `+` concatenation (so the literal regex never
+# matches THIS source file) and carry the allowlist marker (so committing this
+# test never trips the very hook it exercises). Their runtime values are
+# contiguous and DO match the scanner.
+
+_FAKE_AWS = "AKIA" + "IOSFODNN7EXAMPLE"  # claude-leverage-allow-secret
+_FAKE_GH_PAT = "ghp_" + "0123456789abcdefghijABCDEFGHIJ012345"  # claude-leverage-allow-secret
+_FAKE_ANTHROPIC = "sk-ant-" + "a" * 95  # claude-leverage-allow-secret
+_FAKE_STRIPE = "sk_live_" + "0123456789abcdefABCDEFGH"  # claude-leverage-allow-secret
+_FAKE_PRIVKEY = "-----BEGIN " + "RSA PRIVATE KEY-----"  # claude-leverage-allow-secret
+_FAKE_PASSWORD = "password = " + '"' + "hunter2hunter2" + '"'  # claude-leverage-allow-secret
+
+
+def _git(cwd: Path, *args: str) -> None:
+    """Run git in cwd with a self-contained identity (no dependence on the
+    dev box's global gitconfig; no GPG signing prompt)."""
+    subprocess.run(
+        [
+            "git",
+            "-c", "user.email=test@example.com",
+            "-c", "user.name=test",
+            "-c", "commit.gpgsign=false",
+            "-c", "init.defaultBranch=main",
+            *args,
+        ],
+        cwd=str(cwd),
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
+def _staged_repo(
+    root: Path,
+    staged: dict[str, str],
+    *,
+    committed: dict[str, str] | None = None,
+) -> Path:
+    """Create a git repo, optionally seed a base commit, then stage `staged`.
+    Returns the repo path (use as the hook's cwd)."""
+    repo = root / "repo"
+    repo.mkdir(parents=True, exist_ok=True)
+    _git(repo, "init", "-q")
+    if committed:
+        for name, body in committed.items():
+            (repo / name).write_text(body)
+            _git(repo, "add", name)
+        _git(repo, "commit", "-qm", "base")
+    for name, body in staged.items():
+        (repo / name).write_text(body)
+        _git(repo, "add", name)
+    return repo
+
+
+# --- Should BLOCK (exit 2): a real secret in an added line ---
+
+
+@requires_git
+@pytest.mark.parametrize(
+    "label, pattern_name, secret",
+    [
+        ("aws", "AWS Access Key", _FAKE_AWS),
+        ("github_pat", "GitHub Personal Access Token", _FAKE_GH_PAT),
+        ("anthropic", "Anthropic API Key", _FAKE_ANTHROPIC),
+        ("stripe", "Stripe Live Key", _FAKE_STRIPE),
+    ],
+)
+def test_block_secrets_blocks_known_token(tmp_path, label, pattern_name, secret) -> None:
+    """A recognized token shape on an added line blocks the commit and names
+    the matched pattern."""
+    repo = _staged_repo(tmp_path, {"config.txt": f'value = "{secret}"\n'})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m 'add config'"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, (
+        f"[{label}] expected block (exit 2), got {result.returncode}; "
+        f"stderr={result.stderr!r}"
+    )
+    assert pattern_name in result.stderr, f"[{label}] stderr should name the pattern"
+
+
+@requires_git
+def test_block_secrets_blocks_private_key_block(tmp_path) -> None:
+    repo = _staged_repo(tmp_path, {"id_rsa": f"{_FAKE_PRIVKEY}\nMIIEow...\n"})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m 'add key'"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, f"stderr={result.stderr!r}"
+
+
+@requires_git
+def test_block_secrets_blocks_generic_password_assignment(tmp_path) -> None:
+    repo = _staged_repo(tmp_path, {"settings.py": f"{_FAKE_PASSWORD}\n"})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m 'settings'"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, f"stderr={result.stderr!r}"
+
+
+# --- Should ALLOW (exit 0) ---
+
+
+@requires_git
+def test_block_secrets_allows_when_nothing_staged(tmp_path) -> None:
+    repo = _staged_repo(tmp_path, {})  # init, no staged changes
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m 'empty'"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, f"stderr={result.stderr!r}"
+
+
+@requires_git
+def test_block_secrets_allows_secret_only_on_removed_line(tmp_path) -> None:
+    """The hook scans only ADDED (`+`) lines. A secret being DELETED must not
+    block — you should be able to commit a fix that removes a leaked key."""
+    repo = _staged_repo(
+        tmp_path,
+        staged={"config.txt": "clean = true\n"},
+        committed={"config.txt": f'leaked = "{_FAKE_AWS}"\nclean = true\n'},
+    )
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m 'remove leak'"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, (
+        f"removing a secret should be allowed; stderr={result.stderr!r}"
+    )
+
+
+@requires_git
+def test_block_secrets_allows_placeholder_interpolations(tmp_path) -> None:
+    """`${VAR}` and `<placeholder>` values are excluded by the generic
+    password pattern's character class and must not trip it."""
+    body = 'password = "${DB_PASSWORD}"\ntoken = "<your-token-here>"\n'
+    repo = _staged_repo(tmp_path, {"config.tpl": body})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m 'template'"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, f"stderr={result.stderr!r}"
+
+
+@requires_git
+def test_block_secrets_allows_line_with_allowlist_marker(tmp_path) -> None:
+    """A line carrying the `claude-leverage-allow-secret` marker is dropped
+    before scanning — the documented per-line escape hatch."""
+    body = f'api_key = "{_FAKE_STRIPE}"  # claude-leverage-allow-secret\n'
+    repo = _staged_repo(tmp_path, {"fixture.txt": body})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m 'add fixture'"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, (
+        f"allowlist marker should permit the commit; stderr={result.stderr!r}"
+    )
+
+
+@requires_git
+def test_block_secrets_ignores_non_commit_git_commands(tmp_path) -> None:
+    """Only `git commit` is inspected; a secret sitting in the index must not
+    block an unrelated `git status`."""
+    repo = _staged_repo(tmp_path, {"config.txt": f'value = "{_FAKE_AWS}"\n'})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git status"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 0, f"stderr={result.stderr!r}"
+
+
+# --- Edge cases ---
+
+
+@requires_git
+def test_block_secrets_catches_quote_evasion_on_commit(tmp_path) -> None:
+    """`git "commit"` normalizes to `git commit` for the keyword check, so the
+    scan still runs and the secret still blocks."""
+    repo = _staged_repo(tmp_path, {"config.txt": f'value = "{_FAKE_AWS}"\n'})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload('git "commit" -m x'),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, f"stderr={result.stderr!r}"
+
+
+@requires_git
+def test_block_secrets_redacts_value_in_preview(tmp_path) -> None:
+    """The blocked-commit message must not echo the full secret back — the
+    preview redacts long tokens so logs/transcripts don't leak it."""
+    repo = _staged_repo(tmp_path, {"config.txt": f'value = "{_FAKE_AWS}"\n'})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m x"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 2
+    assert _FAKE_AWS not in result.stderr, "full secret must be redacted in the preview"

@@ -30,11 +30,16 @@ __pycache__/
 # Benchmark fixtures are generated artifacts: build_fixtures.py is the
 # source of truth and reproduces them. Tracking the generated dirs would
 # (a) treat each as an embedded git repo (they all have inner .git/) and
-# (b) bloat history with regenerable content.
+# (b) bloat history with regenerable content. The _remotes/ bare repos were
+# pruned from tracking (regenerable via build_fixtures.py) — keep them ignored.
 # Post v1.0.0 pivot path:
 bench/archive-token-savings-thesis/fixtures/*
 !bench/archive-token-savings-thesis/fixtures/build_fixtures.py
-!bench/archive-token-savings-thesis/fixtures/_remotes/
+
+# Raw per-run stream-json/session/log transcripts (regenerable by re-running
+# the harness). Pruned for weight; the charts, manifests, and per-agent
+# reports under results/ are kept as the readable evidence.
+bench/archive-token-savings-thesis/results/*/raw/
 
 # Per-run benchmark state (checkpoint dirs, log files).
 bench/archive-token-savings-thesis/harness/_state/

@@ -34,6 +34,28 @@ jobs:
       - name: Run pytest
         run: pytest tests/ -v
 
+  pytest-windows:
+    name: Pytest (Windows / Git Bash)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: pip install pytest
+      # The bash hook scripts only run on Windows via Git Bash (bundled with
+      # the runner); the secret-scan tests also need git. Without these the
+      # behavioral hook tests silently skip on the maintainer's own platform.
+      # Fail if either is absent so a silent skip can't masquerade as a pass.
+      - name: Verify bash and git are on PATH
+        shell: pwsh
+        run: |
+          if (-not (Get-Command bash -ErrorAction SilentlyContinue)) { throw "bash not found on Windows runner" }
+          if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw "git not found on Windows runner" }
+      - name: Run pytest
+        run: pytest tests/ -v
+
   version-sync:
     name: Version sync (plugin.json == marketplace.json)
     runs-on: ubuntu-latest
