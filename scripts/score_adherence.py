@@ -6,6 +6,7 @@ range). Phase 1 covers naming, casing, and structure for Python.
 """
 from __future__ import annotations
 
+import os
 import re
 from collections import Counter
 
@@ -186,4 +187,40 @@ def score_structure(
         "god_files": god_files,
         "functions_total": funcs_total,
         "functions_over": funcs_over,
+    }
+
+
+# extension -> identifier extractor. Phase 1 ships Python only; the dict is the
+# seam where TS/Go packs slot in later without touching the scorers.
+LANG_PACKS = {".py": extract_python_identifiers}
+
+
+def score_files(files: dict[str, str]) -> dict:
+    supported: dict[str, str] = {}
+    skipped_exts: set[str] = set()
+    for path, src in files.items():
+        ext = os.path.splitext(path)[1].lower()
+        if ext in LANG_PACKS:
+            supported[path] = src
+        else:
+            skipped_exts.add(ext or "<none>")
+
+    ids: list[tuple[str, str]] = []
+    for path in sorted(supported):
+        ids.extend(LANG_PACKS[os.path.splitext(path)[1].lower()](supported[path]))
+
+    metrics = {
+        "naming_clarity": score_naming_clarity(ids),
+        "casing_consistency": score_casing_consistency(ids),
+        "structure": score_structure(supported),
+    }
+    overall = round(sum(m["score"] for m in metrics.values()) / len(metrics), 4)
+    return {
+        "overall": overall,
+        "metrics": metrics,
+        "coverage": {
+            "files_scored": len(supported),
+            "files_skipped": len(files) - len(supported),
+            "skipped_extensions": sorted(skipped_exts),
+        },
     }

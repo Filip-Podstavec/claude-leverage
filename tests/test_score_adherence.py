@@ -70,3 +70,16 @@ def test_structure_flags_god_file_and_long_function():
     assert m["functions_over"] == 1          # big() is 71 lines > 60
     assert m["god_files"] == []              # under 400 LOC
     assert 0.0 <= m["score"] <= 1.0
+
+
+def test_score_files_assembles_report_and_coverage():
+    files = {
+        "good.py": "def fetch_user(user_id):\n    return user_id\n",
+        "notes.md": "# not code\n",          # unsupported lang -> skipped
+    }
+    rep = sa.score_files(files)
+    assert set(rep["metrics"]) == {"naming_clarity", "casing_consistency", "structure"}
+    assert rep["coverage"]["files_scored"] == 1
+    assert rep["coverage"]["files_skipped"] == 1
+    assert ".md" in rep["coverage"]["skipped_extensions"]
+    assert 0.0 <= rep["overall"] <= 1.0
