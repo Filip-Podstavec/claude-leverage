@@ -118,3 +118,72 @@ def score_casing_consistency(ids: list[tuple[str, str]]) -> dict:
 
     score = 1.0 if total == 0 else round(1 - deviating / total, 4)
     return {"score": score, "total": total, "deviating": deviating, "by_kind": by_kind}
+
+
+DEFAULT_FILE_LOC_CEILING = 400
+DEFAULT_FUNC_LOC_CEILING = 60
+
+_PY_DEF_LINE = re.compile(r"^([ \t]*)(?:async[ \t]+)?def[ \t]")
+
+
+def _python_function_lengths(src: str) -> list[int]:
+    """Length of each def body block: from the `def` line until indentation
+    returns to <= the def's own indent (or EOF). Blank lines count toward the
+    block only when interior. Heuristic, not a parse -- adequate for scoring."""
+    lines = src.splitlines()
+    lengths: list[int] = []
+    i = 0
+    while i < len(lines):
+        m = _PY_DEF_LINE.match(lines[i])
+        if not m:
+            i += 1
+            continue
+        indent = len(m.group(1).expandtabs())
+        j = i + 1
+        last_content = i
+        while j < len(lines):
+            ln = lines[j]
+            if ln.strip() == "":
+                j += 1
+                continue
+            cur_indent = len(ln[: len(ln) - len(ln.lstrip())].expandtabs())
+            if cur_indent <= indent:
+                break
+            last_content = j
+            j += 1
+        lengths.append(last_content - i + 1)
+        i = j
+    return lengths
+
+
+def _non_blank_loc(src: str) -> int:
+    return sum(1 for ln in src.splitlines() if ln.strip())
+
+
+def score_structure(
+    files: dict[str, str],
+    file_loc_ceiling: int = DEFAULT_FILE_LOC_CEILING,
+    func_loc_ceiling: int = DEFAULT_FUNC_LOC_CEILING,
+) -> dict:
+    god_files: list[str] = []
+    funcs_total = 0
+    funcs_over = 0
+    for path in sorted(files):
+        src = files[path]
+        if _non_blank_loc(src) > file_loc_ceiling:
+            god_files.append(path)
+        for length in _python_function_lengths(src):
+            funcs_total += 1
+            if length > func_loc_ceiling:
+                funcs_over += 1
+
+    n_files = len(files)
+    file_ok = 1.0 if n_files == 0 else 1 - len(god_files) / n_files
+    func_ok = 1.0 if funcs_total == 0 else 1 - funcs_over / funcs_total
+    score = round((file_ok + func_ok) / 2, 4)
+    return {
+        "score": score,
+        "god_files": god_files,
+        "functions_total": funcs_total,
+        "functions_over": funcs_over,
+    }

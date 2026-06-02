@@ -59,3 +59,14 @@ def test_casing_consistency_dominant_style_per_kind():
     assert m["total"] == 5
     assert m["score"] == round(1 - 1 / 5, 4)
     assert m["by_kind"]["function"]["dominant"] == "snake_case"
+
+
+def test_structure_flags_god_file_and_long_function():
+    long_func = "def big():\n" + "\n".join(f"    a{i} = {i}" for i in range(70)) + "\n"
+    short_func = "def small():\n    return 1\n"
+    src = short_func + long_func
+    m = sa.score_structure({"svc.py": src}, file_loc_ceiling=400, func_loc_ceiling=60)
+    assert m["functions_total"] == 2
+    assert m["functions_over"] == 1          # big() is 71 lines > 60
+    assert m["god_files"] == []              # under 400 LOC
+    assert 0.0 <= m["score"] <= 1.0
