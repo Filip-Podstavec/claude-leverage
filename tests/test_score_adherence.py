@@ -42,3 +42,20 @@ def test_naming_clarity_flags_vague_and_short():
     assert m["unclear"] == 3            # data, tmp, q
     assert "data" in m["examples"]
     assert m["score"] == round(1 - 3 / 6, 4)
+
+
+def test_casing_consistency_dominant_style_per_kind():
+    ids = [
+        ("function", "fetch_user"),
+        ("function", "save_order"),
+        ("function", "deleteThing"),   # camelCase outlier among snake funcs
+        ("type", "UserRepo"),
+        ("type", "OrderRepo"),
+    ]
+    m = sa.score_casing_consistency(ids)
+    # functions: 2 snake of 3 -> dominant snake_case, 1 deviates
+    # types: 2 of 2 PascalCase -> 0 deviate
+    assert m["deviating"] == 1
+    assert m["total"] == 5
+    assert m["score"] == round(1 - 1 / 5, 4)
+    assert m["by_kind"]["function"]["dominant"] == "snake_case"

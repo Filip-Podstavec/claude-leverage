@@ -7,6 +7,7 @@ range). Phase 1 covers naming, casing, and structure for Python.
 from __future__ import annotations
 
 import re
+from collections import Counter
 
 _PY_FUNC = re.compile(r"^[ \t]*(?:async[ \t]+)?def[ \t]+([A-Za-z_]\w*)", re.M)
 _PY_CLASS = re.compile(r"^[ \t]*class[ \t]+([A-Za-z_]\w*)", re.M)
@@ -79,3 +80,41 @@ def score_naming_clarity(
         "unclear": unclear,
         "examples": sorted(set(unclear_names))[:10],
     }
+
+
+def classify_casing(name: str) -> str:
+    core = name.strip("_")
+    if not core:
+        return "other"
+    if core.isupper() and ("_" in core or core.isalpha()):
+        return "UPPER_SNAKE"
+    if "_" in core:
+        return "snake_case" if core.islower() else "other"
+    if core[0].isupper() and any(c.islower() for c in core):
+        return "PascalCase"
+    if core[0].islower() and any(c.isupper() for c in core):
+        return "camelCase"
+    if core.islower():
+        return "snake_case"  # single lowercase word is valid snake_case
+    return "other"
+
+
+def score_casing_consistency(ids: list[tuple[str, str]]) -> dict:
+    by_kind_names: dict[str, list[str]] = {}
+    for kind, name in ids:
+        by_kind_names.setdefault(kind, []).append(name)
+
+    total = 0
+    deviating = 0
+    by_kind: dict[str, dict] = {}
+    for kind, names in sorted(by_kind_names.items()):
+        styles = Counter(classify_casing(n) for n in names)
+        # Deterministic dominant: highest count, ties broken by style name.
+        dominant = sorted(styles.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+        dev = sum(1 for n in names if classify_casing(n) != dominant)
+        total += len(names)
+        deviating += dev
+        by_kind[kind] = {"dominant": dominant, "count": len(names), "deviating": dev}
+
+    score = 1.0 if total == 0 else round(1 - deviating / total, 4)
+    return {"score": score, "total": total, "deviating": deviating, "by_kind": by_kind}
