@@ -26,3 +26,19 @@ def test_extract_python_identifiers_kinds():
     assert ("constant", "MAX_RETRIES") in ids
     assert ("variable", "result") in ids
     assert all(name != "os" for _, name in ids)
+
+
+def test_naming_clarity_flags_vague_and_short():
+    ids = [
+        ("variable", "user_id"),     # clear
+        ("function", "fetch_user"),  # clear
+        ("variable", "data"),        # vague
+        ("variable", "tmp"),         # vague
+        ("variable", "x"),           # too short, but loop-ok -> clear
+        ("variable", "q"),           # too short, not loop-ok -> unclear
+    ]
+    m = sa.score_naming_clarity(ids)
+    assert m["total"] == 6
+    assert m["unclear"] == 3            # data, tmp, q
+    assert "data" in m["examples"]
+    assert m["score"] == round(1 - 3 / 6, 4)

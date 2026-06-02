@@ -38,3 +38,44 @@ def extract_python_identifiers(src: str) -> list[tuple[str, str]]:
             continue
         add("variable", name)
     return out
+
+
+DEFAULT_VAGUE = frozenset({
+    "data", "info", "tmp", "temp", "val", "value", "obj", "item", "items",
+    "handle", "process", "do", "dostuff", "stuff", "util", "utils",
+    "helper", "helpers", "manager", "mgr", "foo", "bar", "baz", "thing",
+})
+DEFAULT_MIN_LEN = 3
+DEFAULT_MAX_LEN = 40
+LOOP_VAR_OK = frozenset({"i", "j", "k", "n", "x", "y", "z", "_"})
+
+
+def _is_unclear(name: str, vague: frozenset[str], min_len: int, max_len: int) -> bool:
+    base = name.strip("_").lower()
+    if not base:
+        return False  # pure underscores: intentional throwaway, not "unclear"
+    if base in vague:
+        return True
+    if name in LOOP_VAR_OK:
+        return False
+    if len(base) < min_len or len(base) > max_len:
+        return True
+    return False
+
+
+def score_naming_clarity(
+    ids: list[tuple[str, str]],
+    vague: frozenset[str] = DEFAULT_VAGUE,
+    min_len: int = DEFAULT_MIN_LEN,
+    max_len: int = DEFAULT_MAX_LEN,
+) -> dict:
+    total = len(ids)
+    unclear_names = [name for _, name in ids if _is_unclear(name, vague, min_len, max_len)]
+    unclear = len(unclear_names)
+    score = 1.0 if total == 0 else round(1 - unclear / total, 4)
+    return {
+        "score": score,
+        "total": total,
+        "unclear": unclear,
+        "examples": sorted(set(unclear_names))[:10],
+    }
