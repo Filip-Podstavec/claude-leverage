@@ -13,7 +13,7 @@
 
 [![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.8.3-success)
+![Version](https://img.shields.io/badge/version-1.11.0-success)
 ![Skills](https://img.shields.io/badge/skills-15-8b5cf6)
 ![Hooks](https://img.shields.io/badge/hooks-8-orange)
 ![Subagents](https://img.shields.io/badge/subagents-2-1f6feb)
