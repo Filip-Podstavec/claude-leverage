@@ -161,3 +161,28 @@ def test_cli_diff_mode_works_from_subdirectory(tmp_path):
     assert res.returncode == 0, res.stderr
     rep = json.loads(res.stdout)
     assert rep["coverage"]["files_scored"] == 1
+
+
+def test_clean_tree_scores_higher_than_dirty_tree():
+    clean = {
+        "user_service.py": (
+            "MAX_RETRIES = 3\n"
+            "def fetch_user(user_id):\n    return user_id\n"
+            "def save_order(order_id):\n    return order_id\n"
+            "class UserRepository:\n    pass\n"
+        ),
+    }
+    dirty = {
+        "svc.py": (
+            "maxRetries = 3\n"                 # casing outlier
+            "def data():\n    tmp = 1\n    return tmp\n"   # vague names
+            "def doStuff():\n    x = 2\n    return x\n"     # vague + casing
+            "class user_repo:\n    pass\n"     # wrong type casing
+        ),
+    }
+    clean_overall = sa.score_files(clean)["overall"]
+    dirty_overall = sa.score_files(dirty)["overall"]
+    # The gate checks meaningful SEPARATION (clean clearly beats dirty), not an
+    # arbitrary absolute floor — the floor depends on the metric mix per fixture.
+    assert clean_overall >= 0.9
+    assert clean_overall - dirty_overall >= 0.25
