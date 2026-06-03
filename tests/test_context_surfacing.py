@@ -69,7 +69,7 @@ def test_builder_writes_valid_manifest_on_empty_repo(tmp_path: Path) -> None:
     assert manifest_path.exists()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["_meta"]["schema_version"] == 1
-    assert manifest["_meta"]["builder_version"] == "1.8.0"
+    assert manifest["_meta"]["builder_version"] == "1.9.0"
     assert manifest["_meta"]["generator"] == "scripts/build-context-map.py"
     assert manifest["files"] == {}
     assert manifest["_meta"]["anchor_count"] == 0
@@ -533,3 +533,34 @@ def test_hook_skips_on_schema_version_mismatch(tmp_path: Path) -> None:
     result = _run_hook(_read_payload(str(tmp_path / "src/x.py")), cwd=tmp_path)
     assert result.returncode == 0
     assert result.stdout.strip() == ""
+
+
+# ---------------------------------------------------------------------------
+# conventions.yml folded into _meta.conventions (builder v1.9.0)
+# ---------------------------------------------------------------------------
+
+
+def test_builder_includes_meta_conventions_when_present(tmp_path: Path) -> None:
+    _init_repo_with_files(tmp_path, {
+        "conventions.yml": (
+            "naming:\n  casing:\n    functions: snake_case\n"
+            "  vague_denylist:\n    - data\n"
+            "structure:\n  roots:\n    \"scripts/\": \"scripts root\"\n"
+            "consistency:\n  - \"Hooks must fail-open.\"\n"
+        ),
+        "scripts/x.py": "# AIDEV-NOTE: anchor so the file lands in the manifest\nx = 1\n",
+    })
+    _run_builder(tmp_path)
+    manifest = json.loads((tmp_path / ".claude-leverage-context-map.json").read_text(encoding="utf-8"))
+    conv = manifest["_meta"]["conventions"]
+    assert conv["casing"]["functions"] == "snake_case"
+    assert "data" in conv["vague_denylist"]
+    assert conv["structure_roots"]["scripts/"] == "scripts root"
+    assert conv["consistency"] == ["Hooks must fail-open."]
+
+
+def test_builder_omits_conventions_when_absent(tmp_path: Path) -> None:
+    _init_repo_with_files(tmp_path, {"scripts/x.py": "# AIDEV-NOTE: a\nx = 1\n"})
+    _run_builder(tmp_path)
+    manifest = json.loads((tmp_path / ".claude-leverage-context-map.json").read_text(encoding="utf-8"))
+    assert "conventions" not in manifest["_meta"]

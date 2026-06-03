@@ -25,8 +25,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from conventions import parse_conventions
+except Exception:
+    def parse_conventions(_text):  # graceful: no conventions support
+        return None
+
 SCHEMA_VERSION = 1
-BUILDER_VERSION = "1.8.0"  # bump on schema or anchor-extraction semantic changes
+# 1.9.0: fold conventions.yml into _meta.conventions; --check drift is expected until the manifest is regenerated + committed
+BUILDER_VERSION = "1.9.0"  # bump on schema or anchor-extraction semantic changes
 MANIFEST_NAME = ".claude-leverage-context-map.json"
 GENERATOR = "scripts/build-context-map.py"
 
@@ -224,18 +232,26 @@ def build(repo_root: Path) -> dict:
         )
         entry["adrs"] = [adr_rel for adr_rel, body in adrs if path_re.search(body)]
 
-    return {
-        "_meta": {
-            "schema_version": SCHEMA_VERSION,
-            "builder_version": BUILDER_VERSION,
-            "generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
-            "generator": GENERATOR,
-            "file_count": file_count,
-            "anchor_count": total_anchors,
-            "repo_root": ".",
-        },
-        "files": files_map,
+    conv_path = repo_root / "conventions.yml"
+    conventions = None
+    if conv_path.is_file():
+        try:
+            conventions = parse_conventions(conv_path.read_text(encoding="utf-8", errors="replace"))
+        except OSError:
+            conventions = None
+
+    meta = {
+        "schema_version": SCHEMA_VERSION,
+        "builder_version": BUILDER_VERSION,
+        "generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
+        "generator": GENERATOR,
+        "file_count": file_count,
+        "anchor_count": total_anchors,
+        "repo_root": ".",
     }
+    if conventions:
+        meta["conventions"] = conventions
+    return {"_meta": meta, "files": files_map}
 
 
 def _atomic_write(path: Path, content: str) -> None:
