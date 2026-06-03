@@ -6,9 +6,14 @@ range). Phase 1 covers naming, casing, and structure for Python.
 """
 from __future__ import annotations
 
+import argparse
+import json
 import os
 import re
+import subprocess
+import sys
 from collections import Counter
+from pathlib import Path
 
 _PY_FUNC = re.compile(r"^[ \t]*(?:async[ \t]+)?def[ \t]+([A-Za-z_]\w*)", re.M)
 _PY_CLASS = re.compile(r"^[ \t]*class[ \t]+([A-Za-z_]\w*)", re.M)
@@ -224,3 +229,55 @@ def score_files(files: dict[str, str]) -> dict:
             "skipped_extensions": sorted(skipped_exts),
         },
     }
+
+
+def _read(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def collect_repo(root: str) -> dict[str, str]:
+    base = Path(root)
+    out: dict[str, str] = {}
+    for ext in LANG_PACKS:
+        for p in base.rglob(f"*{ext}"):
+            parts = set(p.parts)
+            if parts & {".git", "node_modules", "__pycache__", "dist", "build", "target"}:
+                continue
+            out[str(p.relative_to(base))] = _read(p)
+    return out
+
+
+def collect_diff(git_range: str) -> dict[str, str]:
+    res = subprocess.run(
+        ["git", "diff", "--name-only", git_range],
+        capture_output=True, text=True,
+    )
+    if res.returncode != 0:
+        raise SystemExit(f"git diff failed: {res.stderr.strip()}")
+    out: dict[str, str] = {}
+    for name in res.stdout.splitlines():
+        ext = os.path.splitext(name)[1].lower()
+        if ext in LANG_PACKS and Path(name).exists():
+            out[name] = _read(Path(name))
+    return out
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description="Deterministic convention-adherence scorer.")
+    mode = ap.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--repo", metavar="PATH", help="score the whole tree at PATH")
+    mode.add_argument("--diff", metavar="GITRANGE", help="score files changed in a git range")
+    args = ap.parse_args(argv)
+
+    files = collect_repo(args.repo) if args.repo else collect_diff(args.diff)
+    report = score_files(files)
+    json.dump(report, sys.stdout, indent=2, sort_keys=True)
+    sys.stdout.write("\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

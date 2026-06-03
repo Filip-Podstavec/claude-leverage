@@ -1,6 +1,12 @@
 from __future__ import annotations
 import importlib.util
+import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 _spec = importlib.util.spec_from_file_location(
@@ -83,3 +89,38 @@ def test_score_files_assembles_report_and_coverage():
     assert rep["coverage"]["files_skipped"] == 1
     assert ".md" in rep["coverage"]["skipped_extensions"]
     assert 0.0 <= rep["overall"] <= 1.0
+
+
+GIT = shutil.which("git")
+requires_git = pytest.mark.skipif(GIT is None, reason="git not on PATH")
+
+
+def _run_cli(*args, cwd):
+    return subprocess.run(
+        [sys.executable, str(REPO_ROOT / "scripts" / "score_adherence.py"), *args],
+        cwd=str(cwd), capture_output=True, text=True,
+    )
+
+
+def test_cli_repo_mode_emits_json(tmp_path):
+    (tmp_path / "a.py").write_text("def fetch_user(uid):\n    return uid\n")
+    res = _run_cli("--repo", str(tmp_path), cwd=tmp_path)
+    assert res.returncode == 0, res.stderr
+    rep = json.loads(res.stdout)
+    assert rep["coverage"]["files_scored"] == 1
+
+
+@requires_git
+def test_cli_diff_mode_scores_changed_files(tmp_path):
+    def git(*a):
+        subprocess.run(["git", "-c", "user.email=t@t.t", "-c", "user.name=t", *a],
+                       cwd=str(tmp_path), check=True, capture_output=True, text=True)
+    git("init", "-q")
+    (tmp_path / "base.py").write_text("def fetch_user(uid):\n    return uid\n")
+    git("add", "."); git("commit", "-qm", "base")
+    (tmp_path / "change.py").write_text("def data():\n    tmp = 1\n    return tmp\n")
+    git("add", ".")
+    res = _run_cli("--diff", "HEAD", cwd=tmp_path)
+    assert res.returncode == 0, res.stderr
+    rep = json.loads(res.stdout)
+    assert rep["coverage"]["files_scored"] == 1
