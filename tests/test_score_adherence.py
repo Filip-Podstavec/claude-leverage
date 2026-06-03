@@ -124,3 +124,40 @@ def test_cli_diff_mode_scores_changed_files(tmp_path):
     assert res.returncode == 0, res.stderr
     rep = json.loads(res.stdout)
     assert rep["coverage"]["files_scored"] == 1
+
+
+def test_structure_counts_body_of_multiline_signature_function():
+    body = "\n".join(f"    a{i} = {i}" for i in range(70))
+    src = "def big(\n    arg_one,\n    arg_two,\n):\n" + body + "\n"
+    m = sa.score_structure({"svc.py": src}, func_loc_ceiling=60)
+    assert m["functions_total"] == 1
+    assert m["functions_over"] == 1   # 70-line body flagged despite the wrapped signature
+
+
+def test_structure_counts_nested_functions():
+    src = (
+        "def outer():\n"
+        "    def inner():\n"
+        "        return 1\n"
+        "    return inner\n"
+    )
+    m = sa.score_structure({"svc.py": src})
+    assert m["functions_total"] == 2   # outer and inner both counted
+
+
+@requires_git
+def test_cli_diff_mode_works_from_subdirectory(tmp_path):
+    def git(*a):
+        subprocess.run(["git", "-c", "user.email=t@t.t", "-c", "user.name=t", *a],
+                       cwd=str(tmp_path), check=True, capture_output=True, text=True)
+    git("init", "-q")
+    sub = tmp_path / "pkg"
+    sub.mkdir()
+    (sub / "base.py").write_text("def fetch_user(uid):\n    return uid\n")
+    git("add", "."); git("commit", "-qm", "base")
+    (sub / "change.py").write_text("def data():\n    tmp = 1\n    return tmp\n")
+    git("add", ".")
+    res = _run_cli("--diff", "HEAD", cwd=sub)   # invoked from the subdir, not the root
+    assert res.returncode == 0, res.stderr
+    rep = json.loads(res.stdout)
+    assert rep["coverage"]["files_scored"] == 1

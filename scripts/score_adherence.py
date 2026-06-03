@@ -19,6 +19,9 @@ _PY_FUNC = re.compile(r"^[ \t]*(?:async[ \t]+)?def[ \t]+([A-Za-z_]\w*)", re.M)
 _PY_CLASS = re.compile(r"^[ \t]*class[ \t]+([A-Za-z_]\w*)", re.M)
 _PY_CONST = re.compile(r"^([A-Z][A-Z0-9_]*)[ \t]*[:=]", re.M)
 _PY_VAR = re.compile(r"^[ \t]*([a-z_]\w*)[ \t]*(?::[^=]+)?=(?!=)", re.M)
+# AIDEV-NOTE: these regexes are a column-0 / first-target SAMPLING heuristic,
+# not an AST parse: _PY_CONST ignores indented constants, _PY_VAR takes only the
+# first assignment target. Deliberate for cheap scoring -- don't "fix" into noise.
 
 
 def extract_python_identifiers(src: str) -> list[tuple[str, str]]:
@@ -133,9 +136,10 @@ _PY_DEF_LINE = re.compile(r"^([ \t]*)(?:async[ \t]+)?def[ \t]")
 
 
 def _python_function_lengths(src: str) -> list[int]:
-    """Length of each def body block: from the `def` line until indentation
-    returns to <= the def's own indent (or EOF). Blank lines count toward the
-    block only when interior. Heuristic, not a parse -- adequate for scoring."""
+    """Length of each def block: from the `def` line through the last body line
+    whose indent exceeds the def's. Nested defs are counted independently (the
+    outer's span still includes them). Heuristic, not an AST: signature end is
+    found by paren-balance, adequate for scoring."""
     lines = src.splitlines()
     lengths: list[int] = []
     i = 0
@@ -145,8 +149,18 @@ def _python_function_lengths(src: str) -> list[int]:
             i += 1
             continue
         indent = len(m.group(1).expandtabs())
-        j = i + 1
-        last_content = i
+        # Skip a (possibly multi-line) signature: advance until parens balance
+        # and the line ends with ':'. For a single-line `def f():` this stops
+        # on the def line itself.
+        sig_end = i
+        depth = 0
+        while sig_end < len(lines):
+            depth += lines[sig_end].count("(") - lines[sig_end].count(")")
+            if depth <= 0 and lines[sig_end].rstrip().endswith(":"):
+                break
+            sig_end += 1
+        j = sig_end + 1
+        last_content = sig_end
         while j < len(lines):
             ln = lines[j]
             if ln.strip() == "":
@@ -158,7 +172,7 @@ def _python_function_lengths(src: str) -> list[int]:
             last_content = j
             j += 1
         lengths.append(last_content - i + 1)
-        i = j
+        i += 1  # advance one line (not past the block) so nested defs are seen
     return lengths
 
 
@@ -251,17 +265,24 @@ def collect_repo(root: str) -> dict[str, str]:
 
 
 def collect_diff(git_range: str) -> dict[str, str]:
+    root_res = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True,
+    )
+    if root_res.returncode != 0:
+        raise SystemExit(f"not a git repo: {root_res.stderr.strip()}")
+    root = Path(root_res.stdout.strip())
     res = subprocess.run(
-        ["git", "diff", "--name-only", git_range],
-        capture_output=True, text=True,
+        ["git", "diff", "--name-only", git_range], capture_output=True, text=True,
     )
     if res.returncode != 0:
         raise SystemExit(f"git diff failed: {res.stderr.strip()}")
     out: dict[str, str] = {}
     for name in res.stdout.splitlines():
+        # git reports paths relative to the repo root regardless of CWD.
         ext = os.path.splitext(name)[1].lower()
-        if ext in LANG_PACKS and Path(name).exists():
-            out[name] = _read(Path(name))
+        p = root / name
+        if ext in LANG_PACKS and p.exists():
+            out[name] = _read(p)
     return out
 
 
