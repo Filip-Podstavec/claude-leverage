@@ -129,7 +129,25 @@ current session) to pick up all 15 skills and 2 subagents.
 
 ### Codex CLI
 
-Codex has no plugin marketplace, so installation is via a script:
+Two ways to use the stack with Codex — they're complementary, not either/or.
+
+**A. Plugin marketplace (skills + hooks).** Codex now has a plugin marketplace;
+add this repo as a marketplace source and install it from `/plugins`:
+
+```bash
+npm i -g @openai/codex        # one time
+```
+Then in a Codex session, open `/plugins`, add the marketplace from GitHub
+shorthand `Filip-Podstavec/claude-leverage`, open the `claude-leverage` plugin,
+and select **Install plugin**.
+
+This delivers the **skills** and the **security/nudge hooks** (Codex sets
+`CLAUDE_PLUGIN_ROOT` for compatibility, so the same `hooks/hooks.json` works).
+It does **not** deliver the subagents or the `/flaky-test` command — Codex
+plugins don't load those — nor the global `@AGENTS.md` import. For the full
+stack, use option B.
+
+**B. Install script (full stack: + subagents + global AGENTS.md import).**
 
 ```bash
 # 1. Install Codex CLI itself (one time)

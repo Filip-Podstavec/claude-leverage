@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # install-codex.sh — Install the claude-leverage stack into Codex CLI.
 #
-# Codex has no plugin marketplace, so this script is the equivalent of
-# `/plugin install` for Codex:
+# Codex's plugin marketplace delivers skills + hooks, but not subagents, the
+# global @AGENTS.md import, or slash commands. This script is the full-stack
+# install for Codex — the equivalent of `/plugin install` plus those extras:
 #   1. Resolves __CLAUDE_LEVERAGE_DIR__ in .codex/hooks.json to this repo's
 #      absolute path and writes the resolved file to ~/.codex/hooks.json
 #      (creating a backup of any existing file).
