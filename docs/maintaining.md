@@ -24,9 +24,17 @@ When you change version or hook configuration:
 1. Bump `version` in BOTH `.claude-plugin/plugin.json` and
    `.claude-plugin/marketplace.json`. They must match — CI fails on drift via
    `scripts/check_version_sync.py`.
-2. Hook scripts use `${CLAUDE_PLUGIN_ROOT}/scripts/hooks/...` in `hooks/hooks.json`.
-   Never `~` or `$HOME`.
-3. `.codex/hooks.json` is a template using `__CLAUDE_LEVERAGE_DIR__` placeholder.
+2. Regenerate the Codex plugin artifacts from the Claude source:
+   ```bash
+   python scripts/gen-codex-plugin.py
+   ```
+   This rewrites `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`.
+   CI (`codex-plugin-parity`) and `smoke-plugin.sh` fail if they drift. Never
+   hand-edit the generated files — change `.claude-plugin/` and regenerate.
+3. Hook scripts use `${CLAUDE_PLUGIN_ROOT}/scripts/hooks/...` in `hooks/hooks.json`.
+   Never `~` or `$HOME`. Codex sets `CLAUDE_PLUGIN_ROOT` for compatibility, so
+   the same file works in both tools.
+4. `.codex/hooks.json` is a template using `__CLAUDE_LEVERAGE_DIR__` placeholder.
    `scripts/install-codex.sh` resolves it at install time when writing to
    `~/.codex/hooks.json`.
 
@@ -48,6 +56,7 @@ pytest tests/ -v                          # plugin integrity + frontmatter tests
 python scripts/check_version_sync.py       # plugin.json == marketplace.json
 shellcheck scripts/hooks/*.sh              # CI runs this; install locally to match
 python scripts/gen-codex-agents.py --check # ensure .codex/agents/*.toml matches agents/
+python scripts/gen-codex-plugin.py --check # ensure .codex-plugin/ + .agents/ match Claude manifest
 bash scripts/smoke-plugin.sh               # single-shot pre-push: all of the above + install-codex e2e
 ```
 
