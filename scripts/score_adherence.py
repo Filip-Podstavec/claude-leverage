@@ -209,6 +209,30 @@ def score_structure(
     }
 
 
+_CASING_KEY = {"function": "functions", "type": "types", "constant": "constants"}
+
+
+def flag_blob_violations(blob, casing=None, denylist=None):
+    """Flag identifiers in an edit BLOB that violate naming conventions: a
+    denylisted/built-in vague name, or a casing that clearly disagrees with the
+    declared per-kind casing. Scores only the blob, so it reflects what the edit
+    introduces (not the whole file's history). Python-only. Returns a list of
+    {name, kind, reason}."""
+    casing = casing or {}
+    vague = DEFAULT_VAGUE | frozenset(denylist or ())
+    flags = []
+    for kind, name in extract_python_identifiers(blob):
+        if _is_unclear(name, vague, DEFAULT_MIN_LEN, DEFAULT_MAX_LEN):
+            flags.append({"name": name, "kind": kind, "reason": "vague"})
+            continue
+        want = casing.get(_CASING_KEY.get(kind, ""))
+        if want:
+            cc = classify_casing(name)
+            if cc != "other" and cc != want:
+                flags.append({"name": name, "kind": kind, "reason": f"casing!={want}"})
+    return flags
+
+
 # extension -> identifier extractor. Phase 1 ships Python only; the dict is the
 # seam where TS/Go packs slot in later without touching the scorers.
 LANG_PACKS = {".py": extract_python_identifiers}

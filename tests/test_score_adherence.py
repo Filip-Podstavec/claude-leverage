@@ -163,6 +163,27 @@ def test_cli_diff_mode_works_from_subdirectory(tmp_path):
     assert rep["coverage"]["files_scored"] == 1
 
 
+def test_flag_blob_violations_flags_new_vague_and_casing():
+    blob = (
+        "def fetch_user(uid):\n"
+        "    result = uid\n"
+        "    return result\n"
+        "def DoThing():\n"
+        "    return 1\n"
+    )
+    flags = sa.flag_blob_violations(blob, casing={"functions": "snake_case"},
+                                    denylist=["result"])
+    names = {f["name"] for f in flags}
+    assert "result" in names
+    assert "DoThing" in names
+    assert "fetch_user" not in names
+
+
+def test_flag_blob_violations_clean_blob_is_empty():
+    blob = "def fetch_user(uid):\n    return uid\n"
+    assert sa.flag_blob_violations(blob, casing={"functions": "snake_case"}) == []
+
+
 def test_clean_tree_scores_higher_than_dirty_tree():
     clean = {
         "user_service.py": (
