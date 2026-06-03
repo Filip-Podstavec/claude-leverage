@@ -14,7 +14,7 @@
 [![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Version](https://img.shields.io/badge/version-1.8.3-success)
-![Skills](https://img.shields.io/badge/skills-14-8b5cf6)
+![Skills](https://img.shields.io/badge/skills-15-8b5cf6)
 ![Hooks](https://img.shields.io/badge/hooks-8-orange)
 ![Subagents](https://img.shields.io/badge/subagents-2-1f6feb)
 
@@ -125,7 +125,7 @@ Full install (including Codex CLI) is below.
 ```
 
 That's it. **Restart Claude Code** (or run `/skill list` and `/agents` in a
-current session) to pick up all 14 skills and 2 subagents.
+current session) to pick up all 15 skills and 2 subagents.
 
 ### Codex CLI
 
@@ -153,7 +153,7 @@ pwsh scripts/install-codex.ps1        # Windows PowerShell
 2. Appends `@<repo-path>/AGENTS.md` to `~/.codex/AGENTS.md` so the canonical
    guidance loads on every Codex session.
 3. Copies `.codex/agents/*.toml` to `~/.codex/agents/`.
-4. Copies all 14 skills to `~/.agents/skills/claude-leverage/` so they work
+4. Copies all 15 skills to `~/.agents/skills/claude-leverage/` so they work
    in Codex sessions exactly as in Claude Code.
 
 **Idempotent**: re-running detects existing install via marker comments and
@@ -614,7 +614,7 @@ verification is:
 
 ```
 /plugin install claude-leverage@filip-podstavec
-/skill list                # confirm 14 skills appear
+/skill list                # confirm 15 skills appear
 /agents                    # confirm security-reviewer + flaky-test-isolator
 echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
 # Ask the agent to commit /tmp/test.txt - block-secrets-precommit should refuse.
