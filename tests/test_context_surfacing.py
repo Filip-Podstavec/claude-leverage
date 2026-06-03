@@ -624,3 +624,22 @@ def test_hook_surfaces_conventions_even_without_anchor_entry(tmp_path: Path) -> 
     proc = _run_hook(_read_payload(str(tmp_path / "src" / "app.py")), cwd=tmp_path)
     assert "Conventions (this repo):" in proc.stdout
     assert "No bare except." in proc.stdout
+
+
+@hook_pytestmark
+def test_hook_conventions_truncation_marker(tmp_path: Path) -> None:
+    long_rule = "x" * 400
+    _init_repo_with_files(tmp_path, {
+        "conventions.yml": (
+            "naming:\n  casing:\n    functions: snake_case\n"
+            f"consistency:\n  - \"{long_rule}\"\n"
+        ),
+        "scripts/thing.py": "x = 1\n",
+    })
+    _run_builder(tmp_path)
+    proc = _run_hook(
+        _read_payload(str(tmp_path / "scripts" / "thing.py")),
+        cwd=tmp_path,
+        extra_env={"CLAUDE_LEVERAGE_CTX_MAX_CHARS": "120"},
+    )
+    assert "(conventions truncated; cap=120)" in proc.stdout

@@ -48,3 +48,14 @@ def test_match_role_longest_prefix():
     assert conv.match_role("scripts/hooks/context-surface.sh", roots) == "hook scripts"
     assert conv.match_role("scripts/build.py", roots) == "scripts root"
     assert conv.match_role("docs/x.md", roots) is None
+
+
+def test_minimal_parser_handles_lists_without_pyyaml(monkeypatch):
+    # Force the fallback path (simulate PyYAML absent) and assert the FULL
+    # profile, including the block-list fields the bug dropped.
+    monkeypatch.setattr(conv, "_yaml", None)
+    prof = conv.parse_conventions(SAMPLE)
+    assert prof["casing"]["functions"] == "snake_case"
+    assert prof["vague_denylist"] == ["data", "result"]
+    assert len(prof["consistency"]) == 2
+    assert prof["structure_roots"]["skills/"] == "one SKILL.md per dir"

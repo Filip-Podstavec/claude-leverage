@@ -35,50 +35,60 @@ def _unquote(s: str) -> str:
 
 
 def _minimal_parse(text: str):
+    """Indentation block-YAML parser for the documented schema. Decides each
+    key's container type (map vs list) lazily from its first child line, so
+    `key:` followed by `- item` becomes a list, not an empty map."""
     root: dict = {}
-    stack = [(-1, root)]
+    stack = [(-1, root)]          # (indent, container)
+    pending = None                # (parent_dict, key, indent) awaiting first child
     for raw in text.splitlines():
         line = _strip_comment(raw)
         if not line.strip():
             continue
         indent = len(line) - len(line.lstrip(" "))
         body = line.strip()
+
+        if pending is not None:
+            p_dict, p_key, p_indent = pending
+            if indent > p_indent:
+                container = [] if body.startswith("- ") else {}
+                p_dict[p_key] = container
+                stack.append((p_indent, container))
+            else:
+                p_dict[p_key] = {}   # key with no children
+            pending = None
+
         while stack and indent <= stack[-1][0]:
             stack.pop()
         parent = stack[-1][1]
+
         if body.startswith("- "):
             if isinstance(parent, list):
                 parent.append(_unquote(body[2:]))
             continue
         if body.endswith(":"):
             key = _unquote(body[:-1])
-            child: dict = {}
             if isinstance(parent, dict):
-                parent[key] = child
-            stack.append((indent, child))
-        else:
-            depth_q = ""
-            split_at = -1
-            for i, ch in enumerate(body):
-                if depth_q:
-                    if ch == depth_q:
-                        depth_q = ""
-                elif ch in ('"', "'"):
-                    depth_q = ch
-                elif ch == ":":
-                    split_at = i
-                    break
-            if split_at < 0:
-                continue
-            key = _unquote(body[:split_at])
-            val_raw = body[split_at + 1:].strip()
-            if val_raw == "":
-                child_list: list = []
-                if isinstance(parent, dict):
-                    parent[key] = child_list
-                stack.append((indent, child_list))
-            elif isinstance(parent, dict):
-                parent[key] = _unquote(val_raw)
+                pending = (parent, key, indent)
+            continue
+        # key: value — find the ':' separating key from value, respecting quotes
+        depth_q = ""
+        split_at = -1
+        for i, ch in enumerate(body):
+            if depth_q:
+                if ch == depth_q:
+                    depth_q = ""
+            elif ch in ('"', "'"):
+                depth_q = ch
+            elif ch == ":":
+                split_at = i
+                break
+        if split_at < 0:
+            continue
+        key = _unquote(body[:split_at])
+        val_raw = body[split_at + 1:].strip()
+        if isinstance(parent, dict):
+            parent[key] = _unquote(val_raw) if val_raw else {}
     return root
 
 
@@ -113,6 +123,7 @@ def parse_conventions(text: str):
         return None
 
 
+# AIDEV-NOTE: canonical longest-prefix role match; the context-surface hook mirrors this inline (can't import across the bash heredoc boundary).
 def match_role(file_rel: str, roots: dict):
     """Longest-prefix match of file_rel against the structure.roots keys."""
     best_key = None
