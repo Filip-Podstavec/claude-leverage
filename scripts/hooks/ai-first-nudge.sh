@@ -52,7 +52,8 @@ NUDGE_DIR="${CLAUDE_LEVERAGE_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/cl
 TODAY=$(date +%Y%m%d 2>/dev/null || printf '00000000')
 FILE_NUDGE_FILE="$NUDGE_DIR/session-nudges-$TODAY.txt"
 DIR_NUDGE_FILE="$NUDGE_DIR/dir-agents-nudges-$TODAY.txt"
-touch "$FILE_NUDGE_FILE" "$DIR_NUDGE_FILE" 2>/dev/null || exit 0
+CONV_NUDGE_FILE="$NUDGE_DIR/conv-nudges-$TODAY.txt"
+touch "$FILE_NUDGE_FILE" "$DIR_NUDGE_FILE" "$CONV_NUDGE_FILE" 2>/dev/null || exit 0
 
 # Read hook input from stdin and pull the tool + file path.
 read_stdin
@@ -206,7 +207,81 @@ per_dir_agents_md_nudge() {
   printf '%s\n' "$parent_canon" >> "$DIR_NUDGE_FILE" 2>/dev/null || true
 }
 
+convention_violation_nudge() {
+  case "$file_path" in *.py) ;; *) return 0 ;; esac
+
+  local parent probe repo_root
+  parent=$(dirname "$file_path")
+  probe="$parent"
+  while [ ! -d "$probe" ] && [ "$probe" != "/" ] && [ "$probe" != "." ]; do
+    probe=$(dirname "$probe")
+  done
+  [ -d "$probe" ] || return 0
+  repo_root=$(git -C "$probe" rev-parse --show-toplevel 2>/dev/null) || return 0
+  [ -n "$repo_root" ] || return 0
+  [ -f "$repo_root/conventions.yml" ] || return 0
+
+  local py_bin
+  py_bin=$(command -v python3 || command -v python || true)
+  [ -n "$py_bin" ] || return 0
+
+  local blob=""
+  case "$tool" in
+    Write) blob=$(get_field '.tool_input.content' 2>/dev/null || true) ;;
+    Edit)  blob=$(get_field '.tool_input.new_string' 2>/dev/null || true) ;;
+    MultiEdit)
+      blob=$(printf '%s' "$JSON_INPUT" | "$py_bin" -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    e = (d.get("tool_input", {}) or {}).get("edits", []) or []
+    print("\n".join(x.get("new_string", "") for x in e if isinstance(x, dict)))
+except Exception:
+    pass' 2>/dev/null || true) ;;
+  esac
+  [ -n "$blob" ] || return 0
+
+  if grep -Fxq "$file_path" "$CONV_NUDGE_FILE" 2>/dev/null; then
+    return 0
+  fi
+
+  local scripts_dir names
+  scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+  # AIDEV-NOTE: blob is passed via BLOB_DATA env var, not stdin, because
+  # `printf ... | python - <<'PY'` is ambiguous: bash resolves the heredoc as
+  # the script source and the pipe as stdin, but Python then reads stdin as
+  # empty. Env var sidesteps the conflict cleanly.
+  names=$(SCRIPTS_DIR="$scripts_dir" CONV_PATH="$repo_root/conventions.yml" BLOB_DATA="$blob" \
+    "$py_bin" - <<'PY' 2>/dev/null || true
+import os, sys
+sys.path.insert(0, os.environ["SCRIPTS_DIR"])
+try:
+    from conventions import parse_conventions
+    from score_adherence import flag_blob_violations
+except Exception:
+    sys.exit(0)
+try:
+    text = open(os.environ["CONV_PATH"], encoding="utf-8", errors="replace").read()
+except OSError:
+    sys.exit(0)
+prof = parse_conventions(text) or {}
+flags = flag_blob_violations(os.environ.get("BLOB_DATA", ""), casing=prof.get("casing"), denylist=prof.get("vague_denylist"))
+names = sorted({f["name"] for f in flags})
+if names:
+    print(",".join(names))
+PY
+)
+  [ -n "$names" ] || return 0
+
+  local short_path
+  short_path=$(printf '%s' "$file_path" | sed "s|^$HOME|~|")
+  printf '(claude-leverage: %s introduces names that drift from conventions.yml — %s; prefer intent-revealing, repo-cased names)\n' \
+    "$short_path" "$names" >&2
+  printf '%s\n' "$file_path" >> "$CONV_NUDGE_FILE" 2>/dev/null || true
+}
+
 per_dir_agents_md_nudge
+convention_violation_nudge
 
 # ----------------------------------------------------------------------
 # Check 2: missing AIDEV-NOTE on large diffs (original logic)

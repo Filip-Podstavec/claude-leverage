@@ -777,3 +777,50 @@ def test_block_secrets_redacts_value_in_preview(tmp_path) -> None:
                        cwd=repo, state_dir=tmp_path / "_state")
     assert result.returncode == 2
     assert _FAKE_AWS not in result.stderr, "full secret must be redacted in the preview"
+
+
+# ---------------------------------------------------------------------------
+# ai-first-nudge: convention violation advisory nudge (Phase 2b Task 2)
+# ---------------------------------------------------------------------------
+
+
+@requires_git
+def test_nudge_fires_on_convention_violation_in_edit(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"; repo.mkdir()
+    _git(repo, "init", "-q")
+    (repo / "conventions.yml").write_text(
+        "naming:\n  casing:\n    functions: snake_case\n"
+        "  vague_denylist:\n    - result\n", encoding="utf-8")
+    payload = {"tool_name": "Edit", "tool_input": {
+        "file_path": str(repo / "svc.py"),
+        "new_string": "def DoThing():\n    result = 1\n    return result\n"}}
+    res = _run_hook(AI_FIRST_NUDGE, payload, cwd=repo, state_dir=tmp_path / "_state")
+    assert res.returncode == 0, res.stderr
+    assert "conventions.yml" in res.stderr
+    assert ("DoThing" in res.stderr) or ("result" in res.stderr)
+
+
+@requires_git
+def test_nudge_silent_on_clean_edit(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"; repo.mkdir()
+    _git(repo, "init", "-q")
+    (repo / "conventions.yml").write_text(
+        "naming:\n  casing:\n    functions: snake_case\n", encoding="utf-8")
+    payload = {"tool_name": "Edit", "tool_input": {
+        "file_path": str(repo / "svc.py"),
+        "new_string": "def fetch_user(uid):\n    return uid\n"}}
+    res = _run_hook(AI_FIRST_NUDGE, payload, cwd=repo, state_dir=tmp_path / "_state")
+    assert res.returncode == 0, res.stderr
+    assert "conventions.yml" not in res.stderr
+
+
+@requires_git
+def test_nudge_silent_when_no_conventions_file(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"; repo.mkdir()
+    _git(repo, "init", "-q")
+    payload = {"tool_name": "Edit", "tool_input": {
+        "file_path": str(repo / "svc.py"),
+        "new_string": "def DoThing():\n    result = 1\n    return result\n"}}
+    res = _run_hook(AI_FIRST_NUDGE, payload, cwd=repo, state_dir=tmp_path / "_state")
+    assert res.returncode == 0, res.stderr
+    assert "conventions.yml" not in res.stderr
