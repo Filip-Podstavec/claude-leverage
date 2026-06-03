@@ -560,6 +560,7 @@ skills. They're complementary; the table is a positioning aid, not a scoreboard.
 | [`assets/`](assets/) | README banner + static image assets |
 | [`claude-md-snippets/`](claude-md-snippets/) | Opt-in CLAUDE.md / AGENTS.md routing rules (2 ship by default; installable via `/init-repo`) |
 | [`templates/`](templates/) | Per-language AGENTS.md example + structured-logging starter kits (4 languages) |
+| [`conventions.yml`](conventions.yml) | Per-repo conventions profile (naming casing, vague-name denylist, dir roles, house rules) - surfaced to agents pre-edit by the `context-surface` hook |
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records (numbered, immutable; 4 seed ADRs + template) |
 | [`docs/sessions/`](docs/sessions/) | Distilled session logs (template + 1 demo log) |
 | [`docs/specs/`](docs/specs/) | Design specs (the v1.0 pivot package + research) |

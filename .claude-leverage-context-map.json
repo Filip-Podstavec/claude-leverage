@@ -1,9 +1,34 @@
 {
   "_meta": {
-    "anchor_count": 34,
-    "builder_version": "1.8.0",
-    "file_count": 20,
-    "generated_at": "2026-06-01T11:17:26+00:00",
+    "anchor_count": 35,
+    "builder_version": "1.9.0",
+    "conventions": {
+      "casing": {
+        "constants": "UPPER_SNAKE",
+        "functions": "snake_case",
+        "types": "PascalCase"
+      },
+      "consistency": [
+        "Hooks fail-open: exit 0 (never block) when jq/python/git is absent.",
+        "AIDEV anchors: all-caps prefix, <=120 chars; don't remove without noting it in the commit.",
+        "AGENTS.md stays lean (~8 KiB working target; 32 KiB hard cap for Codex)."
+      ],
+      "structure_roots": {
+        "scripts/": "stdlib-only Python helpers + installers",
+        "scripts/hooks/": "shell hooks shared by Claude Code + Codex; fail-open (exit 0) on missing parser/git; never edit the plugin-root-substituted absolute paths",
+        "skills/": "one SKILL.md per dir (agentskills.io spec)",
+        "tests/": "pytest; hook tests skip cleanly without bash"
+      },
+      "vague_denylist": [
+        "data",
+        "tmp",
+        "result",
+        "handle",
+        "process"
+      ]
+    },
+    "file_count": 21,
+    "generated_at": "2026-06-03T07:31:59+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1
@@ -108,31 +133,37 @@
           "line": 136,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/score_adherence.py",
+          "line": 22,
+          "text": "these regexes are a column-0 / first-target SAMPLING heuristic,",
+          "type": "AIDEV-NOTE"
         }
       ],
       "anchors_in_file": [
         {
-          "line": 33,
+          "line": 41,
           "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
           "type": "AIDEV-NOTE"
         },
         {
-          "line": 34,
+          "line": 42,
           "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
           "type": "AIDEV-QUESTION"
         },
         {
-          "line": 101,
+          "line": 109,
           "text": "real anchor\\n\"}`, and prose",
           "type": "AIDEV-NOTE"
         },
         {
-          "line": 102,
+          "line": 110,
           "text": "...\" inside docstrings.",
           "type": "AIDEV-NOTE"
         },
         {
-          "line": 174,
+          "line": 182,
           "text": "skip the manifest itself \u2014 its own JSON literals",
           "type": "AIDEV-NOTE"
         }
@@ -146,31 +177,31 @@
       "anchors_in_dir": [
         {
           "file": "scripts/build-context-map.py",
-          "line": 33,
+          "line": 41,
           "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 34,
+          "line": 42,
           "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
           "type": "AIDEV-QUESTION"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 101,
+          "line": 109,
           "text": "real anchor\\n\"}`, and prose",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 102,
+          "line": 110,
           "text": "...\" inside docstrings.",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 174,
+          "line": 182,
           "text": "skip the manifest itself \u2014 its own JSON literals",
           "type": "AIDEV-NOTE"
         },
@@ -184,6 +215,12 @@
           "file": "scripts/install-codex.sh",
           "line": 136,
           "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/score_adherence.py",
+          "line": 22,
+          "text": "these regexes are a column-0 / first-target SAMPLING heuristic,",
           "type": "AIDEV-NOTE"
         }
       ],
@@ -649,31 +686,31 @@
       "anchors_in_dir": [
         {
           "file": "scripts/build-context-map.py",
-          "line": 33,
+          "line": 41,
           "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 34,
+          "line": 42,
           "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
           "type": "AIDEV-QUESTION"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 101,
+          "line": 109,
           "text": "real anchor\\n\"}`, and prose",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 102,
+          "line": 110,
           "text": "...\" inside docstrings.",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 174,
+          "line": 182,
           "text": "skip the manifest itself \u2014 its own JSON literals",
           "type": "AIDEV-NOTE"
         },
@@ -694,6 +731,12 @@
           "line": 136,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/score_adherence.py",
+          "line": 22,
+          "text": "these regexes are a column-0 / first-target SAMPLING heuristic,",
+          "type": "AIDEV-NOTE"
         }
       ],
       "anchors_in_file": [
@@ -712,31 +755,31 @@
       "anchors_in_dir": [
         {
           "file": "scripts/build-context-map.py",
-          "line": 33,
+          "line": 41,
           "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 34,
+          "line": 42,
           "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
           "type": "AIDEV-QUESTION"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 101,
+          "line": 109,
           "text": "real anchor\\n\"}`, and prose",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 102,
+          "line": 110,
           "text": "...\" inside docstrings.",
           "type": "AIDEV-NOTE"
         },
         {
           "file": "scripts/build-context-map.py",
-          "line": 174,
+          "line": 182,
           "text": "skip the manifest itself \u2014 its own JSON literals",
           "type": "AIDEV-NOTE"
         },
@@ -757,12 +800,87 @@
           "line": 44,
           "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
           "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/score_adherence.py",
+          "line": 22,
+          "text": "these regexes are a column-0 / first-target SAMPLING heuristic,",
+          "type": "AIDEV-NOTE"
         }
       ],
       "anchors_in_file": [
         {
           "line": 136,
           "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/score_adherence.py": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 41,
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 42,
+          "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
+          "type": "AIDEV-QUESTION"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 109,
+          "text": "real anchor\\n\"}`, and prose",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 110,
+          "text": "...\" inside docstrings.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 182,
+          "text": "skip the manifest itself \u2014 its own JSON literals",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 39,
+          "text": "model id mapping. The Codex CLI accepts model strings; pick",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 137,
+          "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.ps1",
+          "line": 44,
+          "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 136,
+          "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 22,
+          "text": "these regexes are a column-0 / first-target SAMPLING heuristic,",
           "type": "AIDEV-NOTE"
         }
       ]
