@@ -1,8 +1,0 @@
-{
-  "pass": true,
-  "reasons": [
-    "OK commits_added=1",
-    "OK subject: 'feat(calc): add multiply and divide operations'",
-    "OK files_changed=3 >= 2"
-  ]
-}

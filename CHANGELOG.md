@@ -5,6 +5,27 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] — 2026-06-03
+
+### Added
+
+- **Conventions steering** — a repo's `conventions.yml` (per-kind casing, a
+  vague-name denylist, directory roles, and divergent house rules the model
+  cannot infer) is surfaced to agents **before they edit a source file**, via the
+  `context-surface` hook. New **`/conventions-init`** skill (15th) drafts it;
+  `ai-first-nudge` warns on casing/vague drift an edit introduces. Design in
+  [the spec](docs/specs/2026-06-03-conventions-steering-phase2-design.md).
+- **Adherence scorer** — `scripts/score_adherence.py`, a deterministic
+  naming/casing/structure scorer (`--repo` / `--diff`), usable as a hygiene
+  signal. `bench/conventions-eval/` documents the full-repo A/B quality protocol.
+- Behavioral tests for `block-secrets-precommit`; a **`windows-latest` CI job** so
+  the bash hook tests run on Windows instead of silently skipping.
+
+### Changed
+
+- Pruned the archived token-savings benchmark (raw transcripts + regenerable git
+  fixtures; 16 → 4.3 MB), keeping the documentary evidence.
+
 ## [1.10.0] — 2026-06-01
 
 ### Added

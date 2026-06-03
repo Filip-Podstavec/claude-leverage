@@ -180,43 +180,68 @@ if schema != 1:
     sys.stderr.write(f"[ctx-py] schema mismatch: schema={schema}\n")
     sys.exit(0)
 
+conv = (manifest.get("_meta", {}) or {}).get("conventions")
+
 entry = manifest.get("files", {}).get(file_rel)
 if not entry:
     sys.stderr.write(f"[ctx-py] file_rel not in manifest.files (file_rel={file_rel!r}, n_files={len(manifest.get('files',{}))})\n")
-    sys.exit(0)
 
 parts = ["[claude-leverage:context-surface]"]
-anchors_in_file = entry.get("anchors_in_file") or []
-if anchors_in_file:
-    parts.append(f"AIDEV anchors in {file_rel}:")
-    for a in anchors_in_file:
-        kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
-        deadline = f"(by:{a['deadline']})" if a.get("deadline") else ""
-        parts.append(f"  L{a['line']} {kind}{deadline}: {a.get('text','')}")
+if entry:
+    anchors_in_file = entry.get("anchors_in_file") or []
+    if anchors_in_file:
+        parts.append(f"AIDEV anchors in {file_rel}:")
+        for a in anchors_in_file:
+            kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
+            deadline = f"(by:{a['deadline']})" if a.get("deadline") else ""
+            parts.append(f"  L{a['line']} {kind}{deadline}: {a.get('text','')}")
 
-anchors_in_dir = entry.get("anchors_in_dir") or []
-if anchors_in_dir:
-    parts.append("")
-    parts.append("Anchors in same directory:")
-    shown = anchors_in_dir[:max_siblings]
-    for a in shown:
-        kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
-        parts.append(f"  {a.get('file','?')}:{a.get('line','?')} {kind}: {a.get('text','')}")
-    if len(anchors_in_dir) > max_siblings:
-        parts.append(f"  (+{len(anchors_in_dir) - max_siblings} more — see manifest)")
+    anchors_in_dir = entry.get("anchors_in_dir") or []
+    if anchors_in_dir:
+        parts.append("")
+        parts.append("Anchors in same directory:")
+        shown = anchors_in_dir[:max_siblings]
+        for a in shown:
+            kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
+            parts.append(f"  {a.get('file','?')}:{a.get('line','?')} {kind}: {a.get('text','')}")
+        if len(anchors_in_dir) > max_siblings:
+            parts.append(f"  (+{len(anchors_in_dir) - max_siblings} more — see manifest)")
 
-if verbose:
-    agents_md = entry.get("agents_md") or []
-    if agents_md:
-        parts.append("")
-        parts.append("For project conventions, see (Read on demand):")
-        parts.append(f"  {', '.join(agents_md)}")
-    adrs = entry.get("adrs") or []
-    if adrs:
-        parts.append("")
-        parts.append("Related ADRs:")
-        for a in adrs:
-            parts.append(f"  {a}")
+    if verbose:
+        agents_md = entry.get("agents_md") or []
+        if agents_md:
+            parts.append("")
+            parts.append("For project conventions, see (Read on demand):")
+            parts.append(f"  {', '.join(agents_md)}")
+        adrs = entry.get("adrs") or []
+        if adrs:
+            parts.append("")
+            parts.append("Related ADRs:")
+            for a in adrs:
+                parts.append(f"  {a}")
+
+SRC_EXTS = {".py"}
+ext = os.path.splitext(file_rel)[1].lower()
+if conv and ext in SRC_EXTS:
+    cparts = ["", "Conventions (this repo):"]
+    casing = conv.get("casing") or {}
+    if casing:
+        cparts.append("  casing: " + " ".join(f"{k}={v}" for k, v in casing.items()))
+    deny = conv.get("vague_denylist") or []
+    if deny:
+        cparts.append("  avoid vague names: " + ", ".join(deny[:8]))
+    rules = conv.get("consistency") or []
+    if rules:
+        cparts.append("  house rules: " + "; ".join(rules[:4]))
+    roots = conv.get("structure_roots") or {}
+    best = None
+    for k in roots:
+        if file_rel.startswith(k) and (best is None or len(k) > len(best)):
+            best = k
+    if best is not None:
+        cparts.append(f"  this dir: {roots[best]}")
+    if len(cparts) > 2:
+        parts.extend(cparts)
 
 if len(parts) <= 1:
     sys.stderr.write("[ctx-py] all-empty entry, suppressing\n")
@@ -224,7 +249,10 @@ if len(parts) <= 1:
 
 out = "\n".join(parts)
 if len(out) > max_chars:
-    out = out[: max_chars - 50].rstrip() + f"\n... (truncated; cap={max_chars})"
+    if "Conventions (this repo):" in out:
+        out = out[: max_chars - 50].rstrip() + f"\n... (conventions truncated; cap={max_chars})"
+    else:
+        out = out[: max_chars - 50].rstrip() + f"\n... (truncated; cap={max_chars})"
 
 print(json.dumps({
     "hookSpecificOutput": {
@@ -274,48 +302,72 @@ schema = meta.get("schema_version", 1)
 if schema != 1:
     sys.exit(0)
 
+conv = (manifest.get("_meta", {}) or {}).get("conventions")
+
 entry = manifest.get("files", {}).get(file_rel)
-if not entry:
-    sys.exit(0)
 
 parts = ["[claude-leverage:context-surface]"]
 
-anchors_in_file = entry.get("anchors_in_file") or []
-if anchors_in_file:
-    parts.append(f"AIDEV anchors in {file_rel}:")
-    for a in anchors_in_file:
-        kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
-        deadline = f"(by:{a['deadline']})" if a.get("deadline") else ""
-        parts.append(f"  L{a['line']} {kind}{deadline}: {a.get('text','')}")
+if entry:
+    anchors_in_file = entry.get("anchors_in_file") or []
+    if anchors_in_file:
+        parts.append(f"AIDEV anchors in {file_rel}:")
+        for a in anchors_in_file:
+            kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
+            deadline = f"(by:{a['deadline']})" if a.get("deadline") else ""
+            parts.append(f"  L{a['line']} {kind}{deadline}: {a.get('text','')}")
 
-anchors_in_dir = entry.get("anchors_in_dir") or []
-if anchors_in_dir:
-    parts.append("")
-    parts.append("Anchors in same directory:")
-    shown = anchors_in_dir[:max_siblings]
-    for a in shown:
-        kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
-        parts.append(f"  {a.get('file','?')}:{a.get('line','?')} {kind}: {a.get('text','')}")
-    if len(anchors_in_dir) > max_siblings:
-        parts.append(f"  (+{len(anchors_in_dir) - max_siblings} more — see manifest)")
-
-# AGENTS.md and ADR refs gated behind VERBOSE because Run-3 showed that
-# even surfacing "see X" is wasted tax when the task has no specific
-# trap. The anchor sections above carry the load-bearing trap-catch
-# value; refs are supplementary.
-if verbose:
-    agents_md = entry.get("agents_md") or []
-    if agents_md:
+    anchors_in_dir = entry.get("anchors_in_dir") or []
+    if anchors_in_dir:
         parts.append("")
-        parts.append("For project conventions, see (Read on demand):")
-        parts.append(f"  {', '.join(agents_md)}")
+        parts.append("Anchors in same directory:")
+        shown = anchors_in_dir[:max_siblings]
+        for a in shown:
+            kind = a.get("type", "AIDEV-NOTE").replace("AIDEV-", "")
+            parts.append(f"  {a.get('file','?')}:{a.get('line','?')} {kind}: {a.get('text','')}")
+        if len(anchors_in_dir) > max_siblings:
+            parts.append(f"  (+{len(anchors_in_dir) - max_siblings} more — see manifest)")
 
-    adrs = entry.get("adrs") or []
-    if adrs:
-        parts.append("")
-        parts.append("Related ADRs:")
-        for a in adrs:
-            parts.append(f"  {a}")
+    # AGENTS.md and ADR refs gated behind VERBOSE because Run-3 showed that
+    # even surfacing "see X" is wasted tax when the task has no specific
+    # trap. The anchor sections above carry the load-bearing trap-catch
+    # value; refs are supplementary.
+    if verbose:
+        agents_md = entry.get("agents_md") or []
+        if agents_md:
+            parts.append("")
+            parts.append("For project conventions, see (Read on demand):")
+            parts.append(f"  {', '.join(agents_md)}")
+
+        adrs = entry.get("adrs") or []
+        if adrs:
+            parts.append("")
+            parts.append("Related ADRs:")
+            for a in adrs:
+                parts.append(f"  {a}")
+
+SRC_EXTS = {".py"}
+ext = os.path.splitext(file_rel)[1].lower()
+if conv and ext in SRC_EXTS:
+    cparts = ["", "Conventions (this repo):"]
+    casing = conv.get("casing") or {}
+    if casing:
+        cparts.append("  casing: " + " ".join(f"{k}={v}" for k, v in casing.items()))
+    deny = conv.get("vague_denylist") or []
+    if deny:
+        cparts.append("  avoid vague names: " + ", ".join(deny[:8]))
+    rules = conv.get("consistency") or []
+    if rules:
+        cparts.append("  house rules: " + "; ".join(rules[:4]))
+    roots = conv.get("structure_roots") or {}
+    best = None
+    for k in roots:
+        if file_rel.startswith(k) and (best is None or len(k) > len(best)):
+            best = k
+    if best is not None:
+        cparts.append(f"  this dir: {roots[best]}")
+    if len(cparts) > 2:
+        parts.extend(cparts)
 
 # If only the marker line is present (no actual content), suppress entirely.
 if len(parts) <= 1:
@@ -323,7 +375,10 @@ if len(parts) <= 1:
 
 out = "\n".join(parts)
 if len(out) > max_chars:
-    out = out[: max_chars - 50].rstrip() + f"\n... (truncated; cap={max_chars})"
+    if "Conventions (this repo):" in out:
+        out = out[: max_chars - 50].rstrip() + f"\n... (conventions truncated; cap={max_chars})"
+    else:
+        out = out[: max_chars - 50].rstrip() + f"\n... (truncated; cap={max_chars})"
 
 # Emit the full hookSpecificOutput JSON in the same process. The debug
 # log line on the bash side after the heredoc records whether anything

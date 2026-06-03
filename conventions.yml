@@ -1,0 +1,24 @@
+schema_version: 1
+naming:
+  casing:
+    functions: snake_case
+    types: PascalCase
+    constants: UPPER_SNAKE
+  vague_denylist:
+    - data
+    - tmp
+    - result
+    - handle
+    - process
+structure:
+  roots:
+    "scripts/hooks/": "shell hooks shared by Claude Code + Codex; fail-open (exit 0) on missing parser/git; never edit the plugin-root-substituted absolute paths"
+    "skills/": "one SKILL.md per dir (agentskills.io spec)"
+    "scripts/": "stdlib-only Python helpers + installers"
+    "tests/": "pytest; hook tests skip cleanly without bash"
+  file_loc_ceiling: 400
+  func_loc_ceiling: 60
+consistency:
+  - "Hooks fail-open: exit 0 (never block) when jq/python/git is absent."
+  - "AIDEV anchors: all-caps prefix, <=120 chars; don't remove without noting it in the commit."
+  - "AGENTS.md stays lean (~8 KiB working target; 32 KiB hard cap for Codex)."

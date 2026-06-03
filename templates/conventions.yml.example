@@ -1,0 +1,30 @@
+# claude-leverage conventions profile. Drafted by /conventions-init (Phase 2b),
+# hand-confirmed. Surfaced to agents before they edit a source file, via the
+# context-surface hook. BLOCK STYLE ONLY (no inline {}/[]): keeps the stdlib
+# fallback parser reliable when PyYAML is absent.
+#
+# schema_version 1 is "1.x": additive optional fields may appear over time;
+# consumers ignore unknown keys.
+schema_version: 1
+naming:
+  casing:
+    functions: snake_case
+    types: PascalCase
+    constants: UPPER_SNAKE
+    files: snake_case
+  # Extends the scorer's built-in vague-name list with repo-specific ones.
+  vague_denylist:
+    - data
+    - result
+    - tmp
+structure:
+  # Longest-prefix match: an edited file under one of these dirs gets its role
+  # surfaced. Keep roles to one concrete line.
+  roots:
+    "src/": "application code"
+    "tests/": "test suite"
+  file_loc_ceiling: 400
+  func_loc_ceiling: 60
+consistency:
+  # Divergent house rules the model cannot infer from the code. One line each.
+  - "Example: all timestamps are UTC ISO-8601 strings via the time helper."
