@@ -555,8 +555,7 @@ skills. They're complementary; the table is a positioning aid, not a scoreboard.
 | [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
 | [`.codex/`](.codex/) | Codex hook template + sandbox/approval defaults |
 | [`scripts/hooks/`](scripts/hooks/) | Hook shell scripts, shared by both tools |
-| [`scripts/`](scripts/) | Installers, generators, version checks, `smoke-plugin.sh` |
-| [`scripts/score_adherence.py`](scripts/score_adherence.py) | deterministic naming/casing/structure adherence scorer (`--repo` / `--diff`); emits JSON - powers the conventions eval and (later) pre-write steering |
+| [`scripts/`](scripts/) | Installers, generators, version checks, `smoke-plugin.sh`, and `score_adherence.py` (deterministic naming/casing/structure scorer; `--repo` / `--diff`) |
 | [`statusline/`](statusline/) | Portable statusline script + screenshot |
 | [`assets/`](assets/) | README banner + static image assets |
 | [`claude-md-snippets/`](claude-md-snippets/) | Opt-in CLAUDE.md / AGENTS.md routing rules (2 ship by default; installable via `/init-repo`) |
