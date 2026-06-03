@@ -564,3 +564,63 @@ def test_builder_omits_conventions_when_absent(tmp_path: Path) -> None:
     _run_builder(tmp_path)
     manifest = json.loads((tmp_path / ".claude-leverage-context-map.json").read_text(encoding="utf-8"))
     assert "conventions" not in manifest["_meta"]
+
+
+# ---------------------------------------------------------------------------
+# Hook surfaces conventions for source-file edits (Task 3)
+# ---------------------------------------------------------------------------
+
+
+@hook_pytestmark
+def test_hook_surfaces_conventions_for_source_file(tmp_path: Path) -> None:
+    _init_repo_with_files(tmp_path, {
+        "conventions.yml": (
+            "naming:\n  casing:\n    functions: snake_case\n"
+            "  vague_denylist:\n    - data\n"
+            "structure:\n  roots:\n    \"scripts/\": \"scripts root\"\n"
+            "consistency:\n  - \"Hooks must fail-open.\"\n"
+        ),
+        "scripts/thing.py": "x = 1\n",
+    })
+    _run_builder(tmp_path)
+    proc = _run_hook(_read_payload(str(tmp_path / "scripts" / "thing.py")), cwd=tmp_path)
+    out = proc.stdout
+    assert "Conventions (this repo):" in out
+    assert "functions=snake_case" in out
+    assert "Hooks must fail-open." in out
+    assert "this dir: scripts root" in out
+
+
+@hook_pytestmark
+def test_hook_no_conventions_for_non_source_file(tmp_path: Path) -> None:
+    _init_repo_with_files(tmp_path, {
+        "conventions.yml": "naming:\n  casing:\n    functions: snake_case\n",
+        "notes.md": "# hi\n",
+    })
+    _run_builder(tmp_path)
+    proc = _run_hook(_read_payload(str(tmp_path / "notes.md")), cwd=tmp_path)
+    assert "Conventions (this repo):" not in proc.stdout
+
+
+@hook_pytestmark
+def test_hook_no_conventions_when_yaml_absent(tmp_path: Path) -> None:
+    _init_repo_with_files(tmp_path, {"scripts/thing.py": "x = 1\n"})
+    _run_builder(tmp_path)
+    proc = _run_hook(_read_payload(str(tmp_path / "scripts" / "thing.py")), cwd=tmp_path)
+    assert "Conventions (this repo):" not in proc.stdout
+
+
+@hook_pytestmark
+def test_hook_surfaces_conventions_even_without_anchor_entry(tmp_path: Path) -> None:
+    # thing.py has NO AIDEV anchor -> no files[] entry, but conventions must still show
+    _init_repo_with_files(tmp_path, {
+        "conventions.yml": (
+            "naming:\n  casing:\n    functions: snake_case\n"
+            "consistency:\n  - \"No bare except.\"\n"
+        ),
+        "src/app.py": "y = 2\n",
+    })
+    _run_builder(tmp_path)
+    proc = _run_hook(_read_payload(str(tmp_path / "src" / "app.py")), cwd=tmp_path)
+    assert "Conventions (this repo):" in proc.stdout
+    assert "No bare except." in proc.stdout
