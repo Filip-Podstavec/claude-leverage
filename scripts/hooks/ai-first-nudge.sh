@@ -241,7 +241,10 @@ except Exception:
   esac
   [ -n "$blob" ] || return 0
 
-  if grep -Fxq "$file_path" "$CONV_NUDGE_FILE" 2>/dev/null; then
+  local fp_canon
+  fp_canon=$(canon_path "$file_path")
+
+  if grep -Fxq "$fp_canon" "$CONV_NUDGE_FILE" 2>/dev/null; then
     return 0
   fi
 
@@ -277,7 +280,7 @@ PY
   short_path=$(printf '%s' "$file_path" | sed "s|^$HOME|~|")
   printf '(claude-leverage: %s introduces names that drift from conventions.yml — %s; prefer intent-revealing, repo-cased names)\n' \
     "$short_path" "$names" >&2
-  printf '%s\n' "$file_path" >> "$CONV_NUDGE_FILE" 2>/dev/null || true
+  printf '%s\n' "$fp_canon" >> "$CONV_NUDGE_FILE" 2>/dev/null || true
 }
 
 per_dir_agents_md_nudge

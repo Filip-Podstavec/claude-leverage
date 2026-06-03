@@ -550,7 +550,7 @@ skills. They're complementary; the table is a positioning aid, not a scoreboard.
 |-----------|---------|
 | [`agents/`](agents/) | Claude Code subagents (Markdown + YAML frontmatter) |
 | [`.codex/agents/`](.codex/agents/) | Codex subagents (TOML; auto-generated from `agents/`) |
-| [`skills/`](skills/) | 14 cross-tool skills (`agentskills.io` SKILL.md spec) - adds `/refresh-context-map` in v1.8.0 |
+| [`skills/`](skills/) | 15 cross-tool skills (`agentskills.io` SKILL.md spec) - adds `/refresh-context-map` in v1.8.0 |
 | [`commands/`](commands/) | 1 Claude Code slash command (`/flaky-test`) |
 | [`hooks/hooks.json`](hooks/hooks.json) | Claude Code hook config (paths point at `scripts/hooks/`) |
 | [`.codex/`](.codex/) | Codex hook template + sandbox/approval defaults |

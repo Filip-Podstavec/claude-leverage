@@ -824,3 +824,47 @@ def test_nudge_silent_when_no_conventions_file(tmp_path: Path) -> None:
     res = _run_hook(AI_FIRST_NUDGE, payload, cwd=repo, state_dir=tmp_path / "_state")
     assert res.returncode == 0, res.stderr
     assert "conventions.yml" not in res.stderr
+
+
+@requires_git
+def test_nudge_fires_on_convention_violation_in_multiedit(tmp_path: Path) -> None:
+    """A MultiEdit payload whose edits[*].new_string introduces a casing
+    violation must trigger the convention nudge, same as Edit does."""
+    repo = tmp_path / "repo"; repo.mkdir()
+    _git(repo, "init", "-q")
+    (repo / "conventions.yml").write_text(
+        "naming:\n  casing:\n    functions: snake_case\n", encoding="utf-8")
+    payload = {"tool_name": "MultiEdit", "tool_input": {
+        "file_path": str(repo / "svc.py"),
+        "edits": [
+            {"old_string": "a", "new_string": "x = 1\n"},
+            {"old_string": "b", "new_string": "def DoThing():\n    return 1\n"},
+        ]}}
+    res = _run_hook(AI_FIRST_NUDGE, payload, cwd=repo, state_dir=tmp_path / "_state")
+    assert res.returncode == 0, res.stderr
+    assert "conventions.yml" in res.stderr
+    assert "DoThing" in res.stderr
+
+
+@requires_git
+def test_nudge_frequency_cap_silences_second_identical_edit(tmp_path: Path) -> None:
+    """The per-file frequency cap must suppress the nudge on the second run
+    with the same state_dir — first fires, second is silent."""
+    repo = tmp_path / "repo"; repo.mkdir()
+    _git(repo, "init", "-q")
+    (repo / "conventions.yml").write_text(
+        "naming:\n  casing:\n    functions: snake_case\n", encoding="utf-8")
+    payload = {"tool_name": "Edit", "tool_input": {
+        "file_path": str(repo / "svc.py"),
+        "new_string": "def DoThing():\n    return 1\n"}}
+    state_dir = tmp_path / "_state"
+
+    first = _run_hook(AI_FIRST_NUDGE, payload, cwd=repo, state_dir=state_dir)
+    assert first.returncode == 0, first.stderr
+    assert "conventions.yml" in first.stderr, (
+        f"first run should nudge; got stderr={first.stderr!r}")
+
+    second = _run_hook(AI_FIRST_NUDGE, payload, cwd=repo, state_dir=state_dir)
+    assert second.returncode == 0, second.stderr
+    assert "conventions.yml" not in second.stderr, (
+        f"second run with same state_dir should be silent; got stderr={second.stderr!r}")
