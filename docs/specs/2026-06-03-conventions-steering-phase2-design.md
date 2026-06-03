@@ -101,11 +101,16 @@ top-level sections that are missing) to stdout for the user to merge by hand. No
 ## Component 3 — `build-context-map.py` extension (Phase 2a)
 
 If `conventions.yml` exists at repo root, parse it (reuse the existing YAML-or-regex
-fallback parser already used for `architecture.yml`) and attach to the manifest:
-- `_meta.conventions`: the global block — `casing`, a short `vague_denylist`
-  preview, and the `consistency` rules (stored once, not per file).
-- per file entry: `conventions_role` = the role string of the longest-prefix match
-  in `structure.roots` for that file's path, or omitted if none.
+fallback parser already used for `architecture.yml`) and attach the whole profile
+to `_meta.conventions` **once** (not per file): `casing`, a short `vague_denylist`
+preview, the `consistency` rules, and the `structure.roots` map.
+
+**Why not per-file:** the builder only creates a `files[...]` entry for files that
+have an AIDEV anchor (`build()` skips anchor-less files). Most source files have no
+anchor, so a per-file `conventions_role` would never reach them. Instead the hook
+computes the directory role at runtime by longest-prefix match against
+`_meta.conventions.structure_roots` — cheap, and works for every source file
+regardless of whether it has an anchor entry.
 
 Additive only; manifest `schema_version` stays `1`. **Bump `BUILDER_VERSION`** (it
 gates `--check`): adding conventions changes manifest content, so `--check` will
@@ -116,12 +121,16 @@ in `conventions.yml` → log a warning (not error). Absent/unparseable
 
 ## Component 4 — `context-surface` hook extension (Phase 2a)
 
-After the anchor sections, when the manifest carries conventions **and the edited
-file is a source file** (extension in `score_adherence.LANG_PACKS`, mirrored as a
-small list in the hook), append a compact block (always for source files — not
-behind `VERBOSE`; conventions are short and load-bearing). For non-source files
-(Markdown, YAML, JSON, images, configs) skip the block entirely — surfacing naming
-conventions on a doc edit is exactly the wasted tax ADR 0008 warns against.
+When `_meta.conventions` is present **and the edited file is a source file**
+(extension in a small list mirroring `score_adherence.LANG_PACKS`, e.g. `.py`),
+append a compact conventions block — **even if the file has no anchor entry** (the
+hook must no longer exit early just because `files[file_rel]` is absent; absence of
+an entry only means "no anchors", not "no conventions"). The directory role is
+computed in the hook by longest-prefix match of `file_rel` against
+`_meta.conventions.structure_roots`. Always for source files — not behind
+`VERBOSE`; conventions are short and load-bearing. For non-source files (Markdown,
+YAML, JSON, images, configs) skip the block entirely — surfacing naming conventions
+on a doc edit is exactly the wasted tax ADR 0008 warns against.
 
 ```
 Conventions (this repo):
