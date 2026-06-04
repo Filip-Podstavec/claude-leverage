@@ -89,10 +89,10 @@ def _ai_first_nudge_payload(file_path: str, *, loc: int = 60) -> dict:
 
 
 def test_ai_first_nudge_fires_when_dir_name_contains_test(tmp_path: Path) -> None:
-    """A directory called slevomat_test_api/ must NOT make the hook treat
+    """A directory called acme_test_api/ must NOT make the hook treat
     files inside it as test files. Only basename test_*.py / *_test.py
     should be ignored as tests. Regression for v1.4.0 field-feedback #1."""
-    project = tmp_path / "slevomat_test_api"
+    project = tmp_path / "acme_test_api"
     project.mkdir()
     target = project / "discover.py"
     payload = _ai_first_nudge_payload(str(target))

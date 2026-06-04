@@ -484,7 +484,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 ### Fixed (field-feedback bundle)
 
 - **`ai-first-nudge.sh`** split basename-only vs path ignore patterns
-  so directories named e.g. `slevomat_test_api/` no longer silently
+  so directories named e.g. `acme_test_api/` no longer silently
   swallow nudges for production files inside them. Added Windows
   backslash → forward slash normalization before pattern matching so
   `node_modules` and friends still match on Git Bash.
