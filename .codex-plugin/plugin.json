@@ -19,5 +19,6 @@
     "statusline",
     "stack-freshness"
   ],
-  "category": "workflow"
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
 }

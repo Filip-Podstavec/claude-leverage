@@ -35,6 +35,7 @@ the original choice.
 - [0008 — Smart context surfacing via PreToolUse hook (cuts per-session token tax)](0008-smart-context-surfacing-via-pretooluse-hook.md)
 - [0009 — AGENTS.md lean budget (8 KiB target / 32 KiB hard cap) and stack-check vs repo-doctor severity split](0009-agents-md-lean-budget-and-size-tiers.md)
 - [0010 — Naming: detect-and-conform over a prescribed house style](0010-naming-detect-and-conform-over-house-style.md)
+- [0011 — Codex plugin marketplace as a third distribution path](0011-codex-plugin-marketplace-third-distribution-path.md)
 
 (Keep this index in sync with the files in this directory; `/adr-new` will
 append to it automatically.)

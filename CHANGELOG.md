@@ -5,6 +5,19 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] — 2026-06-04
+
+### Added
+
+- **Codex plugin distribution path** — `.codex-plugin/plugin.json` and
+  `.agents/plugins/marketplace.json` are now **generated from the canonical
+  Claude manifest** by `scripts/gen-codex-plugin.py`, so Codex installs the same
+  plugin via its marketplace path without a hand-maintained second source of
+  truth. CI enforces artifact parity (`gen-codex-plugin.py --check`) and the
+  pre-push smoke run regenerates on drift. Rationale in
+  [ADR 0011](docs/adr/0011-codex-plugin-marketplace-third-distribution-path.md);
+  `docs/maintaining.md` gains the regenerate-on-change step.
+
 ## [1.11.0] — 2026-06-03
 
 ### Added

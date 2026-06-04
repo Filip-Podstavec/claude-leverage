@@ -77,3 +77,14 @@ jobs:
           python-version: "3.11"
       - name: Check generator parity (gen-codex-agents.py --check)
         run: python scripts/gen-codex-agents.py --check
+
+  codex-plugin-parity:
+    name: Codex plugin artifacts match Claude manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check generator parity (gen-codex-plugin.py --check)
+        run: python scripts/gen-codex-plugin.py --check

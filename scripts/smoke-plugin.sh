@@ -70,6 +70,18 @@ else
 fi
 
 # ----------------------------------------------------------------------
+# 3b. codex plugin artifacts parity
+# ----------------------------------------------------------------------
+say "3b. .codex-plugin/ + .agents/plugins/ match Claude manifest"
+if python scripts/gen-codex-plugin.py --check >$SCRATCH/codexplugin.log 2>&1; then
+  say_pass "Codex plugin artifacts in sync"
+else
+  say_fail "codex plugin artifacts drifted — run: python scripts/gen-codex-plugin.py"
+  cat $SCRATCH/codexplugin.log >&2
+  failed=$((failed + 1))
+fi
+
+# ----------------------------------------------------------------------
 # 4. context-map manifest is up to date
 # ----------------------------------------------------------------------
 say "4. .claude-leverage-context-map.json matches git ls-files"
