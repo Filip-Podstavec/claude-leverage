@@ -71,7 +71,7 @@ file_path=$(get_field '.tool_input.file_path' 2>/dev/null) || true
 # Applied to BOTH nudges — these paths are noise for both checks.
 #
 # AIDEV-NOTE: split into basename-only vs path patterns so a directory
-# named e.g. slevomat_test_api/ does not silently swallow nudges for
+# named e.g. acme_test_api/ does not silently swallow nudges for
 # production code inside it (v1.4.0 field-feedback #1). Also normalize
 # Windows backslashes before path matching so paths Claude Code sends
 # in C:\…\node_modules\… form still hit the ignore list (#2).
