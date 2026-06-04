@@ -527,6 +527,36 @@ Methodology, dropped-run notes, and reproducer:
 
 </details>
 
+### Spot-check: plugin v1.11.0 on Claude Opus 4.8 (n=1, expanding)
+
+A newer, separate data point on the **current** plugin line and model — the
+headline chart above stays a clean Claude Opus 4.7 / n=5 set; this one is not
+folded into it. Same anonymised codebase, same endpoint-implementation task,
+Pure A/B (plugin OFF in BEFORE, ON in AFTER).
+
+![A/B spot-check, Opus 4.8 + plugin v1.11.0](bench/eval/results-current.png)
+
+| Metric | BEFORE | AFTER | Δ |
+|---|---:|---:|---:|
+| Run cost | $33.15 | $17.45 | **−47.4 %** |
+| Total tokens | 10.02 M | 4.64 M | −53.7 % |
+| Files read before first edit | 19 | 8 | −57.9 % |
+| Grep + Glob calls (orientation flailing) | 11 | 0 | −100 % |
+
+Both arms completed the task correctly. AFTER reached the same result with
+roughly half the orientation reading and zero grep/glob flailing — it went
+straight to the per-directory `AGENTS.md` and SQL docs instead of searching
+around. The documented parameter-naming gotcha bit neither arm this run: AFTER
+avoided it knowingly (and documented the reason inline for the next agent),
+BEFORE avoided it incidentally by following a local formatting convention — so
+no "trap-catch" win to claim here, just the cheaper-and-self-documenting path.
+
+This is a single run and **less clean than the headline set**: part of BEFORE's
+higher cost is unrelated extra work the agent chose to do (it fixed a
+pre-existing cross-platform bug along the way), not pure orientation waste. The
+chart is built to grow — more Opus 4.8 / v1.11.0 runs append to it. Treat it as
+a first signal on the current line, not a result.
+
 ## How it compares
 
 claude-leverage and `superpowers` solve **different** problems - one is a
