@@ -779,6 +779,36 @@ def test_block_secrets_redacts_value_in_preview(tmp_path) -> None:
     assert _FAKE_AWS not in result.stderr, "full secret must be redacted in the preview"
 
 
+@requires_git
+def test_block_secrets_reports_every_offending_line(tmp_path) -> None:
+    """A fixture with several secret-shaped lines is reported in one pass (not
+    head -1), so it can be fixed in one round instead of whack-a-mole."""
+    body = f'aws = "{_FAKE_AWS}"\npat = "{_FAKE_GH_PAT}"\n'
+    repo = _staged_repo(tmp_path, {"config.txt": body})
+    result = _run_hook(BLOCK_SECRETS, _bash_hook_payload("git commit -m x"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, f"stderr={result.stderr!r}"
+    assert "AWS Access Key" in result.stderr
+    assert "GitHub Personal Access Token" in result.stderr, (
+        "both offending lines should be reported, not just the first"
+    )
+
+
+@requires_git
+def test_block_secrets_hints_restage_when_command_also_stages(tmp_path) -> None:
+    """When the blocked command itself runs `git add`, the message flags the
+    staging-timing gotcha — the hook scanned the pre-command index, so an edit
+    or marker applied in the same command isn't in the scanned diff."""
+    repo = _staged_repo(tmp_path, {"config.txt": f'value = "{_FAKE_AWS}"\n'})
+    result = _run_hook(BLOCK_SECRETS,
+                       _bash_hook_payload("git add -A && git commit -m x"),
+                       cwd=repo, state_dir=tmp_path / "_state")
+    assert result.returncode == 2, f"stderr={result.stderr!r}"
+    assert "git add" in result.stderr and "SEPARATE" in result.stderr, (
+        "staging-timing hint should appear when the command also stages"
+    )
+
+
 # ---------------------------------------------------------------------------
 # ai-first-nudge: convention violation advisory nudge (Phase 2b Task 2)
 # ---------------------------------------------------------------------------
