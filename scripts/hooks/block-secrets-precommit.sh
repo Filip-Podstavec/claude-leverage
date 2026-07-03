@@ -103,12 +103,22 @@ declare -a patterns=(
   '(password|passwd|pwd|secret|api[_-]?key|access[_-]?token)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'$\{<]{8,}["'"'"']'
 )
 
-# Extract current file from diff for reporting
-current_file="unknown"
+# AIDEV-NOTE: collect EVERY offending added line across all patterns in one
+# pass (was head -1 + exit on the first match), so a fixture with N secret-
+# shaped lines is fixed in one round instead of whack-a-mole. Dedupe by line
+# so a line matching two patterns (e.g. Stripe key inside an api_key=) reports
+# once, first pattern winning.
+declare -a findings=()
+seen_lines=""
 
 for i in "${!patterns[@]}"; do
-  matched_line=$(echo "$added_lines" | grep -iE -- "${patterns[$i]}" | head -1) || true
-  if [ -n "$matched_line" ]; then
+  while IFS= read -r matched_line; do
+    [ -z "$matched_line" ] && continue
+    # -Fxq: fixed-string, whole-line, quiet - safe against glob/regex metachars
+    # that a code line may contain.
+    grep -Fxq -- "$matched_line" <<< "$seen_lines" && continue
+    seen_lines="${seen_lines}${matched_line}"$'\n'
+
     # Find the file this line belongs to via single forward pass.
     # Earlier versions used `grep -B 9999 -F "$matched_line" | grep '^+++ b/' | tail -1`
     # which is O(N^2) on large staged diffs (re-buffering up to 9999 preceding
@@ -126,14 +136,38 @@ for i in "${!patterns[@]}"; do
     # Redact sensitive portion for preview
     preview=$(echo "$matched_line" | head -c 80 | sed -E 's/[A-Za-z0-9_-]{12,}/***/g')
 
-    cat >&2 <<EOF
-[block-secrets-precommit] Potential secret detected in staged diff.
+    findings+=("Pattern: ${pattern_names[$i]}"$'\n'"File: $current_file"$'\n'"Line preview: $preview")
+  done < <(echo "$added_lines" | grep -iE -- "${patterns[$i]}" || true)
+done
 
-Pattern: ${pattern_names[$i]}
-File: $current_file
-Line preview: $preview
+if [ "${#findings[@]}" -gt 0 ]; then
+  {
+    echo "[block-secrets-precommit] Potential secret(s) detected in staged diff."
+    echo
+    for finding in "${findings[@]}"; do
+      echo "$finding"
+      echo
+    done
 
-If this is a false positive, you can:
+    # AIDEV-NOTE: a PreToolUse hook can only see the index as it was BEFORE the
+    # tool call. `git add -A && git commit` in ONE command stages and commits
+    # atomically, so the fresh staging (and any edit/marker just applied) is not
+    # in the scanned diff - the top cause of "the marker doesn't work" reports.
+    case "$cmd_norm" in
+      *"git add"*)
+        cat <<'HINT'
+NOTE: this command also runs 'git add'. The hook scanned the index as it was
+BEFORE the command ran, so staging done in this same command - and any edit or
+'claude-leverage-allow-secret' marker you just added - is NOT in the scanned
+diff. Run 'git add' as a SEPARATE step first, then commit, so your fix is what
+gets scanned.
+
+HINT
+        ;;
+    esac
+
+    cat <<'EOF'
+If a match is a false positive, you can:
 - Add the marker comment 'claude-leverage-allow-secret' on the same line
 - Commit manually outside Claude Code
 - Adjust patterns by forking the script from the plugin source
@@ -141,8 +175,8 @@ If this is a false positive, you can:
   into a project-local hook and pointing settings.json at your copy
 - Temporarily disable the hook in ~/.claude/settings.json
 EOF
-    exit 2
-  fi
-done
+  } >&2
+  exit 2
+fi
 
 exit 0
