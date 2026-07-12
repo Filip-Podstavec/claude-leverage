@@ -26,6 +26,7 @@ HOOKS_DIR = REPO_ROOT / "scripts" / "hooks"
 AI_FIRST_NUDGE = HOOKS_DIR / "ai-first-nudge.sh"
 STACK_FRESHNESS = HOOKS_DIR / "stack-freshness.sh"
 BARE_REPO_NUDGE = HOOKS_DIR / "bare-repo-nudge.sh"
+OVERDUE_TODO_NUDGE = HOOKS_DIR / "overdue-todo-nudge.sh"
 SECURITY_NUDGE = HOOKS_DIR / "security-nudge.sh"
 BLOCK_DANGEROUS_GIT = HOOKS_DIR / "block-dangerous-git.sh"
 BLOCK_SECRETS = HOOKS_DIR / "block-secrets-precommit.sh"
@@ -463,6 +464,108 @@ def test_bare_repo_nudge_rate_limit_per_day(tmp_path: Path) -> None:
     assert second.stdout.strip() == "", (
         f"second call in same dir same day should be silent, got stdout={second.stdout!r}"
     )
+
+
+# ---------------------------------------------------------------------------
+# overdue-todo-nudge: SessionStart nudge for lapsed AIDEV deadlines
+# ---------------------------------------------------------------------------
+
+
+def _init_repo_with_files(root: Path, files: dict[str, str]) -> None:
+    root.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "init", "-q"], cwd=str(root), check=True)
+    subprocess.run(["git", "config", "user.email", "t@t.t"], cwd=str(root), check=True)
+    subprocess.run(["git", "config", "user.name", "t"], cwd=str(root), check=True)
+    for rel, body in files.items():
+        p = root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(body, encoding="utf-8")
+    subprocess.run(["git", "add", "-A"], cwd=str(root), check=True)
+    subprocess.run(["git", "commit", "-qm", "init"], cwd=str(root), check=True)
+
+
+@requires_git
+def test_overdue_todo_nudge_fires_on_lapsed_source_anchor(tmp_path: Path) -> None:
+    """A source-code AIDEV-TODO whose deadline passed → SessionStart nudge."""
+    project = tmp_path / "proj"
+    _init_repo_with_files(
+        project,
+        {"src/a.py": "# AIDEV-TODO(by: 2001-01-01): drop the shim\n"},
+    )
+
+    result = _run_hook(OVERDUE_TODO_NUDGE, "", cwd=project, state_dir=tmp_path / "_state")
+
+    assert result.returncode == 0, result.stderr
+    ctx = _parse_session_start_json(result.stdout).get(
+        "hookSpecificOutput", {}
+    ).get("additionalContext", "")
+    assert "overdue" in ctx.lower()
+    assert "src/a.py" in ctx
+    assert "/stack-check" in ctx
+
+
+@requires_git
+def test_overdue_todo_nudge_silent_on_future_and_example_anchors(tmp_path: Path) -> None:
+    """Must NOT fire on: a future deadline, an AIDEV-NOTE that merely quotes a
+    TODO example, or an overdue anchor living in a doc/markdown file. These are
+    the false-positive classes that would make the nudge noise."""
+    project = tmp_path / "proj"
+    _init_repo_with_files(
+        project,
+        {
+            "src/future.ts": "// AIDEV-QUESTION(by: 2099-01-01): still needed?\n",
+            "src/note.py": "# AIDEV-NOTE: like AIDEV-TODO(by: 2001-01-01): just docs\n",
+            "docs/x.md": "# AIDEV-TODO(by: 2001-01-01): example anchor in a doc\n",
+        },
+    )
+
+    result = _run_hook(OVERDUE_TODO_NUDGE, "", cwd=project, state_dir=tmp_path / "_state")
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "", (
+        f"expected silence (no real overdue anchors), got stdout={result.stdout!r}"
+    )
+
+
+@requires_git
+def test_overdue_todo_nudge_rate_limit_per_day(tmp_path: Path) -> None:
+    """Second invocation in the same repo on the same day must be silent."""
+    project = tmp_path / "proj"
+    _init_repo_with_files(
+        project,
+        {"src/a.py": "# AIDEV-TODO(2001-01-01): overdue\n"},
+    )
+    state_dir = tmp_path / "_state"
+
+    first = _run_hook(OVERDUE_TODO_NUDGE, "", cwd=project, state_dir=state_dir)
+    assert first.stdout.strip(), "first call should emit JSON"
+
+    second = _run_hook(OVERDUE_TODO_NUDGE, "", cwd=project, state_dir=state_dir)
+    assert second.returncode == 0
+    assert second.stdout.strip() == "", (
+        f"second call same repo same day should be silent, got {second.stdout!r}"
+    )
+
+
+@requires_git
+def test_overdue_todo_nudge_opt_out_env(tmp_path: Path) -> None:
+    """CLAUDE_LEVERAGE_SKIP_OVERDUE_TODO=1 disables the nudge entirely."""
+    project = tmp_path / "proj"
+    _init_repo_with_files(
+        project,
+        {"src/a.py": "# AIDEV-TODO(by: 2001-01-01): overdue\n"},
+    )
+
+    result = _run_hook(
+        OVERDUE_TODO_NUDGE,
+        "",
+        cwd=project,
+        state_dir=tmp_path / "_state",
+        extra_env={"CLAUDE_LEVERAGE_SKIP_OVERDUE_TODO": "1"},
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == ""
 
 
 # ---------------------------------------------------------------------------
