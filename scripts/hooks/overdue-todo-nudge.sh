@@ -104,6 +104,9 @@ MAX_EXAMPLES=5
 
 while IFS= read -r match; do
   [ -z "$match" ] && continue
+  # git grep -n output is `path:lineno:content`. Splitting on the first two
+  # colons assumes no literal ':' in the path — true for git-tracked paths
+  # (git quotes exotic bytes), and lineno is always digits so `rest%%:*` is safe.
   path=${match%%:*}
   rest=${match#*:}
   lineno=${rest%%:*}

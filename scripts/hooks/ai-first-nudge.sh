@@ -110,7 +110,7 @@ canon_path() {
     cygpath -m -- "$p" 2>/dev/null && return
   fi
   local PY
-  PY=$(command -v python3 || command -v python || true)
+  PY=$(cl_python_bin)
   if [ -n "$PY" ]; then
     printf '%s' "$p" | "$PY" -c '
 import os, sys
@@ -222,7 +222,7 @@ convention_violation_nudge() {
   [ -f "$repo_root/conventions.yml" ] || return 0
 
   local py_bin
-  py_bin=$(command -v python3 || command -v python || true)
+  py_bin=$(cl_python_bin)
   [ -n "$py_bin" ] || return 0
 
   local blob=""
@@ -307,7 +307,7 @@ case "$tool" in
     # Sum non-blank lines across edits[*].new_string via Python (the JSON
     # blob shape needs proper array walking; the older regex-on-blob
     # approach over-counted JSON syntax and triggered spurious nudges).
-    PY_BIN=$(command -v python3 || command -v python || true)
+    PY_BIN=$(cl_python_bin)
     if [ -n "$PY_BIN" ]; then
       added_loc=$(printf '%s' "$JSON_INPUT" | "$PY_BIN" -c '
 import json, sys

@@ -66,7 +66,7 @@ cmd=$(get_field '.tool_input.command') || exit 0
 # If Python is unavailable but jq is (rare), fall back to the old
 # aggressive `tr` strip — same false-positive surface as pre-v1.4.5 but
 # real attacks still block.
-PY_STRIP_BIN=$(command -v python3 || command -v python || true)
+PY_STRIP_BIN=$(cl_python_bin)
 if [ -n "$PY_STRIP_BIN" ]; then
   cmd_norm=$(printf '%s' "$cmd" | "$PY_STRIP_BIN" -c '
 import re, sys

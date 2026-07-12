@@ -27,6 +27,7 @@ AI_FIRST_NUDGE = HOOKS_DIR / "ai-first-nudge.sh"
 STACK_FRESHNESS = HOOKS_DIR / "stack-freshness.sh"
 BARE_REPO_NUDGE = HOOKS_DIR / "bare-repo-nudge.sh"
 OVERDUE_TODO_NUDGE = HOOKS_DIR / "overdue-todo-nudge.sh"
+JSON_PARSE = HOOKS_DIR / "json_parse.sh"
 SECURITY_NUDGE = HOOKS_DIR / "security-nudge.sh"
 BLOCK_DANGEROUS_GIT = HOOKS_DIR / "block-dangerous-git.sh"
 BLOCK_SECRETS = HOOKS_DIR / "block-secrets-precommit.sh"
@@ -463,6 +464,56 @@ def test_bare_repo_nudge_rate_limit_per_day(tmp_path: Path) -> None:
     assert second.returncode == 0
     assert second.stdout.strip() == "", (
         f"second call in same dir same day should be silent, got stdout={second.stdout!r}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# json_parse: parser selection must probe execution, not mere PATH presence
+# ---------------------------------------------------------------------------
+
+
+def test_json_parse_skips_nonfunctional_python3_stub(tmp_path: Path) -> None:
+    """Regression: on Windows `python3` is by default the Microsoft Store
+    app-execution-alias stub — present on PATH, exits non-zero, emits nothing —
+    while the real interpreter is `python`. A bare `command -v python3` check
+    picks the stub, every get_field returns empty, and the security hooks
+    silently fail open. json_parse must probe that a parser actually executes.
+
+    Here jq + python3 are shadowed by broken stubs and only `python` works;
+    get_field must still extract the value."""
+    fakebin = tmp_path / "fakebin"
+    fakebin.mkdir()
+    # Broken jq + python3: on PATH, exit non-zero, no output (mimics the stub).
+    for name in ("jq", "python3"):
+        stub = fakebin / name
+        stub.write_text("#!/bin/sh\nexit 49\n")
+        stub.chmod(0o755)
+    # Working `python` that execs the interpreter running this test.
+    real = sys.executable.replace("\\", "/")
+    good = fakebin / "python"
+    good.write_text(f'#!/bin/sh\nexec "{real}" "$@"\n')
+    good.chmod(0o755)
+
+    snippet = (
+        f'. "{JSON_PARSE.as_posix()}"\n'
+        "JSON_INPUT='{\"tool_input\":{\"command\":\"git status\"}}'\n"
+        'if has_parser; then get_field ".tool_input.command"; else echo NOPARSER; fi\n'
+    )
+    env = os.environ.copy()
+    env["PATH"] = str(fakebin) + os.pathsep + env.get("PATH", "")
+    result = subprocess.run(
+        [BASH, "-c", snippet],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=10,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "git status", (
+        "expected value extracted via working `python` despite broken "
+        f"jq/python3 stubs earlier on PATH; got stdout={result.stdout!r} "
+        f"stderr={result.stderr!r}"
     )
 
 

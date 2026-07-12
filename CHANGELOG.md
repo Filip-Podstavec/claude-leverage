@@ -25,6 +25,25 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
   incrementally) — enforcement moves to where a whole diff is judged, not
   per-edit.
 
+### Fixed
+
+- **Hooks silently failed open on Windows when `python3` was the Microsoft
+  Store stub.** On Windows, `python3` is by default the Store app-execution-alias
+  stub — on PATH, exits non-zero, emits nothing — while the real interpreter is
+  `python`. Every hook that reached for python did so by mere PATH presence
+  (`command -v python3 || command -v python`), so it picked the stub: JSON
+  extraction returned empty and the security guardrails
+  (`block-secrets-precommit`, `block-dangerous-git`) plus the nudges no-opped
+  without warning. `block-dangerous-git` additionally fell back to its
+  pre-v1.4.5 aggressive quote strip, re-introducing false-positive blocking of
+  legitimate commit messages that merely mention `--force` / `--no-verify`.
+  Interpreter selection now **probes that a candidate actually executes** a
+  trivial script before trusting it. A single memoized `cl_python_bin` helper in
+  `json_parse.sh` is now the one source of truth — `block-dangerous-git.sh`,
+  `context-surface.sh`, and `ai-first-nudge.sh` were each independently
+  reimplementing the naive detection and are routed through it. Regression test
+  shadows jq + a broken `python3` and asserts extraction still works via `python`.
+
 ## [1.12.0] — 2026-06-04
 
 ### Added
