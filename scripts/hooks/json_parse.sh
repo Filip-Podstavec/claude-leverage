@@ -38,12 +38,78 @@ read_stdin() {
   JSON_INPUT=$(cat | tr -d '\r')
 }
 
-# has_parser: returns 0 if any supported JSON parser is on PATH, 1 otherwise.
+# Parser selection is memoized across a single sourced hook invocation:
+# _CL_PARSER_KIND is "jq" | "python" | "" (none), _CL_PYTHON_BIN names the
+# working interpreter when kind is "python".
+_CL_PARSER_KIND=""
+_CL_PYTHON_BIN=""
+_CL_PARSER_DONE=""
+_CL_PY_DONE=""
+_CL_PY_BIN=""
+
+# _cl_probe_python <bin>: 0 iff <bin> actually EXECUTES a trivial json script
+# and emits the expected stdout — not merely that it exists on PATH.
+#
+# AIDEV-NOTE: presence != working. On Windows, `python3` is by default the
+# Microsoft Store app-execution-alias stub: it's on PATH, but exits non-zero
+# and prints nothing (a store-install prompt to stderr), while the real
+# interpreter is `python`. A bare `command -v python3` check picks the stub,
+# every get_field returns empty, and the SECURITY hooks silently fail open.
+# Probe execution to avoid that whole class of Windows fail-open.
+_cl_probe_python() {
+  local out
+  out=$(printf '{}' | "$1" -c 'import json,sys; json.load(sys.stdin); sys.stdout.write("ok")' 2>/dev/null) || out=""
+  [ "$out" = "ok" ]
+}
+
+# cl_python_bin: echo a WORKING python interpreter name (probed), or nothing.
+# Public helper for hook code that needs python for tasks OTHER than JSON
+# parsing — path canonicalization, quote stripping, LOC counting. Memoized.
+#
+# AIDEV-NOTE: independent of _cl_select_parser's jq-first choice — a hook may
+# use jq for get_field yet still need a real python here, and BOTH must skip
+# the non-functional Windows `python3` Store stub (see _cl_probe_python). Every
+# hook that needs python must go through this, not a bare `command -v python3`,
+# or it fails open on that common Windows config.
+cl_python_bin() {
+  if [ -z "$_CL_PY_DONE" ]; then
+    _CL_PY_DONE=1
+    local bin
+    for bin in python3 python; do
+      if command -v "$bin" >/dev/null 2>&1 && _cl_probe_python "$bin"; then
+        _CL_PY_BIN="$bin"
+        break
+      fi
+    done
+  fi
+  printf '%s' "$_CL_PY_BIN"
+}
+
+# _cl_select_parser: run once, cache the first WORKING parser. jq preferred,
+# then a probed python (via cl_python_bin) — each candidate is probed, not
+# assumed present-means-working.
+_cl_select_parser() {
+  [ -n "$_CL_PARSER_DONE" ] && return 0
+  _CL_PARSER_DONE=1
+
+  if command -v jq >/dev/null 2>&1 && printf '{}' | jq -e . >/dev/null 2>&1; then
+    _CL_PARSER_KIND="jq"
+    return 0
+  fi
+
+  local pb
+  pb=$(cl_python_bin)
+  if [ -n "$pb" ]; then
+    _CL_PARSER_KIND="python"
+    _CL_PYTHON_BIN="$pb"
+  fi
+  return 0
+}
+
+# has_parser: returns 0 if a WORKING JSON parser is available, 1 otherwise.
 has_parser() {
-  command -v jq >/dev/null 2>&1 && return 0
-  command -v python3 >/dev/null 2>&1 && return 0
-  command -v python >/dev/null 2>&1 && return 0
-  return 1
+  _cl_select_parser
+  [ -n "$_CL_PARSER_KIND" ]
 }
 
 # get_field <dotted-path>
@@ -69,24 +135,19 @@ get_field() {
   local query="$1"
   local result=""
 
-  if command -v jq >/dev/null 2>&1; then
+  _cl_select_parser
+
+  if [ "$_CL_PARSER_KIND" = "jq" ]; then
     result=$(printf '%s' "$JSON_INPUT" | jq -r "${query} // empty" 2>/dev/null) || result=""
     printf '%s\n' "$result"
     return 0
   fi
 
-  local python_bin=""
-  if command -v python3 >/dev/null 2>&1; then
-    python_bin="python3"
-  elif command -v python >/dev/null 2>&1; then
-    python_bin="python"
-  fi
-
-  if [ -n "$python_bin" ]; then
+  if [ "$_CL_PARSER_KIND" = "python" ]; then
     # Pass query via env var, single-quoted Python script (no shell interpolation
     # inside the script body). Defensive against malformed JSON, missing keys,
     # non-dict intermediates, and non-string leaf values.
-    result=$(printf '%s' "$JSON_INPUT" | JSON_PATH="$query" "$python_bin" -c '
+    result=$(printf '%s' "$JSON_INPUT" | JSON_PATH="$query" "$_CL_PYTHON_BIN" -c '
 import json, os, sys
 try:
     data = json.load(sys.stdin)

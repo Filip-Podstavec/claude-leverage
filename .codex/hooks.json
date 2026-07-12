@@ -15,6 +15,10 @@
           {
             "type": "command",
             "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/skill-cheatsheet.sh"
+          },
+          {
+            "type": "command",
+            "command": "__CLAUDE_LEVERAGE_DIR__/scripts/hooks/overdue-todo-nudge.sh"
           }
         ]
       }

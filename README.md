@@ -15,7 +15,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Version](https://img.shields.io/badge/version-1.11.0-success)
 ![Skills](https://img.shields.io/badge/skills-15-8b5cf6)
-![Hooks](https://img.shields.io/badge/hooks-8-orange)
+![Hooks](https://img.shields.io/badge/hooks-9-orange)
 ![Subagents](https://img.shields.io/badge/subagents-2-1f6feb)
 
 </div>
@@ -241,6 +241,13 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
   skill-auto-activation gap (`description: |` block scalars where
   the runtime parses only the first line). Override via
   `CLAUDE_LEVERAGE_SKILL_HINT_DAYS` (0 = disabled).
+- `overdue-todo-nudge` - non-blocking SessionStart, network-free. Flags
+  `AIDEV-TODO` / `AIDEV-QUESTION` anchors whose ISO-8601 deadline has
+  already passed, via SessionStart `additionalContext`, once per repo
+  per day. Source code only + first-token rule keep false positives near
+  zero (skips the doc/template/test trees where example anchors live).
+  The passive complement to `/stack-check`'s on-demand anchor report.
+  Opt-out: `CLAUDE_LEVERAGE_SKIP_OVERDUE_TODO=1`.
 - `context-surface` - **opt-in** PreToolUse hook on
   `Read|Edit|Write|MultiEdit`. Reads a pre-built manifest at
   `.claude-leverage-context-map.json` (produced by `scripts/build-context-map.py`,

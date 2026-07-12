@@ -90,6 +90,19 @@ Scripts in `../scripts/hooks/`:
   Rate-limited to one nudge per cwd (branch A) or per repo root
   (branch B) per day so opening multiple terminals in subdirs of the
   same unconfigured repo doesn't double-nudge.
+- **`overdue-todo-nudge.sh`** (SessionStart) — Network-free. Flags
+  `AIDEV-TODO` / `AIDEV-QUESTION` anchors whose ISO-8601 deadline
+  (`(by: YYYY-MM-DD)`, `(YYYY-MM-DD)`, or `(deadline: YYYY-MM-DD)`) has
+  already passed, via `hookSpecificOutput.additionalContext`, once per
+  repo per day. Passive complement to `/stack-check`, which reports the
+  same anchors but only when the user runs it. Scope is deliberately
+  tight so an auto-firing nudge stays signal, not noise: **source code
+  only** (markdown/json/txt and the `docs/` `templates/` `tests/`
+  `bench/` `workflows/` trees are skipped — that's where the
+  convention's *example* anchors live), plus a **first-token rule** so
+  an `AIDEV-NOTE` that merely quotes a `AIDEV-TODO(by: …)` example while
+  documenting the convention doesn't trip it. Opt-out:
+  `CLAUDE_LEVERAGE_SKIP_OVERDUE_TODO=1`.
 - **`json_parse.sh`** — Helper shell library (not itself a hook). Sourced
   by the security hooks. Provides `read_stdin`, `has_parser`, and
   `get_field` with a `jq` → `python3` → `python` fallback chain.
@@ -147,7 +160,8 @@ Then add to `~/.claude/settings.json`:
       {
         "hooks": [
           { "type": "command", "command": "$HOME/.claude/hooks/stack-freshness.sh" },
-          { "type": "command", "command": "$HOME/.claude/hooks/bare-repo-nudge.sh" }
+          { "type": "command", "command": "$HOME/.claude/hooks/bare-repo-nudge.sh" },
+          { "type": "command", "command": "$HOME/.claude/hooks/overdue-todo-nudge.sh" }
         ]
       }
     ],
@@ -222,7 +236,8 @@ When a hook blocks a legitimate commit:
 - **Permanent exception:** fork the hook script and adjust patterns
 - **Disable a single nudge category:** the AI-first and stack-freshness
   hooks honor env vars (`CLAUDE_LEVERAGE_NUDGE_LOC=0`,
-  `CLAUDE_LEVERAGE_FRESHNESS_DAYS=0`, `CLAUDE_LEVERAGE_SECURITY_NUDGE_LOC=0`)
+  `CLAUDE_LEVERAGE_FRESHNESS_DAYS=0`, `CLAUDE_LEVERAGE_SECURITY_NUDGE_LOC=0`,
+  `CLAUDE_LEVERAGE_SKIP_OVERDUE_TODO=1`)
 
 ## Platform notes
 

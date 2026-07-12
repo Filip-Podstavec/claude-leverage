@@ -69,7 +69,7 @@ canon_path() {
     cygpath -m -- "$p" 2>/dev/null && return
   fi
   local PY
-  PY=$(command -v python3 || command -v python || true)
+  PY=$(cl_python_bin)
   if [ -n "$PY" ]; then
     # AIDEV-NOTE: convert backslashes BEFORE abspath so that Windows-style
     # paths (e.g. \tmp\foo or C:\Users\…) sent to a Linux interpreter — as
@@ -130,13 +130,8 @@ case "$file_canon" in
   *)               file_rel="$file_canon" ;;
 esac
 
-# Locate python interpreter for the lookup heredoc.
-python_bin=""
-if command -v python3 >/dev/null 2>&1; then
-  python_bin="python3"
-elif command -v python >/dev/null 2>&1; then
-  python_bin="python"
-fi
+# Locate python interpreter for the lookup heredoc (probed — see cl_python_bin).
+python_bin=$(cl_python_bin)
 if [ -z "$python_bin" ]; then
   log_dbg "exit: no python on PATH"
   exit 0

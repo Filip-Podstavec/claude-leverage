@@ -5,6 +5,45 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] — 2026-07-12
+
+### Added
+
+- **`overdue-todo-nudge` hook** (SessionStart, non-blocking, network-free) —
+  flags `AIDEV-TODO` / `AIDEV-QUESTION` anchors whose ISO-8601 deadline has
+  already passed, one line at session start, once per repo per day. Closes the
+  gap where lapsed deadlines only surfaced on an explicit `/stack-check` run and
+  otherwise rotted silently. Scope is deliberately tight to keep false positives
+  near zero: source code only (skips markdown/json and the doc/template/test/
+  bench/workflow trees where the convention's own *example* anchors live), plus a
+  first-token rule so an `AIDEV-NOTE` that merely quotes a TODO example doesn't
+  trip it. Opt-out: `CLAUDE_LEVERAGE_SKIP_OVERDUE_TODO=1`.
+- **`/explain-diff --for review` anchor backstop** — the review narration now
+  calls out load-bearing hunks that encode a non-obvious decision without an
+  `AIDEV-` anchor. This is the review-boundary complement to `ai-first-nudge`
+  (which only fires on ≥50-LOC single writes and so misses decisions built up
+  incrementally) — enforcement moves to where a whole diff is judged, not
+  per-edit.
+
+### Fixed
+
+- **Hooks silently failed open on Windows when `python3` was the Microsoft
+  Store stub.** On Windows, `python3` is by default the Store app-execution-alias
+  stub — on PATH, exits non-zero, emits nothing — while the real interpreter is
+  `python`. Every hook that reached for python did so by mere PATH presence
+  (`command -v python3 || command -v python`), so it picked the stub: JSON
+  extraction returned empty and the security guardrails
+  (`block-secrets-precommit`, `block-dangerous-git`) plus the nudges no-opped
+  without warning. `block-dangerous-git` additionally fell back to its
+  pre-v1.4.5 aggressive quote strip, re-introducing false-positive blocking of
+  legitimate commit messages that merely mention `--force` / `--no-verify`.
+  Interpreter selection now **probes that a candidate actually executes** a
+  trivial script before trusting it. A single memoized `cl_python_bin` helper in
+  `json_parse.sh` is now the one source of truth — `block-dangerous-git.sh`,
+  `context-surface.sh`, and `ai-first-nudge.sh` were each independently
+  reimplementing the naive detection and are routed through it. Regression test
+  shadows jq + a broken `python3` and asserts extraction still works via `python`.
+
 ## [1.12.0] — 2026-06-04
 
 ### Added

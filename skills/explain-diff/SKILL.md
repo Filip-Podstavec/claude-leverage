@@ -67,6 +67,14 @@ Three audience modes:
    - Anything that touches a sensitive path (`auth*`, `crypto*`,
      `*.env*`, `routes/`, etc.) — surface as a "consider /security-review"
      reminder, not a substitute for it.
+   - **Load-bearing decisions shipped without an `AIDEV-` anchor** (only in
+     `--for review`). A load-bearing hunk that encodes a non-obvious choice —
+     an ordering dependency, a perf carve-out, an idempotency trick, a
+     deliberate rejection of the obvious approach — and carries no
+     `AIDEV-NOTE:` / `AIDEV-TODO:` / `AIDEV-QUESTION:` in the added lines is
+     a memory the next agent won't inherit. This is the review-boundary
+     backstop for the `ai-first-nudge` hook, which only fires on ≥50-LOC
+     single writes and so misses decisions built up incrementally.
 
 5. **Emit narration in the requested shape.**
 
@@ -110,6 +118,14 @@ add to PR body".>
 
 - <files modified without corresponding test changes, IF the language
   conventionally tests, IF the file is non-trivial>
+
+## Load-bearing but un-anchored
+
+- `file:line` — <the non-obvious decision that has no AIDEV anchor;
+  suggest the anchor to add, e.g. "AIDEV-NOTE: retry order matters —
+  webhook must land before the DB commit">
+- <omit this section entirely if every load-bearing hunk is either
+  self-evident or already anchored — don't manufacture findings>
 ```
 
 ### `--for self` output template

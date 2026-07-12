@@ -26,6 +26,8 @@ HOOKS_DIR = REPO_ROOT / "scripts" / "hooks"
 AI_FIRST_NUDGE = HOOKS_DIR / "ai-first-nudge.sh"
 STACK_FRESHNESS = HOOKS_DIR / "stack-freshness.sh"
 BARE_REPO_NUDGE = HOOKS_DIR / "bare-repo-nudge.sh"
+OVERDUE_TODO_NUDGE = HOOKS_DIR / "overdue-todo-nudge.sh"
+JSON_PARSE = HOOKS_DIR / "json_parse.sh"
 SECURITY_NUDGE = HOOKS_DIR / "security-nudge.sh"
 BLOCK_DANGEROUS_GIT = HOOKS_DIR / "block-dangerous-git.sh"
 BLOCK_SECRETS = HOOKS_DIR / "block-secrets-precommit.sh"
@@ -463,6 +465,158 @@ def test_bare_repo_nudge_rate_limit_per_day(tmp_path: Path) -> None:
     assert second.stdout.strip() == "", (
         f"second call in same dir same day should be silent, got stdout={second.stdout!r}"
     )
+
+
+# ---------------------------------------------------------------------------
+# json_parse: parser selection must probe execution, not mere PATH presence
+# ---------------------------------------------------------------------------
+
+
+def test_json_parse_skips_nonfunctional_python3_stub(tmp_path: Path) -> None:
+    """Regression: on Windows `python3` is by default the Microsoft Store
+    app-execution-alias stub — present on PATH, exits non-zero, emits nothing —
+    while the real interpreter is `python`. A bare `command -v python3` check
+    picks the stub, every get_field returns empty, and the security hooks
+    silently fail open. json_parse must probe that a parser actually executes.
+
+    Here jq + python3 are shadowed by broken stubs and only `python` works;
+    get_field must still extract the value."""
+    fakebin = tmp_path / "fakebin"
+    fakebin.mkdir()
+    # Broken jq + python3: on PATH, exit non-zero, no output (mimics the stub).
+    for name in ("jq", "python3"):
+        stub = fakebin / name
+        stub.write_text("#!/bin/sh\nexit 49\n")
+        stub.chmod(0o755)
+    # Working `python` that execs the interpreter running this test.
+    real = sys.executable.replace("\\", "/")
+    good = fakebin / "python"
+    good.write_text(f'#!/bin/sh\nexec "{real}" "$@"\n')
+    good.chmod(0o755)
+
+    snippet = (
+        f'. "{JSON_PARSE.as_posix()}"\n'
+        "JSON_INPUT='{\"tool_input\":{\"command\":\"git status\"}}'\n"
+        'if has_parser; then get_field ".tool_input.command"; else echo NOPARSER; fi\n'
+    )
+    env = os.environ.copy()
+    env["PATH"] = str(fakebin) + os.pathsep + env.get("PATH", "")
+    result = subprocess.run(
+        [BASH, "-c", snippet],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=10,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "git status", (
+        "expected value extracted via working `python` despite broken "
+        f"jq/python3 stubs earlier on PATH; got stdout={result.stdout!r} "
+        f"stderr={result.stderr!r}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# overdue-todo-nudge: SessionStart nudge for lapsed AIDEV deadlines
+# ---------------------------------------------------------------------------
+
+
+def _init_repo_with_files(root: Path, files: dict[str, str]) -> None:
+    root.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "init", "-q"], cwd=str(root), check=True)
+    subprocess.run(["git", "config", "user.email", "t@t.t"], cwd=str(root), check=True)
+    subprocess.run(["git", "config", "user.name", "t"], cwd=str(root), check=True)
+    for rel, body in files.items():
+        p = root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(body, encoding="utf-8")
+    subprocess.run(["git", "add", "-A"], cwd=str(root), check=True)
+    subprocess.run(["git", "commit", "-qm", "init"], cwd=str(root), check=True)
+
+
+@requires_git
+def test_overdue_todo_nudge_fires_on_lapsed_source_anchor(tmp_path: Path) -> None:
+    """A source-code AIDEV-TODO whose deadline passed → SessionStart nudge."""
+    project = tmp_path / "proj"
+    _init_repo_with_files(
+        project,
+        {"src/a.py": "# AIDEV-TODO(by: 2001-01-01): drop the shim\n"},
+    )
+
+    result = _run_hook(OVERDUE_TODO_NUDGE, "", cwd=project, state_dir=tmp_path / "_state")
+
+    assert result.returncode == 0, result.stderr
+    ctx = _parse_session_start_json(result.stdout).get(
+        "hookSpecificOutput", {}
+    ).get("additionalContext", "")
+    assert "overdue" in ctx.lower()
+    assert "src/a.py" in ctx
+    assert "/stack-check" in ctx
+
+
+@requires_git
+def test_overdue_todo_nudge_silent_on_future_and_example_anchors(tmp_path: Path) -> None:
+    """Must NOT fire on: a future deadline, an AIDEV-NOTE that merely quotes a
+    TODO example, or an overdue anchor living in a doc/markdown file. These are
+    the false-positive classes that would make the nudge noise."""
+    project = tmp_path / "proj"
+    _init_repo_with_files(
+        project,
+        {
+            "src/future.ts": "// AIDEV-QUESTION(by: 2099-01-01): still needed?\n",
+            "src/note.py": "# AIDEV-NOTE: like AIDEV-TODO(by: 2001-01-01): just docs\n",
+            "docs/x.md": "# AIDEV-TODO(by: 2001-01-01): example anchor in a doc\n",
+        },
+    )
+
+    result = _run_hook(OVERDUE_TODO_NUDGE, "", cwd=project, state_dir=tmp_path / "_state")
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "", (
+        f"expected silence (no real overdue anchors), got stdout={result.stdout!r}"
+    )
+
+
+@requires_git
+def test_overdue_todo_nudge_rate_limit_per_day(tmp_path: Path) -> None:
+    """Second invocation in the same repo on the same day must be silent."""
+    project = tmp_path / "proj"
+    _init_repo_with_files(
+        project,
+        {"src/a.py": "# AIDEV-TODO(2001-01-01): overdue\n"},
+    )
+    state_dir = tmp_path / "_state"
+
+    first = _run_hook(OVERDUE_TODO_NUDGE, "", cwd=project, state_dir=state_dir)
+    assert first.stdout.strip(), "first call should emit JSON"
+
+    second = _run_hook(OVERDUE_TODO_NUDGE, "", cwd=project, state_dir=state_dir)
+    assert second.returncode == 0
+    assert second.stdout.strip() == "", (
+        f"second call same repo same day should be silent, got {second.stdout!r}"
+    )
+
+
+@requires_git
+def test_overdue_todo_nudge_opt_out_env(tmp_path: Path) -> None:
+    """CLAUDE_LEVERAGE_SKIP_OVERDUE_TODO=1 disables the nudge entirely."""
+    project = tmp_path / "proj"
+    _init_repo_with_files(
+        project,
+        {"src/a.py": "# AIDEV-TODO(by: 2001-01-01): overdue\n"},
+    )
+
+    result = _run_hook(
+        OVERDUE_TODO_NUDGE,
+        "",
+        cwd=project,
+        state_dir=tmp_path / "_state",
+        extra_env={"CLAUDE_LEVERAGE_SKIP_OVERDUE_TODO": "1"},
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == ""
 
 
 # ---------------------------------------------------------------------------
