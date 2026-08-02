@@ -31,7 +31,7 @@ holds and shapes every decision below:
 |---|---|---|
 | 1. Presence (deterministic) | artifacts/config exist | **Adopt, pruned** — 4 new dims, not 6 (see below) |
 | 2. Semantic quality (agent-judged) | do the artifacts tell the truth? | **Adopt** — new `readiness-reviewer` subagent, advisory only |
-| 3. Dynamic validation (execution) | do declared commands actually run? | **Defer** — designed (Plan 3), not scheduled |
+| 3. Dynamic validation (execution) | do declared commands actually run? | **Adopt as separate skill** — `/dynamic-check`, Plan 3 (v1.16.0), safety mechanism doc-verified |
 | 4. Behavioral benchmark (canary task) | does an agent orient well here? | **Reject for the skill** — stays in `bench/eval`; portability is unsolved and the A/B harness already does this for this repo |
 
 ## Load-bearing decision: deterministic core, advisory halo
@@ -169,18 +169,20 @@ caveat, stated honestly in the SKILL's parity section:** subagent dispatch is
 Claude-Code-shaped; in Codex, `--semantic` reports "unavailable" and the
 deterministic scopes are unaffected.
 
-## Dynamic scope (Layer 3) — designed, deferred
+## Dynamic validation (Layer 3) — `/dynamic-check`, scheduled
 
-`--scope dynamic` executes the build/test/lint commands the repo *declares*
-(AGENTS.md fenced blocks + README quickstart) and reports pass/fail/timeout per
-command. Deferred because: it breaks the read-only contract (needs an explicit
-carve-out), its safety story (denylist, timeouts, sandbox posture per tool) is
-the hardest part, and Plans 1–2 deliver most of the value. Plan 3 records the
-full design — including the decision that it ships as a **separate skill**, so
-its broad Bash grant never lands in `/repo-doctor`'s frontmatter — so
-implementation is a scheduling decision, not a design session. Trigger to
-schedule it: first real case of "AGENTS.md declares commands that don't run"
-slipping past the semantic scope.
+A separate skill (never a `/repo-doctor` scope — ADR 0012 (f)) that executes
+the build/test/lint commands the repo *declares* (AGENTS.md fenced blocks +
+README quickstart) and reports pass/fail/timeout per command, with source
+attribution. Feasibility was verified against official docs (2026-08-02):
+skill `allowed-tools` is an expansion, not a whitelist, and grants are
+per-turn scoped — so the skill pre-approves only read-only helpers and every
+declared command rides the platform's normal permission prompt. Safety is
+four independent layers: declared-commands-only sourcing, non-skippable
+preview+confirm (fail-closed when non-interactive), denylist tripwire, and
+the platform permission/sandbox layer. Advisory only; never in the score.
+Full plan: Plan 3 (v1.16.0, after Plans 1–2; one residual spike on headless
+confirm behavior).
 
 ## `--fix` mode
 
@@ -213,8 +215,9 @@ non-interactive runs (`--score`, `--json`, CI).
   + regex integrity tests. Purely deterministic, no new agents.
 - **Plan 2 (v1.15.0):** `readiness-reviewer` subagent + `--semantic`
   + Codex parity artifacts and honest degradation.
-- **Plan 3 (unscheduled):** dynamic validation as a separate skill, per
-  recorded design.
+- **Plan 3 (v1.16.0):** `/dynamic-check` as a separate skill + ADR 0013,
+  after Plans 1–2; gated only by a residual spike on headless confirm
+  behavior.
 
 ## Maintenance artifacts touched (per `docs/maintaining.md`)
 
