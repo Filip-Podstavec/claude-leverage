@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "anchor_count": 35,
+    "anchor_count": 42,
     "builder_version": "1.9.0",
     "conventions": {
       "casing": {
@@ -27,8 +27,8 @@
         "process"
       ]
     },
-    "file_count": 21,
-    "generated_at": "2026-06-03T07:31:59+00:00",
+    "file_count": 24,
+    "generated_at": "2026-08-02T19:52:37+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1
@@ -111,6 +111,12 @@
       ],
       "anchors_in_dir": [
         {
+          "file": "scripts/conventions.py",
+          "line": 126,
+          "text": "canonical longest-prefix role match; the context-surface hook mirrors this inline (can't import across the bash heredoc boundary).",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/gen-codex-agents.py",
           "line": 39,
           "text": "model id mapping. The Codex CLI accepts model strings; pick",
@@ -123,6 +129,12 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/gen-codex-plugin.py",
+          "line": 82,
+          "text": "no `policy.authentication` \u2014 this plugin ships no app",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/install-codex.ps1",
           "line": 44,
           "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
@@ -130,7 +142,7 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 136,
+          "line": 137,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         },
@@ -144,7 +156,7 @@
       "anchors_in_file": [
         {
           "line": 41,
-          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: YYYY-MM-DD):`,",
           "type": "AIDEV-NOTE"
         },
         {
@@ -169,7 +181,7 @@
         }
       ]
     },
-    "scripts/gen-codex-agents.py": {
+    "scripts/conventions.py": {
       "adrs": [],
       "agents_md": [
         "AGENTS.md"
@@ -178,7 +190,7 @@
         {
           "file": "scripts/build-context-map.py",
           "line": 41,
-          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: YYYY-MM-DD):`,",
           "type": "AIDEV-NOTE"
         },
         {
@@ -206,6 +218,24 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 39,
+          "text": "model id mapping. The Codex CLI accepts model strings; pick",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 137,
+          "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-plugin.py",
+          "line": 82,
+          "text": "no `policy.authentication` \u2014 this plugin ships no app",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/install-codex.ps1",
           "line": 44,
           "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
@@ -213,7 +243,82 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 136,
+          "line": 137,
+          "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/score_adherence.py",
+          "line": 22,
+          "text": "these regexes are a column-0 / first-target SAMPLING heuristic,",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 126,
+          "text": "canonical longest-prefix role match; the context-surface hook mirrors this inline (can't import across the bash heredoc boundary).",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/gen-codex-agents.py": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 41,
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: YYYY-MM-DD):`,",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 42,
+          "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
+          "type": "AIDEV-QUESTION"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 109,
+          "text": "real anchor\\n\"}`, and prose",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 110,
+          "text": "...\" inside docstrings.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 182,
+          "text": "skip the manifest itself \u2014 its own JSON literals",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/conventions.py",
+          "line": 126,
+          "text": "canonical longest-prefix role match; the context-surface hook mirrors this inline (can't import across the bash heredoc boundary).",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-plugin.py",
+          "line": 82,
+          "text": "no `policy.authentication` \u2014 this plugin ships no app",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.ps1",
+          "line": 44,
+          "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 137,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         },
@@ -233,6 +338,89 @@
         {
           "line": 137,
           "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/gen-codex-plugin.py": {
+      "adrs": [
+        "docs/adr/0011-codex-plugin-marketplace-third-distribution-path.md"
+      ],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 41,
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: YYYY-MM-DD):`,",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 42,
+          "text": "` \u2014 case-sensitive, all-caps prefix per convention in",
+          "type": "AIDEV-QUESTION"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 109,
+          "text": "real anchor\\n\"}`, and prose",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 110,
+          "text": "...\" inside docstrings.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/build-context-map.py",
+          "line": 182,
+          "text": "skip the manifest itself \u2014 its own JSON literals",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/conventions.py",
+          "line": 126,
+          "text": "canonical longest-prefix role match; the context-surface hook mirrors this inline (can't import across the bash heredoc boundary).",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 39,
+          "text": "model id mapping. The Codex CLI accepts model strings; pick",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-agents.py",
+          "line": 137,
+          "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.ps1",
+          "line": 44,
+          "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 137,
+          "text": "copy to a staging sibling dir first, then atomically swap.",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/score_adherence.py",
+          "line": 22,
+          "text": "these regexes are a column-0 / first-target SAMPLING heuristic,",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 82,
+          "text": "no `policy.authentication` \u2014 this plugin ships no app",
           "type": "AIDEV-NOTE"
         }
       ]
@@ -256,9 +444,39 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/hooks/context-surface.sh",
           "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/overdue-todo-nudge.sh",
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
           "type": "AIDEV-NOTE"
         },
         {
@@ -293,8 +511,13 @@
           "type": "AIDEV-NOTE"
         },
         {
-          "line": 72,
+          "line": 73,
           "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
           "type": "AIDEV-NOTE"
         }
       ]
@@ -313,8 +536,14 @@
         },
         {
           "file": "scripts/hooks/ai-first-nudge.sh",
-          "line": 72,
+          "line": 73,
           "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
           "type": "AIDEV-NOTE"
         },
         {
@@ -324,9 +553,39 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/hooks/context-surface.sh",
           "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/overdue-todo-nudge.sh",
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
           "type": "AIDEV-NOTE"
         },
         {
@@ -376,8 +635,14 @@
         },
         {
           "file": "scripts/hooks/ai-first-nudge.sh",
-          "line": 72,
+          "line": 73,
           "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
           "type": "AIDEV-NOTE"
         },
         {
@@ -390,6 +655,24 @@
           "file": "scripts/hooks/context-surface.sh",
           "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/overdue-todo-nudge.sh",
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
           "type": "AIDEV-NOTE"
         },
         {
@@ -421,6 +704,16 @@
         {
           "line": 82,
           "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
           "type": "AIDEV-NOTE"
         }
       ]
@@ -441,8 +734,14 @@
         },
         {
           "file": "scripts/hooks/ai-first-nudge.sh",
-          "line": 72,
+          "line": 73,
           "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
           "type": "AIDEV-NOTE"
         },
         {
@@ -455,6 +754,36 @@
           "file": "scripts/hooks/block-secrets-precommit.sh",
           "line": 82,
           "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/overdue-todo-nudge.sh",
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
           "type": "AIDEV-NOTE"
         },
         {
@@ -490,7 +819,7 @@
         }
       ]
     },
-    "scripts/hooks/security-nudge.sh": {
+    "scripts/hooks/json_parse.sh": {
       "adrs": [],
       "agents_md": [
         "AGENTS.md"
@@ -504,8 +833,14 @@
         },
         {
           "file": "scripts/hooks/ai-first-nudge.sh",
-          "line": 72,
+          "line": 73,
           "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
           "type": "AIDEV-NOTE"
         },
         {
@@ -521,9 +856,236 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/hooks/context-surface.sh",
           "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/overdue-todo-nudge.sh",
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/security-nudge.sh",
+          "line": 19,
+          "text": "Stop hooks fire on EVERY session end. Keep this fast and",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 37,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 100,
+          "text": "the marker pattern is intentionally permissive \u2014 any line",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/stack-freshness.sh",
+          "line": 27,
+          "text": "SessionStart hooks run on EVERY new Claude/Codex session.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/hooks/overdue-todo-nudge.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 31,
+          "text": "this hook never modifies state besides the session-nudges",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 73,
+          "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/bare-repo-nudge.sh",
+          "line": 39,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 82,
+          "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/context-surface.sh",
+          "line": 74,
+          "text": "convert backslashes BEFORE abspath so that Windows-style",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/security-nudge.sh",
+          "line": 19,
+          "text": "Stop hooks fire on EVERY session end. Keep this fast and",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 37,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/skill-cheatsheet.sh",
+          "line": 100,
+          "text": "the marker pattern is intentionally permissive \u2014 any line",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/stack-freshness.sh",
+          "line": 27,
+          "text": "SessionStart hooks run on EVERY new Claude/Codex session.",
+          "type": "AIDEV-NOTE"
+        }
+      ],
+      "anchors_in_file": [
+        {
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
+          "type": "AIDEV-NOTE"
+        }
+      ]
+    },
+    "scripts/hooks/security-nudge.sh": {
+      "adrs": [],
+      "agents_md": [
+        "AGENTS.md"
+      ],
+      "anchors_in_dir": [
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 31,
+          "text": "this hook never modifies state besides the session-nudges",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 73,
+          "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/bare-repo-nudge.sh",
+          "line": 39,
+          "text": "SessionStart hooks fire on EVERY new session. Keep this",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 82,
+          "text": "the trailing \"Generic Password Assignment\" pattern below",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/context-surface.sh",
+          "line": 74,
+          "text": "convert backslashes BEFORE abspath so that Windows-style",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/overdue-todo-nudge.sh",
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
           "type": "AIDEV-NOTE"
         },
         {
@@ -567,8 +1129,14 @@
         },
         {
           "file": "scripts/hooks/ai-first-nudge.sh",
-          "line": 72,
+          "line": 73,
           "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
           "type": "AIDEV-NOTE"
         },
         {
@@ -584,9 +1152,39 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/hooks/context-surface.sh",
           "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/overdue-todo-nudge.sh",
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
           "type": "AIDEV-NOTE"
         },
         {
@@ -629,8 +1227,14 @@
         },
         {
           "file": "scripts/hooks/ai-first-nudge.sh",
-          "line": 72,
+          "line": 73,
           "text": "split into basename-only vs path patterns so a directory",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/ai-first-nudge.sh",
+          "line": 253,
+          "text": "blob is passed via BLOB_DATA env var, not stdin, because",
           "type": "AIDEV-NOTE"
         },
         {
@@ -646,9 +1250,39 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 106,
+          "text": "collect EVERY offending added line across all patterns in one",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/block-secrets-precommit.sh",
+          "line": 152,
+          "text": "a PreToolUse hook can only see the index as it was BEFORE the",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/hooks/context-surface.sh",
           "line": 74,
           "text": "convert backslashes BEFORE abspath so that Windows-style",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 53,
+          "text": "presence != working. On Windows, `python3` is by default the",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/json_parse.sh",
+          "line": 69,
+          "text": "independent of _cl_select_parser's jq-first choice \u2014 a hook may",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/hooks/overdue-todo-nudge.sh",
+          "line": 41,
+          "text": "SessionStart fires on EVERY new session \u2014 keep this fast and",
           "type": "AIDEV-NOTE"
         },
         {
@@ -687,7 +1321,7 @@
         {
           "file": "scripts/build-context-map.py",
           "line": 41,
-          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: YYYY-MM-DD):`,",
           "type": "AIDEV-NOTE"
         },
         {
@@ -715,6 +1349,12 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/conventions.py",
+          "line": 126,
+          "text": "canonical longest-prefix role match; the context-surface hook mirrors this inline (can't import across the bash heredoc boundary).",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/gen-codex-agents.py",
           "line": 39,
           "text": "model id mapping. The Codex CLI accepts model strings; pick",
@@ -727,8 +1367,14 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/gen-codex-plugin.py",
+          "line": 82,
+          "text": "no `policy.authentication` \u2014 this plugin ships no app",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/install-codex.sh",
-          "line": 136,
+          "line": 137,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         },
@@ -748,7 +1394,9 @@
       ]
     },
     "scripts/install-codex.sh": {
-      "adrs": [],
+      "adrs": [
+        "docs/adr/0011-codex-plugin-marketplace-third-distribution-path.md"
+      ],
       "agents_md": [
         "AGENTS.md"
       ],
@@ -756,7 +1404,7 @@
         {
           "file": "scripts/build-context-map.py",
           "line": 41,
-          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: YYYY-MM-DD):`,",
           "type": "AIDEV-NOTE"
         },
         {
@@ -784,6 +1432,12 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/conventions.py",
+          "line": 126,
+          "text": "canonical longest-prefix role match; the context-surface hook mirrors this inline (can't import across the bash heredoc boundary).",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/gen-codex-agents.py",
           "line": 39,
           "text": "model id mapping. The Codex CLI accepts model strings; pick",
@@ -793,6 +1447,12 @@
           "file": "scripts/gen-codex-agents.py",
           "line": 137,
           "text": "read-only subagents should declare sandbox_mode=read-only",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/gen-codex-plugin.py",
+          "line": 82,
+          "text": "no `policy.authentication` \u2014 this plugin ships no app",
           "type": "AIDEV-NOTE"
         },
         {
@@ -810,7 +1470,7 @@
       ],
       "anchors_in_file": [
         {
-          "line": 136,
+          "line": 137,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         }
@@ -825,7 +1485,7 @@
         {
           "file": "scripts/build-context-map.py",
           "line": 41,
-          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,",
+          "text": "regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: YYYY-MM-DD):`,",
           "type": "AIDEV-NOTE"
         },
         {
@@ -853,6 +1513,12 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/conventions.py",
+          "line": 126,
+          "text": "canonical longest-prefix role match; the context-surface hook mirrors this inline (can't import across the bash heredoc boundary).",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/gen-codex-agents.py",
           "line": 39,
           "text": "model id mapping. The Codex CLI accepts model strings; pick",
@@ -865,6 +1531,12 @@
           "type": "AIDEV-NOTE"
         },
         {
+          "file": "scripts/gen-codex-plugin.py",
+          "line": 82,
+          "text": "no `policy.authentication` \u2014 this plugin ships no app",
+          "type": "AIDEV-NOTE"
+        },
+        {
           "file": "scripts/install-codex.ps1",
           "line": 44,
           "text": "PowerShell's -replace is regex on BOTH args; a literal '$' in",
@@ -872,7 +1544,7 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 136,
+          "line": 137,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         }
@@ -882,24 +1554,6 @@
           "line": 22,
           "text": "these regexes are a column-0 / first-target SAMPLING heuristic,",
           "type": "AIDEV-NOTE"
-        }
-      ]
-    },
-    "templates/AGENTS.md.example": {
-      "adrs": [
-        "docs/adr/0009-agents-md-lean-budget-and-size-tiers.md",
-        "docs/adr/0010-naming-detect-and-conform-over-house-style.md"
-      ],
-      "agents_md": [
-        "AGENTS.md"
-      ],
-      "anchors_in_dir": [],
-      "anchors_in_file": [
-        {
-          "deadline": "2026-08-01",
-          "line": 200,
-          "text": "replace the polling loop with webhooks   # preferred",
-          "type": "AIDEV-TODO"
         }
       ]
     },

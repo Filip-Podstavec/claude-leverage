@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -595,6 +596,33 @@ def test_overdue_todo_nudge_rate_limit_per_day(tmp_path: Path) -> None:
     assert second.returncode == 0
     assert second.stdout.strip() == "", (
         f"second call same repo same day should be silent, got {second.stdout!r}"
+    )
+
+
+def test_convention_docs_use_placeholder_deadline_dates() -> None:
+    """Files that DOCUMENT the deadline convention must use YYYY-MM-DD
+    placeholders, never a concrete date. A real date in an example line rots:
+    once it lapses, the nudge flags the documentation itself (happened
+    2026-08-02 with overdue-todo-nudge.sh's own header — its example lines
+    start with the anchor token, so the first-token rule can't drop them)."""
+    convention_docs = [
+        REPO_ROOT / "scripts" / "hooks" / "overdue-todo-nudge.sh",
+        REPO_ROOT / "templates" / "AGENTS.md.example",
+        REPO_ROOT / "scripts" / "build-context-map.py",
+    ]
+    dated_example = re.compile(
+        r"AIDEV-(TODO|QUESTION)\((by:|deadline:)?\s*\d{4}-\d{2}-\d{2}\)"
+    )
+    offenders = []
+    for doc in convention_docs:
+        for lineno, line in enumerate(
+            doc.read_text(encoding="utf-8").splitlines(), start=1
+        ):
+            if dated_example.search(line):
+                offenders.append(f"{doc.name}:{lineno}: {line.strip()}")
+    assert not offenders, (
+        "concrete dates in convention-example anchors (use YYYY-MM-DD):\n"
+        + "\n".join(offenders)
     )
 
 

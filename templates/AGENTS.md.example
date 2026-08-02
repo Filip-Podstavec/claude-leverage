@@ -197,9 +197,9 @@ removing one requires an explicit decision in the commit / PR message.
 Three forms are recognized (pick whichever reads best):
 
 ```python
-# AIDEV-TODO(by: 2026-08-01): replace the polling loop with webhooks   # preferred
-# AIDEV-TODO(2026-08-01): replace the polling loop with webhooks       # short
-# AIDEV-TODO(deadline: 2026-08-01): ...                                # alternative
+# AIDEV-TODO(by: YYYY-MM-DD): replace the polling loop with webhooks   # preferred
+# AIDEV-TODO(YYYY-MM-DD): replace the polling loop with webhooks       # short
+# AIDEV-TODO(deadline: YYYY-MM-DD): ...                                # alternative
 ```
 
 Free-form notes in the parens (e.g. `AIDEV-TODO(Q3 2026)` or

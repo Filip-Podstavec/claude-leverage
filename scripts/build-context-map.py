@@ -38,7 +38,7 @@ BUILDER_VERSION = "1.9.0"  # bump on schema or anchor-extraction semantic change
 MANIFEST_NAME = ".claude-leverage-context-map.json"
 GENERATOR = "scripts/build-context-map.py"
 
-# AIDEV-NOTE: regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: 2026-08-01):`,
+# AIDEV-NOTE: regex matches `AIDEV-NOTE:`, `AIDEV-TODO(by: YYYY-MM-DD):`,
 # `AIDEV-QUESTION:` — case-sensitive, all-caps prefix per convention in
 # AGENTS.md. Deadline-bearing variant captures the date in group 2.
 ANCHOR_RE = re.compile(

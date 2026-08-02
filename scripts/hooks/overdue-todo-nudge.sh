@@ -9,10 +9,13 @@
 # that gap by flagging overdue anchors at session start, one line, once per
 # repo per day.
 #
-# Deadline forms recognized (matching the stack-check convention):
-#   AIDEV-TODO(by: 2026-08-01):        AIDEV-QUESTION(by: 2026-08-01):
-#   AIDEV-TODO(2026-08-01):            (bare ISO date)
-#   AIDEV-TODO(deadline: 2026-08-01):
+# Deadline forms recognized (matching the stack-check convention).
+# Placeholders on purpose: a concrete example date in THIS file would itself
+# trip the nudge once it lapses (it did, 2026-08-02) — the first-token rule
+# can't save a doc line that starts with the anchor token itself.
+#   AIDEV-TODO(by: YYYY-MM-DD):        AIDEV-QUESTION(by: YYYY-MM-DD):
+#   AIDEV-TODO(YYYY-MM-DD):            (bare ISO date)
+#   AIDEV-TODO(deadline: YYYY-MM-DD):
 #
 # Scope is deliberately tight to keep false positives near zero (a chatty
 # SessionStart nudge gets disabled, and then it protects nothing):
