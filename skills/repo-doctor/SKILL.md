@@ -77,7 +77,8 @@ Do NOT invoke for:
 
 ## Summary
 
-✅ 8 pass · ⚠️ 4 attention · ❌ 3 missing · **Score: 67/100**
+✅ 8 pass · ⚠️ 4 attention · ❌ 3 missing · **Score: 67/100** ·
+**Level: L1 Instructed (L2 blocked by Hygiene: deficit 2.5 > 2.0)**
 
 ## Foundation (loaded every session)
 
@@ -450,6 +451,29 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
     checks file paths in markdown); this one checks slash-command
     references against installed skills.
 
+## Levels
+
+A communication layer on top of the score (ADR 0012). Levels gate — they
+never average. Per group compute `points` (✅=1.0, ⚠️=0.5, ❌=0) and
+`evaluated` (dims minus N/A). A group **passes** iff
+`evaluated − points ≤ max(0.5, 0.2 × evaluated)` — the 80 % rule for
+groups of ≥3 dims, with a floor so 2-dim groups tolerate one ⚠️ but no
+❌. A required group with zero evaluated dims blocks its gate
+(`not assessable`), never satisfies it.
+
+| Level | Name | Requires (cumulative) |
+|---|---|---|
+| L0 | Ad-hoc | — |
+| L1 | Instructed | Foundation passes |
+| L2 | Maintained | Hygiene passes |
+| L3 | Explained | Why passes AND What passes |
+| L4 | Self-consistent | In-code passes AND Sync passes |
+
+Report the achieved level plus the blocking gate for the next one, e.g.
+`Level: L2 Maintained (L3 blocked by Why: deficit 1.0 > 0.5)`. With
+`--scope` narrowed, skip the levels line entirely — levels are only
+meaningful on a full run.
+
 ## Workflow
 
 1. **Resolve repo root.** `git rev-parse --show-toplevel`. If not in
@@ -487,6 +511,15 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
      "date": "2026-05-26",
      "score": 67,
      "summary": {"pass": 8, "attention": 4, "missing": 3},
+     "groups": {
+       "foundation": {"points": 2.5, "evaluated": 3},
+       "why": {"points": 1.0, "evaluated": 2},
+       "what": {"points": 2.0, "evaluated": 2},
+       "incode": {"points": 2.0, "evaluated": 2},
+       "hygiene": {"points": 6.5, "evaluated": 9},
+       "sync": {"points": 3.5, "evaluated": 4}
+     },
+     "level": {"n": 1, "name": "Instructed", "blocked_by": "hygiene"},
      "dimensions": [
        {"name": "agents-md-root", "status": "pass", "value": "4.2 KiB", "fix": null},
        {"name": "glossary-md", "status": "missing", "value": null, "fix": "/glossary-init"},
