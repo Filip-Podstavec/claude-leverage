@@ -13,8 +13,8 @@
 
 [![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.11.0-success)
-![Skills](https://img.shields.io/badge/skills-15-8b5cf6)
+![Version](https://img.shields.io/badge/version-1.16.0-success)
+![Skills](https://img.shields.io/badge/skills-16-8b5cf6)
 ![Hooks](https://img.shields.io/badge/hooks-9-orange)
 ![Subagents](https://img.shields.io/badge/subagents-3-1f6feb)
 
@@ -126,7 +126,7 @@ Full install (including Codex CLI) is below.
 ```
 
 That's it. **Restart Claude Code** (or run `/skill list` and `/agents` in a
-current session) to pick up all 15 skills and 3 subagents.
+current session) to pick up all 16 skills and 3 subagents.
 
 ### Codex CLI
 
@@ -172,7 +172,7 @@ pwsh scripts/install-codex.ps1        # Windows PowerShell
 2. Appends `@<repo-path>/AGENTS.md` to `~/.codex/AGENTS.md` so the canonical
    guidance loads on every Codex session.
 3. Copies `.codex/agents/*.toml` to `~/.codex/agents/`.
-4. Copies all 15 skills to `~/.agents/skills/claude-leverage/` so they work
+4. Copies all 16 skills to `~/.agents/skills/claude-leverage/` so they work
    in Codex sessions exactly as in Claude Code.
 
 **Idempotent**: re-running detects existing install via marker comments and
@@ -323,6 +323,11 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
   `--scope foundation|why|what|incode|hygiene|sync|all` for CI gating;
   `--semantic` adds an advisory truthfulness review (subagent,
   never in the score)
+- `/dynamic-check` - the only skill that executes repo-declared commands:
+  validates that the build/test/lint commands documented in AGENTS.md /
+  README quickstart actually run. Preview + explicit confirmation +
+  denylist tripwire + platform permission prompts (ADR 0013); fail-closed
+  when non-interactive; advisory — never feeds `/repo-doctor`'s score
 - `/refresh-context-map` - rebuild `.claude-leverage-context-map.json`,
   the manifest powering the `context-surface` PreToolUse hook. Run after
   anchor / per-dir `AGENTS.md` / ADR changes, or after a `git merge`

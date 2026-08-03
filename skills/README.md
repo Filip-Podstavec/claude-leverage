@@ -26,6 +26,7 @@ skills; users invoke skills, not subagents directly.
 | [`glossary-init/`](glossary-init/SKILL.md) | Bootstrap or extend `GLOSSARY.md` at repo root — domain terms specific to *this* repo. Surfaces candidates by identifier frequency; user supplies definitions. Read-only on code; never invents domain meaning. |
 | [`arch-map/`](arch-map/SKILL.md) | Bootstrap or refresh `architecture.yml` at repo root — machine-readable module metadata (path/role/stability/public_surface/depends_on/paired_with/owners). Hand-curated; the skill drafts, the user confirms. Validate-only mode for CI. |
 | [`repo-doctor/`](repo-doctor/SKILL.md) | Read-only AI-readiness audit. Scores ~24 dimensions across Foundation / Why / What / In-code / Hygiene / **Sync (code↔docs drift)**, reports a readiness level L0–L4 (gated, ADR 0012) + local score trend. Each gap → concrete fix action; `--fix` walks the top gaps. `--score` / `--json` / `--fail-on` / `--scope` for CI gating; `--semantic` adds an advisory truthfulness review. |
+| [`dynamic-check/`](dynamic-check/SKILL.md) | The only skill that executes repo-declared commands: validates that build/test/lint commands documented in AGENTS.md / README actually run. Preview + explicit confirmation + denylist tripwire (ADR 0013); fail-closed non-interactive; advisory — never feeds `/repo-doctor`'s score. |
 
 ## Install
 

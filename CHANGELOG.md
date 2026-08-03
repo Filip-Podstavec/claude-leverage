@@ -5,6 +5,32 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] — 2026-08-02
+
+### Added
+
+- **`/dynamic-check` skill** — the only skill in the stack that executes
+  repo-declared commands: validates that the build/test/lint commands
+  documented in `AGENTS.md` / README quickstart actually run
+  (pass/fail/timeout per command, `file:line` source attribution).
+  Safety contract in
+  [ADR 0013](docs/adr/0013-dynamic-check-separate-skill-and-consent-layers.md):
+  ships as a separate skill (never a `/repo-doctor` scope), frontmatter
+  pre-approves only `git rev-parse` (declared commands ride the platform's
+  normal permission prompts — verified against official docs that skill
+  `allowed-tools` is an expansion with per-turn scoping), non-skippable
+  preview + confirmation with per-command exclusion, denylist tripwire,
+  300 s timeouts, stop-after-3-failures, fail-closed when non-interactive.
+  Advisory — never feeds `/repo-doctor`'s score or levels.
+- **ADR 0013** — the layered-consent contract above.
+- **`tests/test_dynamic_check_skill.py`** — guards that the frontmatter
+  never grows a broad `Bash` grant, the denylist keeps its required
+  patterns, and the fail-closed wording stays.
+
+### Fixed
+
+- **Stale README version badge** (said 1.11.0 since v1.12).
+
 ## [1.15.0] — 2026-08-02
 
 ### Added
