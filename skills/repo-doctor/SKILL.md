@@ -307,54 +307,6 @@ code-shaped checks.
     - N/A under predicate P (pre-v1.14.0 this returned a free ✅ on
       code-less repos — that inflated scores and is fixed).
 
-### Engineering hygiene — delivery additions (4 checks, v1.14.0)
-
-21. **CI config present** — glob `.github/workflows/*.{yml,yaml}`,
-    `.gitlab-ci.yml`, `.circleci/config.yml`, `azure-pipelines.yml`,
-    `Jenkinsfile`, `.drone.yml`, `.gitea/workflows/*`.
-    - ✅ if ≥1 config found AND it declares a push/PR trigger
-      (grep `on:`, `trigger:`, `pipelines:` per system).
-    - ⚠️ if a config exists but no push/PR trigger is detectable.
-    - ❌ if none found.
-    - N/A under predicate P.
-
-22. **`.env.example` present** — first detect env-config usage: grep
-    `os\.environ|getenv\(|process\.env|dotenv|ENV\[` across source (same
-    noise-path filter as Dim 8) and count distinct files with hits.
-    - N/A if no env usage detected.
-    - ✅ if `.env.example` / `.env.sample` / `.env.template` exists with
-      ≥1 `KEY=`-shaped line.
-    - ⚠️ if env usage in 1–4 files and no example file.
-    - ❌ if env usage in ≥5 files and no example file (config surface is
-      clearly load-bearing and entirely undocumented).
-    - `.env`-not-gitignored is Dim 24's job — do not double-penalize here.
-
-23. **Reproducible dev environment** — check for
-    `.devcontainer/devcontainer.json`, `flake.nix`/`shell.nix`,
-    `docker-compose.y*ml` (or Dockerfile paired with compose/devcontainer),
-    `.tool-versions`, `mise.toml`; else for a lockfile
-    (`package-lock.json`, `poetry.lock`, `uv.lock`, `Cargo.lock`,
-    `go.sum`, `Gemfile.lock`).
-    - ✅ if an explicit environment definition is found.
-    - ✅ (with note "lockfile-level reproducibility") if only a lockfile —
-      for most single-language stacks a lockfile IS the reproducibility
-      story; don't punish the common healthy case.
-    - ⚠️ if neither. (A bare production Dockerfile without compose /
-      devcontainer does not count as a dev-environment definition.)
-    - N/A under predicate P.
-
-24. **Secret-hygiene guardrails** — only repo-visible, machine-independent
-    mechanisms count fully: `.pre-commit-config.yaml` mentioning
-    `gitleaks|detect-secrets|trufflehog`, `.gitleaks.toml`, a CI config
-    invoking one of those scanners, or an in-tree `.githooks/` pre-commit
-    running one.
-    - ✅ if ≥1 such mechanism found.
-    - ⚠️ if none, but root `AGENTS.md` carries the `claude-leverage:`
-      marker (stack adopted; hook enforcement is machine-local and not
-      verifiable from the repo — see ADR 0012 on why this caps at ⚠️) OR
-      `.gitignore` covers `.env` (minimal hygiene).
-    - ❌ if none of the above AND `.env` is not gitignored.
-
 ### Sync (5 checks — code ↔ docs drift detection)
 
 These dimensions check that the descriptive layer (architecture.yml,
@@ -458,6 +410,58 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
     Distinct from `/stack-check`'s markdown link audit (which
     checks file paths in markdown); this one checks slash-command
     references against installed skills.
+
+### Engineering hygiene — delivery additions (4 checks, v1.14.0)
+
+Numbered after Sync because they shipped later (numbering is
+append-only, same convention as Dims 16–20); they belong to the
+**Hygiene** group and `--scope hygiene`.
+
+21. **CI config present** — glob `.github/workflows/*.{yml,yaml}`,
+    `.gitlab-ci.yml`, `.circleci/config.yml`, `azure-pipelines.yml`,
+    `Jenkinsfile`, `.drone.yml`, `.gitea/workflows/*`.
+    - ✅ if ≥1 config found AND it declares a push/PR trigger
+      (grep `on:`, `trigger:`, `pipelines:` per system).
+    - ⚠️ if a config exists but no push/PR trigger is detectable.
+    - ❌ if none found.
+    - N/A under predicate P.
+
+22. **`.env.example` present** — first detect env-config usage: grep
+    `os\.environ|getenv\(|process\.env|dotenv|ENV\[` across source (same
+    noise-path filter as Dim 8) and count distinct files with hits.
+    - N/A if no env usage detected.
+    - ✅ if `.env.example` / `.env.sample` / `.env.template` exists with
+      ≥1 `KEY=`-shaped line.
+    - ⚠️ if env usage in 1–4 files and no example file.
+    - ❌ if env usage in ≥5 files and no example file (config surface is
+      clearly load-bearing and entirely undocumented).
+    - `.env`-not-gitignored is Dim 24's job — do not double-penalize here.
+
+23. **Reproducible dev environment** — check for
+    `.devcontainer/devcontainer.json`, `flake.nix`/`shell.nix`,
+    `docker-compose.y*ml` (or Dockerfile paired with compose/devcontainer),
+    `.tool-versions`, `mise.toml`; else for a lockfile
+    (`package-lock.json`, `poetry.lock`, `uv.lock`, `Cargo.lock`,
+    `go.sum`, `Gemfile.lock`).
+    - ✅ if an explicit environment definition is found.
+    - ✅ (with note "lockfile-level reproducibility") if only a lockfile —
+      for most single-language stacks a lockfile IS the reproducibility
+      story; don't punish the common healthy case.
+    - ⚠️ if neither. (A bare production Dockerfile without compose /
+      devcontainer does not count as a dev-environment definition.)
+    - N/A under predicate P.
+
+24. **Secret-hygiene guardrails** — only repo-visible, machine-independent
+    mechanisms count fully: `.pre-commit-config.yaml` mentioning
+    `gitleaks|detect-secrets|trufflehog`, `.gitleaks.toml`, a CI config
+    invoking one of those scanners, or an in-tree `.githooks/` pre-commit
+    running one.
+    - ✅ if ≥1 such mechanism found.
+    - ⚠️ if none, but root `AGENTS.md` carries the `claude-leverage:`
+      marker (stack adopted; hook enforcement is machine-local and not
+      verifiable from the repo — see ADR 0012 on why this caps at ⚠️) OR
+      `.gitignore` covers `.env` (minimal hygiene).
+    - ❌ if none of the above AND `.env` is not gitignored.
 
 ## Levels
 
