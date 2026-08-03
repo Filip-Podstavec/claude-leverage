@@ -13,14 +13,19 @@ description: >
   repro env, secret guardrails), AND Sync (code↔docs
   drift: arch-map vs disk, glossary vs code, per-dir AGENTS.md vs
   dir activity, CHANGELOG vs version, README slash-refs). Each gap
-  → concrete fix action. Differentiated from /init-repo (one-shot
-  bootstrap, writes files) and /stack-check (time-based freshness)
-  — this skill answers completeness AND drift in one pass. See ADR
-  0006 (initial design) and ADR 0007 (Sync addition) for rationale.
+  → concrete fix action. Reports a readiness level L0-L4 (gated, ADR
+  0012) + local score trend; --fix walks the top gaps; --semantic adds
+  an advisory truthfulness review via the readiness-reviewer subagent.
+  Differentiated from /init-repo (one-shot bootstrap, writes files)
+  and /stack-check (time-based freshness) — this skill answers
+  completeness, drift AND (opt-in) truthfulness in one pass. See ADR
+  0006 (initial design), ADR 0007 (Sync addition), ADR 0012 (levels +
+  deterministic core) for rationale.
 allowed-tools:
   - Read
   - Grep
   - Glob
+  - Task
   - Bash(git rev-parse:*)
   - Bash(git ls-files:*)
   - Bash(git log:*)
@@ -37,7 +42,7 @@ allowed-tools:
   - Bash(mkdir:*)
   - Bash(tail:*)
   - Bash(pwd:*)
-argument-hint: "[--score] [--json] [--fail-on missing|todo|stale] [--scope foundation|why|what|incode|hygiene|sync|all] [--quiet] [--no-history]"
+argument-hint: "[--score] [--json] [--fail-on missing|todo|stale|semantic] [--scope foundation|why|what|incode|hygiene|sync|all] [--semantic] [--quiet] [--no-history]"
 ---
 
 # /repo-doctor
@@ -58,7 +63,7 @@ This skill complements three existing ones with clean differentiation:
 |-------|---------------------|
 | `/init-repo` | "Set this fresh repo up." *(writes files)* |
 | `/stack-check` | "What I have — is it stale?" *(freshness audit)* |
-| `/repo-doctor` | "What I *don't* have — what's missing?" *(completeness audit + guided handoff via `--fix`)* |
+| `/repo-doctor` | "What I *don't* have — what's missing?" *(presence + drift + opt-in truthfulness; guided handoff via `--fix`)* |
 | `/security-review` | "Is this diff safe to commit?" *(orthogonal — code-level scan)* |
 
 ## When to invoke
@@ -503,6 +508,25 @@ meaningful on a full run.
    (bench/archive-*, node_modules, __pycache__, .git, dist, build,
    vendor, target, .next, .pytest_cache).
 
+3b. **Semantic review (only when `--semantic`).** Dispatch the
+    `readiness-reviewer` subagent (read-only; see its file for the S1–S5
+    dimension definitions). Render its JSON as:
+
+    ```markdown
+    ## Semantic review (advisory — not in the score, ADR 0012)
+
+    | Dim | Verdict | Confidence | Evidence | Fix |
+    |---|---|---|---|---|
+    | S1 AGENTS.md actionability | ⚠️ attention | high | AGENTS.md:42 — declares `make test`; no Makefile | replace with real command |
+    ```
+
+    With `--json`, attach the subagent object unmodified under a
+    top-level `"semantic"` key — never merged into `score`, `groups`,
+    or `level`. If the subagent fails, returns malformed JSON, or
+    subagent dispatch is unavailable in this runtime (Codex), report
+    `Semantic review: unavailable (<reason>)` and continue — never fail
+    the deterministic report over the advisory layer.
+
 4. **Compute the score** as simple sum: ✅ = 1.0, ⚠️ = 0.5, ❌ = 0.
    Divide by the number of dimensions actually evaluated — that is,
    24 minus the count of N/A verdicts (some Sync and Hygiene
@@ -590,6 +614,10 @@ meaningful on a full run.
    - `--fail-on todo` → exit 1 if any ⚠️ (TODO/draft state)
    - `--fail-on stale` → exit 1 if any "stale" status (overdue
      anchors, old session log)
+   - `--fail-on semantic` (requires `--semantic`) → exit 3 if any
+     semantic `fail` verdict with confidence ≥ medium. This gate is
+     non-deterministic by nature — it belongs in scheduled audits,
+     not per-commit CI.
 
    This is what makes the skill useful in CI as a gate.
 
@@ -633,6 +661,10 @@ meaningful on a full run.
 - `--fix [N]` — after the report, offer the top-N recommended actions
   one at a time and invoke the mapped skill on yes (workflow step 6b).
   Interactive only.
+- `--semantic` — additionally dispatch the `readiness-reviewer`
+  subagent (workflow step 3b; token cost: one Sonnet subagent run;
+  non-deterministic by nature). Deliberately NOT a `--scope` value:
+  `--scope all` stays "all deterministic dimensions" (ADR 0012).
 
 ## What this skill does NOT do
 
@@ -658,7 +690,10 @@ meaningful on a full run.
 Same SKILL.md ships in Codex via `scripts/install-codex.sh`. All
 deterministic checks use plain Bash + Read + Grep — no
 Claude-Code-specific tools. History (step 5b) uses plain shell
-redirection and works identically in both tools.
+redirection and works identically in both tools. **Exception:**
+`--semantic` requires Claude Code subagent dispatch; in Codex it
+degrades to `Semantic review: unavailable (no subagent dispatch)` and
+the deterministic scopes are unaffected.
 
 ## Future / not in scope here
 
