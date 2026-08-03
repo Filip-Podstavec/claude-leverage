@@ -45,9 +45,12 @@ def test_group_heading_counts_sum_to_dim_count():
 
 def test_scope_values_consistent_between_frontmatter_and_tunables():
     text = _skill_text()
-    frontmatter, body = text.split("---", 2)[1], text.split("---", 2)[2]
+    frontmatter = text.split("---", 2)[1]
+    # Anchor to the Tunables section — earlier prose legitimately mentions
+    # single scope values (e.g. "`--scope hygiene`") and must not match.
+    tunables_section = text[text.index("## Tunables"):]
     hint = re.search(r"--scope ([a-z|]+)", frontmatter)
-    tunable = re.search(r"`--scope ([a-z|]+)`", body)
+    tunable = re.search(r"`--scope ([a-z|]+)`", tunables_section)
     assert hint, "frontmatter argument-hint lost its --scope value list"
     assert tunable, "Tunables section lost its --scope value list"
     assert hint.group(1) == tunable.group(1), (
