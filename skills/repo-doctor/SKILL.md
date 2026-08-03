@@ -58,7 +58,7 @@ This skill complements three existing ones with clean differentiation:
 |-------|---------------------|
 | `/init-repo` | "Set this fresh repo up." *(writes files)* |
 | `/stack-check` | "What I have — is it stale?" *(freshness audit)* |
-| `/repo-doctor` | "What I *don't* have — what's missing?" *(completeness audit)* |
+| `/repo-doctor` | "What I *don't* have — what's missing?" *(completeness audit + guided handoff via `--fix`)* |
 | `/security-review` | "Is this diff safe to commit?" *(orthogonal — code-level scan)* |
 
 ## When to invoke
@@ -569,6 +569,18 @@ meaningful on a full run.
 6. **`--quiet`**: suppress ✅ rows; show only ⚠️ + ❌ + the summary +
    recommendations. Default is full report.
 
+6b. **`--fix [N]` (default 3).** After emitting the report, walk the
+    recommended actions top-down. Per item: show the gap + the mapped
+    skill, ask the user (one item at a time), on yes invoke that skill
+    (it carries its own confirmation flow) — or, where skill invocation
+    is unavailable in this runtime, print the exact slash command to
+    run; on no move on. The doctor itself writes nothing in the repo.
+    `--fix` implies the recommendations walk even when `--no-recommend`
+    is passed (`--fix` wins, with a note). After the walk, suggest
+    `/repo-doctor --quiet` to re-score. In non-interactive runs
+    (`--score`, `--json`, CI), ignore `--fix` and print a one-line
+    warning.
+
 7. **Exit code.** `0` always, UNLESS `--fail-on` was passed:
    - `--fail-on missing` → exit 2 if any ❌
    - `--fail-on todo` → exit 1 if any ⚠️ (TODO/draft state)
@@ -614,12 +626,17 @@ meaningful on a full run.
 - `--no-recommend` — skip the "Recommended next 3 actions" section.
 - `--no-history` — skip workflow step 5b (no state write, no Trend
   line).
+- `--fix [N]` — after the report, offer the top-N recommended actions
+  one at a time and invoke the mapped skill on yes (workflow step 6b).
+  Interactive only.
 
 ## What this skill does NOT do
 
 - **Bootstrap missing artifacts.** That's `/init-repo` (for AGENTS.md
   + .gitignore + logging template) and the per-skill bootstraps
   (`/glossary-init`, `/arch-map`, `/adr-new`, `/session-log`).
+  (`--fix` only *invokes* those skills interactively; it never writes
+  files itself.)
 - **Check version freshness.** That's `/stack-check`.
 - **Audit code for security issues.** That's `/security-review`.
 - **Run tests / linters.** Out of scope — those are project-local
