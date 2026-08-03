@@ -42,6 +42,9 @@ allowed-tools:
   - Bash(mkdir:*)
   - Bash(tail:*)
   - Bash(pwd:*)
+  - Bash(grep:*)
+  - Bash(head:*)
+  - Bash(cat:*)
 argument-hint: "[--score] [--json] [--fail-on missing|todo|stale|semantic] [--scope foundation|why|what|incode|hygiene|sync|all] [--semantic] [--quiet] [--no-history]"
 ---
 
@@ -167,9 +170,12 @@ How each dimension can be gamed — and what counters it:
 before trusting a suspiciously green report.
 
 **Predicate P (no-code repo):** the repo has zero tracked files matching
-the Dim 3 code-extension list. Dimensions that reference P return N/A
-when it holds — a docs-only repo gets no verdict (and no free ✅) on
-code-shaped checks.
+the Dim 3 code-extension list (which includes `.sh` — shell is code).
+Dimensions that reference P return N/A when it holds — a docs-only repo
+gets no verdict (and no free ✅) on code-shaped checks.
+
+Prefer the dedicated Grep/Glob tools for pattern scans; the `Bash`
+allowlist covers the enumerated helpers, not arbitrary pipelines.
 
 ### Foundation (3 checks — loaded every session, agent-facing)
 
@@ -232,9 +238,11 @@ code-shaped checks.
 
 8. **AIDEV anchor density** — `grep -rE 'AIDEV-(NOTE|TODO|QUESTION)'`
    across tracked files (skip bench archive, vendor, node_modules,
-   __pycache__, .git, dist, build). Count matches. Divide by total
-   tracked code LOC (`git ls-files` filtered to code extensions →
-   `wc -l`). Express as anchors-per-KLOC. Bands use half-open
+   __pycache__, .git, dist, build; exclude matches inside test files —
+   there they are overwhelmingly fixture string literals, not anchors).
+   Count matches. Divide by total tracked code LOC (`git ls-files`
+   filtered to code extensions incl. `.sh` → `wc -l`). Express as
+   anchors-per-KLOC. Bands use half-open
    intervals (`[a, b)`) so every value falls in exactly one band:
    - ❌ if density `< 0.3/KLOC` AND total LOC `> 1000` (the repo is
      big enough that the absence is signal).
@@ -247,7 +255,12 @@ code-shaped checks.
    anchor walk (intentional overlap; `/stack-check` provides the
    full actionable detail, this dimension just surfaces the count
    in the completeness report). Parse `AIDEV-(TODO|QUESTION)(by:
-   YYYY-MM-DD)` and compare to today.
+   YYYY-MM-DD)` and compare to today. File scope mirrors the
+   `overdue-todo-nudge` hook: source code only — skip markdown/json
+   and the docs/templates/tests/bench/workflows trees (that's where
+   the convention's own example anchors and fixture literals live),
+   and apply the first-token rule (an AIDEV-NOTE quoting a TODO
+   example doesn't count).
    - ✅ if 0 overdue AND 0 due-soon.
    - ⚠️ if ≥1 due-soon (next 14 days) but 0 overdue.
    - ❌ if ≥1 overdue. Report top 3 with `file:line` and days
@@ -284,14 +297,16 @@ code-shaped checks.
     (`print(`, `console\.(log|info|warn|error)\(`, `fmt\.Print`,
     `println!`) vs structured logger imports (`structlog`, `pino`,
     `slog`, `tracing::`, `log/slog`).
-    - ❌ if ≥10 unstructured calls AND no structured-logger import
-      detected.
+    - N/A if no programming language with an app-logging convention
+      is detected, OR the `print(`-style hits are CLI stdout of
+      scripts/generators rather than application logging (shell-heavy
+      meta-repos, build tooling — stdout IS their interface). N/A
+      shrinks the divisor; don't award a ✅ for logging that doesn't
+      exist.
+    - ❌ if ≥10 unstructured app-logging calls AND no
+      structured-logger import detected.
     - ⚠️ if mixed (both kinds present).
-    - ✅ if all logging looks structured OR repo has <5 logging
-      calls total (e.g. a shell-heavy meta-repo like this one —
-      explicitly N/A rather than a failure).
-    - Skip the check entirely if no programming language with a
-      logging convention is detected.
+    - ✅ if all app logging looks structured.
 
 13. **`.gitignore` claude-leverage state** — `grep -E
     '\.last-stack-check|claude-leverage' .gitignore`.
@@ -309,7 +324,9 @@ code-shaped checks.
 
 15. **Language manifest present** — `pyproject.toml`, `package.json`,
     `go.mod`, `Cargo.toml`, `Gemfile`, `composer.json`, `pom.xml`,
-    `mix.exs`. (Same list as `bare-repo-nudge.sh`.)
+    `mix.exs` (same list as `bare-repo-nudge.sh`), plus
+    `.claude-plugin/plugin.json` for plugin repos — keeping this list
+    consistent with Dim 19's manifest precedence.
     - ❌ if none found.
     - ✅ if found. Report which manifest(s) found.
     - N/A under predicate P (pre-v1.14.0 this returned a free ✅ on
@@ -409,6 +426,9 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
     - If `commands/foo.md` exists → resolved.
     - If text within 200 chars of the reference says "external" /
       "from `<plugin>`" / "upstream" → resolved (external skill).
+    - If text within 200 chars says "removed" / "renamed" /
+      "deprecated" / "historical" → resolved (historical mention,
+      e.g. a CHANGELOG-style "vX removed /foo" line).
     - Otherwise → unresolved.
     - ✅ if all resolved.
     - ⚠️ if `1–2` unresolved.
@@ -436,8 +456,14 @@ append-only, same convention as Dims 16–20); they belong to the
 
 22. **`.env.example` present** — first detect env-config usage: grep
     `os\.environ|getenv\(|process\.env|dotenv|ENV\[` across source (same
-    noise-path filter as Dim 8) and count distinct files with hits.
+    noise-path filter as Dim 8, **excluding test files** — tests set env
+    for fixtures, they don't consume config) and count distinct files
+    with hits.
     - N/A if no env usage detected.
+    - N/A if there is no dotenv-style loader AND every detected read
+      uses a single project-prefixed override namespace (e.g.
+      `CLAUDE_LEVERAGE_*`) — those are opt-in feature flags, not
+      required configuration an agent must discover.
     - ✅ if `.env.example` / `.env.sample` / `.env.template` exists with
       ≥1 `KEY=`-shaped line.
     - ⚠️ if env usage in 1–4 files and no example file.
@@ -595,7 +621,9 @@ meaningful on a full run.
     version, `evaluated` = score divisor, `score`, `groups` from step 5,
     `level`), NOT the full report. If the file exceeds ~200 lines, trim
     it to the last 100 (`tail -n 100` into a temp file in the same dir,
-    then move it back) and say so.
+    then move it back) and say so. Finally refresh the freshness
+    timestamp the Hard rules mention:
+    `date +%s > "$STATE_DIR/.last-repo-doctor"`.
 
 6. **`--quiet`**: suppress ✅ rows; show only ⚠️ + ❌ + the summary +
    recommendations. Default is full report.
