@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "anchor_count": 42,
+    "anchor_count": 43,
     "builder_version": "1.9.0",
     "conventions": {
       "casing": {
@@ -28,7 +28,7 @@
       ]
     },
     "file_count": 24,
-    "generated_at": "2026-08-02T19:52:37+00:00",
+    "generated_at": "2026-08-03T14:43:27+00:00",
     "generator": "scripts/build-context-map.py",
     "repo_root": ".",
     "schema_version": 1
@@ -142,7 +142,13 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 137,
+          "line": 62,
+          "text": "probe EXECUTION, not presence \u2014 on Windows `python3` is often",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 149,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         },
@@ -243,7 +249,13 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 137,
+          "line": 62,
+          "text": "probe EXECUTION, not presence \u2014 on Windows `python3` is often",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 149,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         },
@@ -318,7 +330,13 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 137,
+          "line": 62,
+          "text": "probe EXECUTION, not presence \u2014 on Windows `python3` is often",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 149,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         },
@@ -406,7 +424,13 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 137,
+          "line": 62,
+          "text": "probe EXECUTION, not presence \u2014 on Windows `python3` is often",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 149,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         },
@@ -1374,7 +1398,13 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 137,
+          "line": 62,
+          "text": "probe EXECUTION, not presence \u2014 on Windows `python3` is often",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 149,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         },
@@ -1470,7 +1500,12 @@
       ],
       "anchors_in_file": [
         {
-          "line": 137,
+          "line": 62,
+          "text": "probe EXECUTION, not presence \u2014 on Windows `python3` is often",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "line": 149,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         }
@@ -1544,7 +1579,13 @@
         },
         {
           "file": "scripts/install-codex.sh",
-          "line": 137,
+          "line": 62,
+          "text": "probe EXECUTION, not presence \u2014 on Windows `python3` is often",
+          "type": "AIDEV-NOTE"
+        },
+        {
+          "file": "scripts/install-codex.sh",
+          "line": 149,
           "text": "copy to a staging sibling dir first, then atomically swap.",
           "type": "AIDEV-NOTE"
         }
