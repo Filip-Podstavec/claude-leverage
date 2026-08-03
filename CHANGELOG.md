@@ -5,6 +5,33 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] — 2026-08-02
+
+### Added
+
+- **`readiness-reviewer` subagent** (Sonnet, read-only) — judges whether
+  discoverability artifacts tell the truth: S1 AGENTS.md actionability,
+  S2 README truthfulness, S3 ADR substance, S4 instruction conflicts,
+  S5 glossary informativeness. Evidence-or-silence rule (`file:line` per
+  finding), prompt-injection defense, low-confidence findings capped at
+  `attention`. Codex TOML parity generated.
+- **`/repo-doctor --semantic`** — dispatches the subagent and renders its
+  JSON as a separate advisory section. Deliberately a dedicated flag, not a
+  `--scope` value: `--scope all` stays "all deterministic dimensions"
+  (ADR 0012); verdicts never enter the score, groups, or level. A failed /
+  malformed / unavailable subagent degrades to
+  `Semantic review: unavailable (<reason>)` — the deterministic report
+  never fails over the advisory layer.
+- **`--fail-on semantic`** — opt-in exit-3 gate on semantic `fail`
+  verdicts with confidence ≥ medium; documented as belonging in scheduled
+  audits, not per-commit CI.
+
+### Changed
+
+- **Codex parity section is now honest about the exception:** `--semantic`
+  needs Claude Code subagent dispatch and degrades gracefully in Codex;
+  deterministic scopes unaffected.
+
 ## [1.14.0] — 2026-08-02
 
 ### Added

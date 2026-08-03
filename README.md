@@ -16,7 +16,7 @@
 ![Version](https://img.shields.io/badge/version-1.11.0-success)
 ![Skills](https://img.shields.io/badge/skills-15-8b5cf6)
 ![Hooks](https://img.shields.io/badge/hooks-9-orange)
-![Subagents](https://img.shields.io/badge/subagents-2-1f6feb)
+![Subagents](https://img.shields.io/badge/subagents-3-1f6feb)
 
 </div>
 
@@ -126,7 +126,7 @@ Full install (including Codex CLI) is below.
 ```
 
 That's it. **Restart Claude Code** (or run `/skill list` and `/agents` in a
-current session) to pick up all 15 skills and 2 subagents.
+current session) to pick up all 15 skills and 3 subagents.
 
 ### Codex CLI
 
@@ -699,7 +699,7 @@ echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
 ```bash
 # Linux / macOS / WSL2
 rm -rf ~/.agents/skills/claude-leverage
-rm    ~/.codex/agents/security-reviewer.toml ~/.codex/agents/flaky-test-isolator.toml
+rm    ~/.codex/agents/security-reviewer.toml ~/.codex/agents/flaky-test-isolator.toml ~/.codex/agents/readiness-reviewer.toml
 # restore original ~/.codex/hooks.json (the installer leaves a .bak)
 mv ~/.codex/hooks.json.pre-claude-leverage.bak ~/.codex/hooks.json 2>/dev/null \
    || rm ~/.codex/hooks.json
@@ -711,7 +711,7 @@ PowerShell variant:
 
 ```powershell
 Remove-Item -Recurse -Force $env:USERPROFILE\.agents\skills\claude-leverage
-Remove-Item -Force $env:USERPROFILE\.codex\agents\security-reviewer.toml,$env:USERPROFILE\.codex\agents\flaky-test-isolator.toml
+Remove-Item -Force $env:USERPROFILE\.codex\agents\security-reviewer.toml,$env:USERPROFILE\.codex\agents\flaky-test-isolator.toml,$env:USERPROFILE\.codex\agents\readiness-reviewer.toml
 $bak = "$env:USERPROFILE\.codex\hooks.json.pre-claude-leverage.bak"
 if (Test-Path $bak) { Move-Item -Force $bak "$env:USERPROFILE\.codex\hooks.json" }
 else { Remove-Item -Force "$env:USERPROFILE\.codex\hooks.json" }
