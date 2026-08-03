@@ -35,15 +35,11 @@ allowed-tools:
   - Bash(stat:*)
   - Bash(date:*)
   - Bash(find:*)
-  - Bash(basename:*)
-  - Bash(cksum:*)
-  - Bash(cut:*)
   - Bash(tail:*)
-  - Bash(pwd:*)
   - Bash(grep:*)
   - Bash(head:*)
   - Bash(cat:*)
-argument-hint: "[--score] [--json] [--fail-on missing|todo|stale|semantic] [--scope foundation|why|what|incode|hygiene|sync|all] [--semantic] [--quiet] [--no-history]"
+argument-hint: "[--score] [--json] [--fail-on missing|todo|stale|semantic] [--scope foundation|why|what|incode|hygiene|sync|all] [--semantic] [--fix N] [--quiet] [--no-history] [--no-recommend]"
 ---
 
 # /repo-doctor
@@ -92,7 +88,7 @@ Do NOT invoke for:
 
 ## Summary
 
-✅ 8 pass · ⚠️ 4 attention · ❌ 3 missing · **Score: 67/100** ·
+✅ 11 pass · ⚠️ 8 attention · ❌ 5 missing · **Score: 63/100** ·
 **Level: L1 Instructed (L2 blocked by Hygiene: deficit 2.5 > 2.0)**
 
 ## Foundation (loaded every session)
@@ -172,8 +168,11 @@ the Dim 3 code-extension list (which includes `.sh` — shell is code).
 Dimensions that reference P return N/A when it holds — a docs-only repo
 gets no verdict (and no free ✅) on code-shaped checks.
 
-Prefer the dedicated Grep/Glob tools for pattern scans; the `Bash`
-allowlist covers the enumerated helpers, not arbitrary pipelines.
+Prefer the dedicated Grep/Glob tools for pattern scans. The `Bash`
+allowlist covers simple single-binary helper calls only — compound
+commands and `VAR=$(...)` assignments (the history slug/append in step
+5b) do not prefix-match any allowlist entry and ride the session's
+normal permission prompt by design (ADR 0012, Decision 6).
 
 ### Foundation (3 checks — loaded every session, agent-facing)
 
@@ -194,7 +193,7 @@ allowlist covers the enumerated helpers, not arbitrary pipelines.
    - ✅ if exists with `@AGENTS.md` import.
 
 3. **Per-directory `AGENTS.md`** — for each top-level source dir
-   (heuristic: has files matching `*.py|*.ts|*.tsx|*.js|*.jsx|*.go|*.rs|*.java|*.rb|*.php|*.cs|*.kt|*.swift`)
+   (heuristic: has files matching `*.py|*.ts|*.tsx|*.js|*.jsx|*.go|*.rs|*.java|*.rb|*.php|*.cs|*.kt|*.swift|*.sh|*.bash`)
    compute LOC (`wc -l` aggregated). For each with > 500 LOC and no
    `AGENTS.md` at that dir root, count it.
    - ✅ if 0 such dirs.
@@ -577,10 +576,10 @@ meaningful on a full run.
      "groups": {
        "foundation": {"points": 2.5, "evaluated": 3},
        "why": {"points": 1.0, "evaluated": 2},
-       "what": {"points": 2.0, "evaluated": 2},
-       "incode": {"points": 2.0, "evaluated": 2},
-       "hygiene": {"points": 6.5, "evaluated": 9},
-       "sync": {"points": 3.5, "evaluated": 4}
+       "what": {"points": 1.5, "evaluated": 2},
+       "incode": {"points": 1.5, "evaluated": 2},
+       "hygiene": {"points": 2.0, "evaluated": 4},
+       "sync": {"points": 1.5, "evaluated": 2}
      },
      "level": {"n": 1, "name": "Instructed", "blocked_by": "hygiene"},
      "dimensions": [
@@ -609,16 +608,19 @@ meaningful on a full run.
     `Trend: 61 → 67 since 2026-07-12 (dimension set changed 20 → 22 — delta not comparable)`.
     Then `mkdir -p "$STATE_DIR/repo-doctor"` and append **exactly this
     shape of command — do NOT retype or rewrite existing file contents;
-    append only**. The `mkdir`/`printf` writes are deliberately NOT in
-    `allowed-tools` — write-capable commands with wildcard args would
-    be a prose-gated write primitive, the exact failure mode ADR 0012
-    (f) forbids. They go through the session's normal permission
-    prompt; a user who accepts the state-dir write can allowlist the
-    two commands in their own settings, and `--no-history` avoids the
-    prompt entirely:
+    append only**. None of the 5b commands (slug assignment, `mkdir`,
+    `printf` append, trim `mv`) are in `allowed-tools` — write-capable
+    commands with wildcard args would be a prose-gated write primitive,
+    the exact failure mode ADR 0012 (Decision 6) forbids, and compound/
+    assignment commands wouldn't prefix-match anyway. Expect 1–2
+    permission prompts per run; a user who accepts the state-dir write
+    can allowlist the exact commands in their own settings, and
+    `--no-history` avoids the prompts entirely. In a restricted run
+    where the prompt is denied, skip history silently — never fail the
+    report over it:
 
     ```bash
-    printf '%s\n' '{"date":"2026-08-01","v":"1.14.0","evaluated":22,"score":67,"groups":{...},"level":1}' >> "$STATE_DIR/repo-doctor/$SLUG.jsonl"
+    printf '%s\n' '{"date":"<YYYY-MM-DD>","v":"<plugin version>","evaluated":<divisor>,"score":<score>,"groups":{...},"level":<n>}' >> "$STATE_DIR/repo-doctor/$SLUG.jsonl"
     ```
 
     The record is the compact one-line JSON (`date`, `v` = plugin
@@ -681,10 +683,12 @@ meaningful on a full run.
 ## Tunables
 
 - `--score` — print only the integer 0–100 score on stdout, no
-  Markdown. Useful for CI scripts: `score=$(claude /skill
-  repo-doctor --score)`.
+  Markdown (suppresses the Trend line too; the history append itself
+  still happens unless `--no-history`). Useful for CI scripts:
+  `score=$(claude /skill repo-doctor --score)`.
 - `--json` — structured output (see step 5).
-- `--fail-on missing|todo|stale` — exit non-zero per step 7.
+- `--fail-on missing|todo|stale|semantic` — exit non-zero per step 7
+  (`semantic` requires `--semantic`).
 - `--scope foundation|why|what|incode|hygiene|sync|all` — narrow the
   check set. `sync` runs only Dimensions 16–20 (drift detection);
   useful for "did my last commit invalidate any docs?" runs.

@@ -59,6 +59,20 @@ def test_scope_values_consistent_between_frontmatter_and_tunables():
     )
 
 
+def test_fail_on_values_consistent_between_frontmatter_and_tunables():
+    text = _skill_text()
+    frontmatter = text.split("---", 2)[1]
+    tunables_section = text[text.index("## Tunables"):]
+    hint = re.search(r"--fail-on ([a-z|]+)", frontmatter)
+    tunable = re.search(r"`--fail-on ([a-z|]+)`", tunables_section)
+    assert hint, "frontmatter argument-hint lost its --fail-on value list"
+    assert tunable, "Tunables section lost its --fail-on value list"
+    assert hint.group(1) == tunable.group(1), (
+        f"--fail-on lists diverged: frontmatter={hint.group(1)!r} "
+        f"tunables={tunable.group(1)!r}"
+    )
+
+
 def test_gaming_doc_has_one_row_per_dimension():
     rows = re.findall(r"^\| (\d+) \|", GAMING.read_text(encoding="utf-8"), re.M)
     assert sorted(int(r) for r in rows) == list(range(1, DIM_COUNT + 1)), (

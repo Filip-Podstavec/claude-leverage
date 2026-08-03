@@ -10,7 +10,7 @@ The readiness methodology (ADR 0012) leaves one question no read-only layer
 can answer: do the build/test/lint commands a repo *declares* (AGENTS.md,
 README quickstart) actually run? Answering it means executing repo-declared
 commands — arbitrary code execution by indirection (`make setup` can run
-anything through scripts no denylist sees). ADR 0012 (f) reserved the
+anything through scripts no denylist sees). ADR 0012 (Decision 6) reserved the
 carve-out; this ADR fixes the contract. Load-bearing facts verified against
 official Claude Code docs (2026-08-02): skill `allowed-tools` is an
 **expansion, not a whitelist** — unlisted tools remain callable under the
@@ -76,7 +76,8 @@ the next user message); plain `Bash` ≡ `Bash(*)` pre-approves everything.
 
 ## Alternatives considered
 
-- **`--scope dynamic` on `/repo-doctor`** — rejected per ADR 0012 (f).
+- **`--scope dynamic` on `/repo-doctor`** — rejected per ADR 0012
+  (Decision 6).
 - **Pre-approving `Bash(*)` in the skill frontmatter** — rejected: removes
   the platform prompt layer, and per official docs plain `Bash` approves
   everything for the turn.

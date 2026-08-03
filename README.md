@@ -319,7 +319,7 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
   Reports a readiness level L0–L4 (gated, not averaged — ADR 0012)
   plus a local score trend; `--fix` walks the top gaps. Each gap →
   concrete fix action. `--score` / `--json` /
-  `--fail-on missing|todo|stale` /
+  `--fail-on missing|todo|stale|semantic` /
   `--scope foundation|why|what|incode|hygiene|sync|all` for CI gating;
   `--semantic` adds an advisory truthfulness review (subagent,
   never in the score)

@@ -23,7 +23,7 @@ trusting a suspiciously green report — yours or a vendor's.
 | 10 | Tests present | empty `tests/` dir | file-count ≥ 1 check; Dim 11 measures substance |
 | 11 | Test/source ratio | trivial assert-true tests inflate test LOC | ratio `> 1.5` band flags absurd inflation; quality not judged — accepted |
 | 12 | Structured logging | import `structlog`, keep using `print(` | mixed-usage grep flags both kinds present |
-| 13 | .gitignore state | — (binary presence check, nothing to fake) | — |
+| 13 | .gitignore state | pattern present in `.gitignore` without actually covering the state files | pattern grep only — effectiveness not verified; accepted |
 | 14 | README quickstart | quickstart heading with no real content | heading-only check — accepted; semantic review (S2) verifies truthfulness |
 | 15 | Language manifest | empty `pyproject.toml` | presence-only — accepted; `/dynamic-check` proves declared commands run |
 | 16 | arch.yml ↔ disk | keep paths valid, let `role`/`stability` prose rot | symbol grep catches renamed `public_surface`; prose staleness accepted |

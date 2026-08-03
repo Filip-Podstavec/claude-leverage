@@ -16,22 +16,23 @@ def _text() -> str:
     return SKILL.read_text(encoding="utf-8")
 
 
-def test_frontmatter_does_not_preapprove_broad_bash():
+def test_frontmatter_allowed_tools_is_exactly_the_readonly_set():
     frontmatter = _text().split("---")[1]
-    assert re.search(r"^\s*-\s*Bash\(git rev-parse:\*\)\s*$", frontmatter, re.M), (
-        "read-only helper grant Bash(git rev-parse:*) missing from allowed-tools"
-    )
-    assert not re.search(r"^\s*-\s*Bash(\(\*\))?\s*$", frontmatter, re.M), (
-        "plain `Bash` / `Bash(*)` in allowed-tools pre-approves every command "
-        "for the turn; forbidden by ADR 0013 (platform prompts are a consent "
-        "layer, not an obstacle)"
+    tools = re.findall(r"^\s*-\s*(\S.*?)\s*$", frontmatter.split("allowed-tools:")[1], re.M)
+    assert tools == ["Read", "Grep", "Glob", "Bash(git rev-parse:*)"], (
+        f"allowed-tools drifted from the exact read-only set required by "
+        f"ADR 0013 (platform prompts are a consent layer, not an obstacle); "
+        f"got {tools}"
     )
 
 
 def test_denylist_covers_required_patterns():
+    # Slice to the denylist step itself — `sudo` etc. also appear in the
+    # report example, which would keep this green after a real removal.
     body = _text()
+    denylist_step = body[body.index("**Denylist screen.**"):body.index("**Preview + confirm")]
     for pattern in ["sudo", "git push", "--privileged", "npm publish", "twine upload"]:
-        assert pattern in body, f"denylist row missing: {pattern}"
+        assert pattern in denylist_step, f"denylist row missing: {pattern}"
 
 
 def test_confirmation_step_is_non_skippable_and_fails_closed():
