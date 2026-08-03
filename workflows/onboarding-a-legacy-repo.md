@@ -21,8 +21,9 @@ This guide splits the work into two buckets:
 
 ## Step 1 — Audit first (read-only): `/repo-doctor`
 
-Before changing anything, get the map. `/repo-doctor` is read-only and scores
-~20 dimensions (Foundation / Why / What / In-code / Hygiene / Sync), each with a
+Before changing anything, get the map. `/repo-doctor` is read-only on the repo
+(writes only local state for its score trend) and scores ~24 dimensions
+(Foundation / Why / What / In-code / Hygiene / Sync), each with a
 concrete fix action.
 
 ```

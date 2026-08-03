@@ -5,6 +5,56 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] — 2026-08-02
+
+### Added
+
+- **`/repo-doctor` presence dimensions 21–24** (Hygiene group): CI config
+  (with push/PR-trigger check), `.env.example` (gated on detected env-config
+  usage), reproducible dev environment (devcontainer/nix/compose/tool-pins,
+  lockfile counts as ✅-with-note), and secret-hygiene guardrails (only
+  repo-visible mechanisms score ✅ — the stack's own `claude-leverage:`
+  marker deliberately caps at ⚠️, see ADR 0012).
+- **Readiness levels L0–L4** — gated, not averaged: L1 Instructed
+  (Foundation) → L2 Maintained (Hygiene) → L3 Explained (Why+What) → L4
+  Self-consistent (In-code+Sync). Canonical deficit gate formula in
+  [ADR 0012](docs/adr/0012-repo-doctor-levels-and-deterministic-core.md);
+  a required group with all dims N/A blocks its gate (`not assessable`).
+- **Local score history + trend** — each full run appends a compact JSON
+  record to `$STATE_DIR/repo-doctor/<slug>.jsonl` (shell redirection,
+  canonicalized-path slug, no cloud/telemetry/`origin` requirement); the
+  Summary gains a `Trend: 61 → 67 (+6)` line, annotated (not celebrated)
+  when the dimension set changed between runs. Opt-out: `--no-history`.
+- **`--fix [N]`** — guided handoff: walks the top-N recommended actions and
+  invokes the mapped bootstrap skill per confirmed item; the doctor itself
+  still writes nothing in the repo. Ignored with a warning in
+  non-interactive runs.
+- **`docs/repo-doctor-gaming.md`** — anti-Goodhart companion: one row per
+  dimension documenting how it's gamed and what counters it.
+- **ADR 0012** — deterministic-core / advisory-halo contract: the 0–100
+  score never includes model-judged or execution-dependent results.
+- **`tests/test_repo_doctor_skill.py`** — regex guards for dimension
+  numbering, group-heading counts, `--scope` list consistency, and
+  gaming-doc row coverage.
+
+### Fixed
+
+- **Dim 15 (language manifest) returned a free ✅ on code-less repos** —
+  now N/A under the shared no-code predicate, so docs-only repos don't get
+  score inflation.
+- **`--scope` value list normalized** to
+  `foundation|why|what|incode|hygiene|sync|all` — the frontmatter hint was
+  missing `sync` and there was no scope name for the In-code group.
+- **Missing `Bash(git log:*)` in `/repo-doctor` allowed-tools** — Sync
+  dimensions 16–18 have required `git log` since v1.7.0.
+- **Stale "~15 dimensions" claim** in the skill's What-it-does line.
+
+### Changed
+
+- **Score weight shifts toward Hygiene** (6/20 → 10/24 of dimensions) by
+  appending dims 21–24; accepted and documented rather than re-weighted
+  (ADR 0012), same call as the ADR 0007 divisor change.
+
 ## [1.13.0] — 2026-07-12
 
 ### Added

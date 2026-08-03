@@ -1,6 +1,6 @@
 {
   "name": "claude-leverage",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, /security-review, /repo-map, /stack-check, portable statusline. Designed to complement other skills-based plugins, not replace them.",
   "author": {
     "name": "Filip Podstavec",

@@ -101,9 +101,10 @@ Three properties guide every decision in this repo:
 
 Then make the repo AI-ready, top-down:
 
-1. **`/repo-doctor`** - read-only AI-readiness audit. Scores ~20 dimensions
-   (Foundation / Why / What / In-code / Hygiene / Sync) and names the gaps that
-   matter most.
+1. **`/repo-doctor`** - read-only AI-readiness audit. Scores ~24 dimensions
+   (Foundation / Why / What / In-code / Hygiene / Sync), reports a readiness
+   level (L0–L4) with a local score trend, and names the gaps that matter
+   most (`--fix` walks you through them).
 2. **Fix the top gaps it reports** - usually `/init-repo` (drop in a root
    `AGENTS.md`), then `/arch-map` and `/glossary-init` for machine-readable
    module metadata and domain terms.
@@ -306,17 +307,22 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
 - `/arch-map` - bootstrap/refresh `architecture.yml` at repo root -
   machine-readable module metadata (role/stability/public_surface/...);
   hand-curated, `--validate` mode for CI
-- `/repo-doctor` - read-only AI-readiness audit. Scores ~20 dimensions
+- `/repo-doctor` - read-only AI-readiness audit. Scores ~24 dimensions
   across **Foundation** (AGENTS.md, CLAUDE.md, per-dir AGENTS.md),
   **Why** (ADRs, session logs), **What** (GLOSSARY.md,
   architecture.yml), **In-code** (AIDEV anchor density, overdue),
   **Hygiene** (tests + test/source LOC ratio, structured logging,
-  .gitignore, README quickstart, language manifest), and **Sync**
+  .gitignore, README quickstart, language manifest, CI config,
+  .env.example, reproducible env, secret guardrails), and **Sync**
   (code↔docs drift: arch-map vs disk, glossary vs code, per-dir
   AGENTS.md staleness, CHANGELOG vs version, README slash-refs).
-  Each gap → concrete fix action. `--score` / `--json` /
-  `--fail-on missing|todo|stale` / `--scope foundation|why|what|hygiene|sync|all`
-  for CI gating
+  Reports a readiness level L0–L4 (gated, not averaged — ADR 0012)
+  plus a local score trend; `--fix` walks the top gaps. Each gap →
+  concrete fix action. `--score` / `--json` /
+  `--fail-on missing|todo|stale` /
+  `--scope foundation|why|what|incode|hygiene|sync|all` for CI gating;
+  `--semantic` adds an advisory truthfulness review (subagent,
+  never in the score)
 - `/refresh-context-map` - rebuild `.claude-leverage-context-map.json`,
   the manifest powering the `context-surface` PreToolUse hook. Run after
   anchor / per-dir `AGENTS.md` / ADR changes, or after a `git merge`
