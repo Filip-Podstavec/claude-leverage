@@ -32,6 +32,12 @@ Each subagent here has a TOML pair under `.codex/agents/` (generated from the
 MD frontmatter by `scripts/gen-codex-agents.py`). The MD form is canonical;
 re-run the generator after editing any agent. CI fails on drift.
 
+Known limitation: Codex agent TOML has no per-command Bash scoping, so the
+generator emits plain `Bash` where the Claude frontmatter says e.g.
+`Bash(git log:*)` — in Codex, containment relies on `sandbox_mode =
+"read-only"` (OS-level sandbox), not on the tool list. Applies to all three
+agents.
+
 ## Available agents
 
 - [`security-reviewer.md`](../agents/security-reviewer.md) — Sonnet, read-only.

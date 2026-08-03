@@ -74,10 +74,17 @@ ask the user to pre-allow `Bash(*)` to avoid it.
    `⛔ skipped: denylisted` — any command matching: `sudo`, `rm `,
    `curl … | sh`/`wget … | bash`, `git push`, `docker … --privileged`,
    `> /dev/`, `chmod -R`, `npm publish`, `twine upload`, `cargo publish`,
-   `gem push`. The denylist is a **tripwire, not a sandbox** — indirection
-   via `make` targets or npm scripts is not detectable; the platform
-   permission layer and the user's judgment at the preview are the real
-   gates.
+   `gem push`. The denylist is a **tripwire, not a sandbox**, and it
+   matches single lines only. Known bypasses the preview-reader's mental
+   model must include: indirection via `make` targets or npm scripts;
+   a download-then-execute pair split across two innocent-looking lines
+   (`curl -o s.sh …` then `sh s.sh`); obfuscated payloads
+   (`bash -c "$(… | base64 -d)"`). When the parsed list contains such a
+   pattern — a command executing or sourcing a file a previous command
+   fetched or wrote, or any encoded/eval-style construction — annotate
+   that row `⚠️ review closely: <reason>` in the preview so the user's
+   consent is informed. The platform permission layer and the user's
+   judgment at the preview are the real gates.
 
 4. **Preview + confirm (non-skippable).** Print the full table (command,
    source `file:line`, denylist status) and ask the user to confirm the

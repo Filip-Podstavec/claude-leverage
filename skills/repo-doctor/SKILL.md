@@ -35,11 +35,9 @@ allowed-tools:
   - Bash(stat:*)
   - Bash(date:*)
   - Bash(find:*)
-  - Bash(printf:*)
   - Bash(basename:*)
   - Bash(cksum:*)
   - Bash(cut:*)
-  - Bash(mkdir:*)
   - Bash(tail:*)
   - Bash(pwd:*)
   - Bash(grep:*)
@@ -611,7 +609,13 @@ meaningful on a full run.
     `Trend: 61 → 67 since 2026-07-12 (dimension set changed 20 → 22 — delta not comparable)`.
     Then `mkdir -p "$STATE_DIR/repo-doctor"` and append **exactly this
     shape of command — do NOT retype or rewrite existing file contents;
-    append only**:
+    append only**. The `mkdir`/`printf` writes are deliberately NOT in
+    `allowed-tools` — write-capable commands with wildcard args would
+    be a prose-gated write primitive, the exact failure mode ADR 0012
+    (f) forbids. They go through the session's normal permission
+    prompt; a user who accepts the state-dir write can allowlist the
+    two commands in their own settings, and `--no-history` avoids the
+    prompt entirely:
 
     ```bash
     printf '%s\n' '{"date":"2026-08-01","v":"1.14.0","evaluated":22,"score":67,"groups":{...},"level":1}' >> "$STATE_DIR/repo-doctor/$SLUG.jsonl"
