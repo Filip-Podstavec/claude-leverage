@@ -5,11 +5,12 @@ description: >
   AI-first work here?", "is this repo agent-ready?", "audit my repo",
   "is anything out of sync with the code?", or when the
   bare-repo-nudge / cheatsheet hook suggests a checkup. Read-only
-  AI-readiness audit — scores ~20 dimensions across Foundation
+  AI-readiness audit — scores ~24 dimensions across Foundation
   (AGENTS.md / CLAUDE.md / per-dir AGENTS.md), Why (ADRs + session
   logs), What (GLOSSARY.md + architecture.yml), In-code (AIDEV
   anchor density + overdue), Hygiene (tests, LOC ratio, structured
-  logging, .gitignore, README, manifest), AND Sync (code↔docs
+  logging, .gitignore, README, manifest, CI config, .env.example,
+  repro env, secret guardrails), AND Sync (code↔docs
   drift: arch-map vs disk, glossary vs code, per-dir AGENTS.md vs
   dir activity, CHANGELOG vs version, README slash-refs). Each gap
   → concrete fix action. Differentiated from /init-repo (one-shot
@@ -28,7 +29,7 @@ allowed-tools:
   - Bash(stat:*)
   - Bash(date:*)
   - Bash(find:*)
-argument-hint: "[--score] [--json] [--fail-on missing|todo|stale] [--scope foundation|why|what|hygiene|all] [--quiet]"
+argument-hint: "[--score] [--json] [--fail-on missing|todo|stale] [--scope foundation|why|what|incode|hygiene|sync|all] [--quiet]"
 ---
 
 # /repo-doctor
@@ -37,10 +38,11 @@ argument-hint: "[--score] [--json] [--fail-on missing|todo|stale] [--scope found
 
 Reads the current repo and answers the question prose `AGENTS.md`
 doesn't cheaply answer per session: **what's missing for AI-first
-work here?** Output is a Markdown report scored across ~15 dimensions,
+work here?** Output is a Markdown report scored across ~24 dimensions,
 with a concrete fix action per gap (often "invoke `/X`").
 
-Read-only. Modifies nothing. The skill is an audit, not a bootstrap.
+Read-only on the repo; writes only local state (see Hard rules). The
+skill is an audit, not a bootstrap.
 
 This skill complements three existing ones with clean differentiation:
 
@@ -116,6 +118,10 @@ Do NOT invoke for:
 | .gitignore (claude-leverage state) | ✅ present | — |
 | README quickstart | ✅ present | — |
 | Language manifest | ✅ pyproject.toml | — |
+| CI config | ✅ .github/workflows/ci.yml | — |
+| .env.example | ⚠️ env usage in 3 files, no example | add `.env.example` with the required keys |
+| Reproducible env | ✅ poetry.lock (lockfile-level) | — |
+| Secret guardrails | ⚠️ only `.env` gitignored | add gitleaks to pre-commit or CI |
 
 ## Sync (code ↔ docs drift)
 
@@ -138,6 +144,15 @@ Do NOT invoke for:
 ```
 
 ## Dimensions
+
+How each dimension can be gamed — and what counters it:
+[`docs/repo-doctor-gaming.md`](../../docs/repo-doctor-gaming.md). Read it
+before trusting a suspiciously green report.
+
+**Predicate P (no-code repo):** the repo has zero tracked files matching
+the Dim 3 code-extension list. Dimensions that reference P return N/A
+when it holds — a docs-only repo gets no verdict (and no free ✅) on
+code-shaped checks.
 
 ### Foundation (3 checks — loaded every session, agent-facing)
 
@@ -278,8 +293,58 @@ Do NOT invoke for:
 15. **Language manifest present** — `pyproject.toml`, `package.json`,
     `go.mod`, `Cargo.toml`, `Gemfile`, `composer.json`, `pom.xml`,
     `mix.exs`. (Same list as `bare-repo-nudge.sh`.)
-    - ❌ if none found AND repo has source code files.
-    - ✅ otherwise. Report which manifest(s) found.
+    - ❌ if none found.
+    - ✅ if found. Report which manifest(s) found.
+    - N/A under predicate P (pre-v1.14.0 this returned a free ✅ on
+      code-less repos — that inflated scores and is fixed).
+
+### Engineering hygiene — delivery additions (4 checks, v1.14.0)
+
+21. **CI config present** — glob `.github/workflows/*.{yml,yaml}`,
+    `.gitlab-ci.yml`, `.circleci/config.yml`, `azure-pipelines.yml`,
+    `Jenkinsfile`, `.drone.yml`, `.gitea/workflows/*`.
+    - ✅ if ≥1 config found AND it declares a push/PR trigger
+      (grep `on:`, `trigger:`, `pipelines:` per system).
+    - ⚠️ if a config exists but no push/PR trigger is detectable.
+    - ❌ if none found.
+    - N/A under predicate P.
+
+22. **`.env.example` present** — first detect env-config usage: grep
+    `os\.environ|getenv\(|process\.env|dotenv|ENV\[` across source (same
+    noise-path filter as Dim 8) and count distinct files with hits.
+    - N/A if no env usage detected.
+    - ✅ if `.env.example` / `.env.sample` / `.env.template` exists with
+      ≥1 `KEY=`-shaped line.
+    - ⚠️ if env usage in 1–4 files and no example file.
+    - ❌ if env usage in ≥5 files and no example file (config surface is
+      clearly load-bearing and entirely undocumented).
+    - `.env`-not-gitignored is Dim 24's job — do not double-penalize here.
+
+23. **Reproducible dev environment** — check for
+    `.devcontainer/devcontainer.json`, `flake.nix`/`shell.nix`,
+    `docker-compose.y*ml` (or Dockerfile paired with compose/devcontainer),
+    `.tool-versions`, `mise.toml`; else for a lockfile
+    (`package-lock.json`, `poetry.lock`, `uv.lock`, `Cargo.lock`,
+    `go.sum`, `Gemfile.lock`).
+    - ✅ if an explicit environment definition is found.
+    - ✅ (with note "lockfile-level reproducibility") if only a lockfile —
+      for most single-language stacks a lockfile IS the reproducibility
+      story; don't punish the common healthy case.
+    - ⚠️ if neither. (A bare production Dockerfile without compose /
+      devcontainer does not count as a dev-environment definition.)
+    - N/A under predicate P.
+
+24. **Secret-hygiene guardrails** — only repo-visible, machine-independent
+    mechanisms count fully: `.pre-commit-config.yaml` mentioning
+    `gitleaks|detect-secrets|trufflehog`, `.gitleaks.toml`, a CI config
+    invoking one of those scanners, or an in-tree `.githooks/` pre-commit
+    running one.
+    - ✅ if ≥1 such mechanism found.
+    - ⚠️ if none, but root `AGENTS.md` carries the `claude-leverage:`
+      marker (stack adopted; hook enforcement is machine-local and not
+      verifiable from the repo — see ADR 0012 on why this caps at ⚠️) OR
+      `.gitignore` covers `.env` (minimal hygiene).
+    - ❌ if none of the above AND `.env` is not gitignored.
 
 ### Sync (5 checks — code ↔ docs drift detection)
 
@@ -392,7 +457,7 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
    walk tracked files".
 
 2. **Optionally narrow by `--scope`.** Run only the dimensions in the
-   requested scope group. Default: all 20.
+   requested scope group. Default: all 24.
 
 3. **Run each dimension's check.** Use the `allowed-tools` listed —
    `Read` for AGENTS.md / CLAUDE.md / README / GLOSSARY.md /
@@ -404,7 +469,7 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
 
 4. **Compute the score** as simple sum: ✅ = 1.0, ⚠️ = 0.5, ❌ = 0.
    Divide by the number of dimensions actually evaluated — that is,
-   20 minus the count of N/A verdicts (some Sync and Hygiene
+   24 minus the count of N/A verdicts (some Sync and Hygiene
    dimensions return N/A when their target artifact doesn't exist
    or the language has no convention to check). The divisor is
    further narrowed by `--scope`. Multiply by 100. Round.
@@ -469,9 +534,10 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
   repo-doctor --score)`.
 - `--json` — structured output (see step 5).
 - `--fail-on missing|todo|stale` — exit non-zero per step 7.
-- `--scope foundation|why|what|hygiene|sync|all` — narrow the check
-  set. `sync` runs only Dimensions 16–20 (drift detection); useful
-  for "did my last commit invalidate any docs?" runs.
+- `--scope foundation|why|what|incode|hygiene|sync|all` — narrow the
+  check set. `sync` runs only Dimensions 16–20 (drift detection);
+  useful for "did my last commit invalidate any docs?" runs.
+  `hygiene` includes the v1.14.0 delivery additions (Dims 21–24).
 - `--quiet` — suppress passing rows.
 - `--no-recommend` — skip the "Recommended next 3 actions" section.
 
@@ -507,4 +573,5 @@ checks use plain Bash + Read + Grep — no Claude-Code-specific tools.
   iterate `--json` outputs.
 - **Per-language quality gates** (lint config presence, type-check
   presence). Tempting but veers into language-coupling — out of
-  scope for v1.
+  scope for v1. (CI *presence* is Dim 21 since v1.14.0;
+  lint/type-check configs remain out of scope.)
