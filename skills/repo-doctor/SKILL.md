@@ -23,13 +23,21 @@ allowed-tools:
   - Glob
   - Bash(git rev-parse:*)
   - Bash(git ls-files:*)
+  - Bash(git log:*)
   - Bash(test:*)
   - Bash(ls:*)
   - Bash(wc:*)
   - Bash(stat:*)
   - Bash(date:*)
   - Bash(find:*)
-argument-hint: "[--score] [--json] [--fail-on missing|todo|stale] [--scope foundation|why|what|incode|hygiene|sync|all] [--quiet]"
+  - Bash(printf:*)
+  - Bash(basename:*)
+  - Bash(cksum:*)
+  - Bash(cut:*)
+  - Bash(mkdir:*)
+  - Bash(tail:*)
+  - Bash(pwd:*)
+argument-hint: "[--score] [--json] [--fail-on missing|todo|stale] [--scope foundation|why|what|incode|hygiene|sync|all] [--quiet] [--no-history]"
 ---
 
 # /repo-doctor
@@ -529,6 +537,35 @@ meaningful on a full run.
    }
    ```
 
+5b. **History + trend (default on; skip with `--no-history`, skip when
+    `--scope` is narrowed).** Resolve
+    `STATE_DIR="${CLAUDE_LEVERAGE_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/claude-leverage}"`,
+    falling back to `$HOME/.claude/claude-leverage` if that dir cannot
+    be created (same chain as `scripts/hooks/stack-freshness.sh`).
+    Canonicalize the repo root before hashing
+    (`ROOT_CANON=$(cd "$ROOT" && pwd -P)`) so worktree/symlink spellings
+    don't fork the history, then:
+    `SLUG="$(basename "$ROOT_CANON")-$(printf '%s' "$ROOT_CANON" | cksum | cut -d' ' -f1)"`.
+    Read the last line of `$STATE_DIR/repo-doctor/$SLUG.jsonl` (via
+    `tail -n 1`, if the file exists) and emit a Trend line in the
+    Summary: `Trend: 61 → 67 (+6) since 2026-07-12 · level L1 → L2`.
+    If the previous record's `v` or `evaluated` differs from this run,
+    annotate instead of celebrating:
+    `Trend: 61 → 67 since 2026-07-12 (dimension set changed 20 → 22 — delta not comparable)`.
+    Then `mkdir -p "$STATE_DIR/repo-doctor"` and append **exactly this
+    shape of command — do NOT retype or rewrite existing file contents;
+    append only**:
+
+    ```bash
+    printf '%s\n' '{"date":"2026-08-01","v":"1.14.0","evaluated":22,"score":67,"groups":{...},"level":1}' >> "$STATE_DIR/repo-doctor/$SLUG.jsonl"
+    ```
+
+    The record is the compact one-line JSON (`date`, `v` = plugin
+    version, `evaluated` = score divisor, `score`, `groups` from step 5,
+    `level`), NOT the full report. If the file exceeds ~200 lines, trim
+    it to the last 100 (`tail -n 100` into a temp file in the same dir,
+    then move it back) and say so.
+
 6. **`--quiet`**: suppress ✅ rows; show only ⚠️ + ❌ + the summary +
    recommendations. Default is full report.
 
@@ -542,10 +579,12 @@ meaningful on a full run.
 
 ## Hard rules
 
-- **Read-only.** Never modify, create, or delete any file (except
-  the `<state>/.last-repo-doctor` timestamp, which is in
-  `~/.local/state/claude-leverage/` not the repo). The report is
-  text on stdout (or stdout-bound markdown).
+- **Read-only on the repo.** Never modify, create, or delete any file
+  in the repo. The only writable location is the local state dir
+  (the `.last-repo-doctor` timestamp and `repo-doctor/<slug>.jsonl`
+  history — both under `~/.local/state/claude-leverage/` or its
+  fallback, never the repo). The report is text on stdout (or
+  stdout-bound markdown).
 - **Be honest about N/A.** A shell-heavy meta-repo doesn't need a
   "structured logging" verdict; mark it N/A and exclude it from
   the score divisor. Forcing every dimension on every repo
@@ -573,6 +612,8 @@ meaningful on a full run.
   `hygiene` includes the v1.14.0 delivery additions (Dims 21–24).
 - `--quiet` — suppress passing rows.
 - `--no-recommend` — skip the "Recommended next 3 actions" section.
+- `--no-history` — skip workflow step 5b (no state write, no Trend
+  line).
 
 ## What this skill does NOT do
 
@@ -594,7 +635,9 @@ meaningful on a full run.
 ## Codex parity
 
 Same SKILL.md ships in Codex via `scripts/install-codex.sh`. All
-checks use plain Bash + Read + Grep — no Claude-Code-specific tools.
+deterministic checks use plain Bash + Read + Grep — no
+Claude-Code-specific tools. History (step 5b) uses plain shell
+redirection and works identically in both tools.
 
 ## Future / not in scope here
 
