@@ -36,7 +36,12 @@ trusting a suspiciously green report — yours or a vendor's.
 | 23 | Reproducible env | stale lockfile nobody regenerates | none — accepted (lockfile freshness is out of scope) |
 | 24 | Secret guardrails | adopting the `claude-leverage:` marker without installing hooks | marker caps at ⚠️ (ADR 0012); ✅ needs a repo-visible scanner config |
 
-Two systemic notes:
+Three systemic notes:
+
+- **`/dynamic-check` can be gamed by curation** — declaring only the
+  commands that pass. Countered by the semantic review (S1/S2), which
+  judges *coverage*: docs that omit the obvious build/test story get
+  flagged for that instead.
 
 - **The score divisor is honest by construction** — N/A dims leave the
   divisor, so you cannot raise the score by making dimensions inapplicable.

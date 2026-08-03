@@ -65,6 +65,7 @@ This skill complements three existing ones with clean differentiation:
 | `/stack-check` | "What I have — is it stale?" *(freshness audit)* |
 | `/repo-doctor` | "What I *don't* have — what's missing?" *(presence + drift + opt-in truthfulness; guided handoff via `--fix`)* |
 | `/security-review` | "Is this diff safe to commit?" *(orthogonal — code-level scan)* |
+| `/dynamic-check` | "Do the declared commands actually run?" *(executes code — opt-in, separate skill per ADR 0013)* |
 
 ## When to invoke
 
@@ -155,6 +156,8 @@ Do NOT invoke for:
    hallucinating meaning
 3. Add a `## [1.6.0]` entry to `CHANGELOG.md` to close the
    version-drift gap
+
+_Declared-command validation (executes code, opt-in): `/dynamic-check`._
 ```
 
 ## Dimensions
