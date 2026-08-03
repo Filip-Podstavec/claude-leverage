@@ -6,8 +6,8 @@
   "plugins": [
     {
       "name": "claude-leverage",
-      "version": "1.13.0",
-      "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, 14 on-demand skills (incl. /repo-doctor — AI-readiness audit with code↔docs drift detection — and /refresh-context-map for the v1.8.0 smart-context-surfacing hook), ADR + session-log conventions, portable statusline. Complements other skills-based plugins, not a replacement.",
+      "version": "1.16.0",
+      "description": "Personal Claude Code + Codex dev stack: security hooks, AI-first code conventions, 16 on-demand skills (incl. /repo-doctor — AI-readiness audit with code↔docs drift detection — and /refresh-context-map for the v1.8.0 smart-context-surfacing hook), ADR + session-log conventions, portable statusline. Complements other skills-based plugins, not a replacement.",
       "source": {
         "source": "url",
         "url": "https://github.com/Filip-Podstavec/claude-leverage.git"

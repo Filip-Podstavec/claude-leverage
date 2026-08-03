@@ -5,6 +5,109 @@ All notable changes to `claude-leverage` are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] — 2026-08-02
+
+### Added
+
+- **`/dynamic-check` skill** — the only skill in the stack that executes
+  repo-declared commands: validates that the build/test/lint commands
+  documented in `AGENTS.md` / README quickstart actually run
+  (pass/fail/timeout per command, `file:line` source attribution).
+  Safety contract in
+  [ADR 0013](docs/adr/0013-dynamic-check-separate-skill-and-consent-layers.md):
+  ships as a separate skill (never a `/repo-doctor` scope), frontmatter
+  pre-approves only `git rev-parse` (declared commands ride the platform's
+  normal permission prompts — verified against official docs that skill
+  `allowed-tools` is an expansion with per-turn scoping), non-skippable
+  preview + confirmation with per-command exclusion, denylist tripwire,
+  300 s timeouts, stop-after-3-failures, fail-closed when non-interactive.
+  Advisory — never feeds `/repo-doctor`'s score or levels.
+- **ADR 0013** — the layered-consent contract above.
+- **`tests/test_dynamic_check_skill.py`** — guards that the frontmatter
+  never grows a broad `Bash` grant, the denylist keeps its required
+  patterns, and the fail-closed wording stays.
+
+### Fixed
+
+- **Stale README version badge** (said 1.11.0 since v1.12).
+
+## [1.15.0] — 2026-08-02
+
+### Added
+
+- **`readiness-reviewer` subagent** (Sonnet, read-only) — judges whether
+  discoverability artifacts tell the truth: S1 AGENTS.md actionability,
+  S2 README truthfulness, S3 ADR substance, S4 instruction conflicts,
+  S5 glossary informativeness. Evidence-or-silence rule (`file:line` per
+  finding), prompt-injection defense, low-confidence findings capped at
+  `attention`. Codex TOML parity generated.
+- **`/repo-doctor --semantic`** — dispatches the subagent and renders its
+  JSON as a separate advisory section. Deliberately a dedicated flag, not a
+  `--scope` value: `--scope all` stays "all deterministic dimensions"
+  (ADR 0012); verdicts never enter the score, groups, or level. A failed /
+  malformed / unavailable subagent degrades to
+  `Semantic review: unavailable (<reason>)` — the deterministic report
+  never fails over the advisory layer.
+- **`--fail-on semantic`** — opt-in exit-3 gate on semantic `fail`
+  verdicts with confidence ≥ medium; documented as belonging in scheduled
+  audits, not per-commit CI.
+
+### Changed
+
+- **Codex parity section is now honest about the exception:** `--semantic`
+  needs Claude Code subagent dispatch and degrades gracefully in Codex;
+  deterministic scopes unaffected.
+
+## [1.14.0] — 2026-08-02
+
+### Added
+
+- **`/repo-doctor` presence dimensions 21–24** (Hygiene group): CI config
+  (with push/PR-trigger check), `.env.example` (gated on detected env-config
+  usage), reproducible dev environment (devcontainer/nix/compose/tool-pins,
+  lockfile counts as ✅-with-note), and secret-hygiene guardrails (only
+  repo-visible mechanisms score ✅ — the stack's own `claude-leverage:`
+  marker deliberately caps at ⚠️, see ADR 0012).
+- **Readiness levels L0–L4** — gated, not averaged: L1 Instructed
+  (Foundation) → L2 Maintained (Hygiene) → L3 Explained (Why+What) → L4
+  Self-consistent (In-code+Sync). Canonical deficit gate formula in
+  [ADR 0012](docs/adr/0012-repo-doctor-levels-and-deterministic-core.md);
+  a required group with all dims N/A blocks its gate (`not assessable`).
+- **Local score history + trend** — each full run appends a compact JSON
+  record to `$STATE_DIR/repo-doctor/<slug>.jsonl` (shell redirection,
+  canonicalized-path slug, no cloud/telemetry/`origin` requirement); the
+  Summary gains a `Trend: 61 → 67 (+6)` line, annotated (not celebrated)
+  when the dimension set changed between runs. Opt-out: `--no-history`.
+- **`--fix [N]`** — guided handoff: walks the top-N recommended actions and
+  invokes the mapped bootstrap skill per confirmed item; the doctor itself
+  still writes nothing in the repo. Ignored with a warning in
+  non-interactive runs.
+- **`docs/repo-doctor-gaming.md`** — anti-Goodhart companion: one row per
+  dimension documenting how it's gamed and what counters it.
+- **ADR 0012** — deterministic-core / advisory-halo contract: the 0–100
+  score never includes model-judged or execution-dependent results.
+- **`tests/test_repo_doctor_skill.py`** — regex guards for dimension
+  numbering, group-heading counts, `--scope` list consistency, and
+  gaming-doc row coverage.
+
+### Fixed
+
+- **Dim 15 (language manifest) returned a free ✅ on code-less repos** —
+  now N/A under the shared no-code predicate, so docs-only repos don't get
+  score inflation.
+- **`--scope` value list normalized** to
+  `foundation|why|what|incode|hygiene|sync|all` — the frontmatter hint was
+  missing `sync` and there was no scope name for the In-code group.
+- **Missing `Bash(git log:*)` in `/repo-doctor` allowed-tools** — Sync
+  dimensions 16–18 have required `git log` since v1.7.0.
+- **Stale "~15 dimensions" claim** in the skill's What-it-does line.
+
+### Changed
+
+- **Score weight shifts toward Hygiene** (6/20 → 10/24 of dimensions) by
+  appending dims 21–24; accepted and documented rather than re-weighted
+  (ADR 0012), same call as the ADR 0007 divisor change.
+
 ## [1.13.0] — 2026-07-12
 
 ### Added

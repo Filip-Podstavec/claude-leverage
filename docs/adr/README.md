@@ -36,6 +36,8 @@ the original choice.
 - [0009 — AGENTS.md lean budget (8 KiB target / 32 KiB hard cap) and stack-check vs repo-doctor severity split](0009-agents-md-lean-budget-and-size-tiers.md)
 - [0010 — Naming: detect-and-conform over a prescribed house style](0010-naming-detect-and-conform-over-house-style.md)
 - [0011 — Codex plugin marketplace as a third distribution path](0011-codex-plugin-marketplace-third-distribution-path.md)
+- [0012 — `/repo-doctor` readiness levels and the deterministic-core / advisory-halo split](0012-repo-doctor-levels-and-deterministic-core.md)
+- [0013 — `/dynamic-check`: separate skill, layered consent for executing declared commands](0013-dynamic-check-separate-skill-and-consent-layers.md)
 
 (Keep this index in sync with the files in this directory; `/adr-new` will
 append to it automatically.)

@@ -5,30 +5,41 @@ description: >
   AI-first work here?", "is this repo agent-ready?", "audit my repo",
   "is anything out of sync with the code?", or when the
   bare-repo-nudge / cheatsheet hook suggests a checkup. Read-only
-  AI-readiness audit — scores ~20 dimensions across Foundation
+  AI-readiness audit — scores ~24 dimensions across Foundation
   (AGENTS.md / CLAUDE.md / per-dir AGENTS.md), Why (ADRs + session
   logs), What (GLOSSARY.md + architecture.yml), In-code (AIDEV
   anchor density + overdue), Hygiene (tests, LOC ratio, structured
-  logging, .gitignore, README, manifest), AND Sync (code↔docs
+  logging, .gitignore, README, manifest, CI config, .env.example,
+  repro env, secret guardrails), AND Sync (code↔docs
   drift: arch-map vs disk, glossary vs code, per-dir AGENTS.md vs
   dir activity, CHANGELOG vs version, README slash-refs). Each gap
-  → concrete fix action. Differentiated from /init-repo (one-shot
-  bootstrap, writes files) and /stack-check (time-based freshness)
-  — this skill answers completeness AND drift in one pass. See ADR
-  0006 (initial design) and ADR 0007 (Sync addition) for rationale.
+  → concrete fix action. Reports a readiness level L0-L4 (gated, ADR
+  0012) + local score trend; --fix walks the top gaps; --semantic adds
+  an advisory truthfulness review via the readiness-reviewer subagent.
+  Differentiated from /init-repo (one-shot bootstrap, writes files)
+  and /stack-check (time-based freshness) — this skill answers
+  completeness, drift AND (opt-in) truthfulness in one pass. See ADR
+  0006 (initial design), ADR 0007 (Sync addition), ADR 0012 (levels +
+  deterministic core) for rationale.
 allowed-tools:
   - Read
   - Grep
   - Glob
+  - Task
   - Bash(git rev-parse:*)
   - Bash(git ls-files:*)
+  - Bash(git log:*)
   - Bash(test:*)
   - Bash(ls:*)
   - Bash(wc:*)
   - Bash(stat:*)
   - Bash(date:*)
   - Bash(find:*)
-argument-hint: "[--score] [--json] [--fail-on missing|todo|stale] [--scope foundation|why|what|hygiene|all] [--quiet]"
+  - Bash(tail:*)
+  - Bash(grep:*)
+  - Bash(head:*)
+  - Bash(cat:*)
+argument-hint: "[--score] [--json] [--fail-on missing|todo|stale|semantic] [--scope foundation|why|what|incode|hygiene|sync|all] [--semantic] [--fix N] [--quiet] [--no-history] [--no-recommend]"
 ---
 
 # /repo-doctor
@@ -37,10 +48,11 @@ argument-hint: "[--score] [--json] [--fail-on missing|todo|stale] [--scope found
 
 Reads the current repo and answers the question prose `AGENTS.md`
 doesn't cheaply answer per session: **what's missing for AI-first
-work here?** Output is a Markdown report scored across ~15 dimensions,
+work here?** Output is a Markdown report scored across ~24 dimensions,
 with a concrete fix action per gap (often "invoke `/X`").
 
-Read-only. Modifies nothing. The skill is an audit, not a bootstrap.
+Read-only on the repo; writes only local state (see Hard rules). The
+skill is an audit, not a bootstrap.
 
 This skill complements three existing ones with clean differentiation:
 
@@ -48,8 +60,9 @@ This skill complements three existing ones with clean differentiation:
 |-------|---------------------|
 | `/init-repo` | "Set this fresh repo up." *(writes files)* |
 | `/stack-check` | "What I have — is it stale?" *(freshness audit)* |
-| `/repo-doctor` | "What I *don't* have — what's missing?" *(completeness audit)* |
+| `/repo-doctor` | "What I *don't* have — what's missing?" *(presence + drift + opt-in truthfulness; guided handoff via `--fix`)* |
 | `/security-review` | "Is this diff safe to commit?" *(orthogonal — code-level scan)* |
+| `/dynamic-check` | "Do the declared commands actually run?" *(executes code — opt-in, separate skill per ADR 0013)* |
 
 ## When to invoke
 
@@ -75,7 +88,8 @@ Do NOT invoke for:
 
 ## Summary
 
-✅ 8 pass · ⚠️ 4 attention · ❌ 3 missing · **Score: 67/100**
+✅ 11 pass · ⚠️ 8 attention · ❌ 5 missing · **Score: 63/100** ·
+**Level: L1 Instructed (L2 blocked by Hygiene: deficit 2.5 > 2.0)**
 
 ## Foundation (loaded every session)
 
@@ -116,6 +130,10 @@ Do NOT invoke for:
 | .gitignore (claude-leverage state) | ✅ present | — |
 | README quickstart | ✅ present | — |
 | Language manifest | ✅ pyproject.toml | — |
+| CI config | ✅ .github/workflows/ci.yml | — |
+| .env.example | ⚠️ env usage in 3 files, no example | add `.env.example` with the required keys |
+| Reproducible env | ✅ poetry.lock (lockfile-level) | — |
+| Secret guardrails | ⚠️ only `.env` gitignored | add gitleaks to pre-commit or CI |
 
 ## Sync (code ↔ docs drift)
 
@@ -135,9 +153,26 @@ Do NOT invoke for:
    hallucinating meaning
 3. Add a `## [1.6.0]` entry to `CHANGELOG.md` to close the
    version-drift gap
+
+_Declared-command validation (executes code, opt-in): `/dynamic-check`._
 ```
 
 ## Dimensions
+
+How each dimension can be gamed — and what counters it:
+[`docs/repo-doctor-gaming.md`](../../docs/repo-doctor-gaming.md). Read it
+before trusting a suspiciously green report.
+
+**Predicate P (no-code repo):** the repo has zero tracked files matching
+the Dim 3 code-extension list (which includes `.sh` — shell is code).
+Dimensions that reference P return N/A when it holds — a docs-only repo
+gets no verdict (and no free ✅) on code-shaped checks.
+
+Prefer the dedicated Grep/Glob tools for pattern scans. The `Bash`
+allowlist covers simple single-binary helper calls only — compound
+commands and `VAR=$(...)` assignments (the history slug/append in step
+5b) do not prefix-match any allowlist entry and ride the session's
+normal permission prompt by design (ADR 0012, Decision 6).
 
 ### Foundation (3 checks — loaded every session, agent-facing)
 
@@ -158,7 +193,7 @@ Do NOT invoke for:
    - ✅ if exists with `@AGENTS.md` import.
 
 3. **Per-directory `AGENTS.md`** — for each top-level source dir
-   (heuristic: has files matching `*.py|*.ts|*.tsx|*.js|*.jsx|*.go|*.rs|*.java|*.rb|*.php|*.cs|*.kt|*.swift`)
+   (heuristic: has files matching `*.py|*.ts|*.tsx|*.js|*.jsx|*.go|*.rs|*.java|*.rb|*.php|*.cs|*.kt|*.swift|*.sh|*.bash`)
    compute LOC (`wc -l` aggregated). For each with > 500 LOC and no
    `AGENTS.md` at that dir root, count it.
    - ✅ if 0 such dirs.
@@ -200,9 +235,11 @@ Do NOT invoke for:
 
 8. **AIDEV anchor density** — `grep -rE 'AIDEV-(NOTE|TODO|QUESTION)'`
    across tracked files (skip bench archive, vendor, node_modules,
-   __pycache__, .git, dist, build). Count matches. Divide by total
-   tracked code LOC (`git ls-files` filtered to code extensions →
-   `wc -l`). Express as anchors-per-KLOC. Bands use half-open
+   __pycache__, .git, dist, build; exclude matches inside test files —
+   there they are overwhelmingly fixture string literals, not anchors).
+   Count matches. Divide by total tracked code LOC (`git ls-files`
+   filtered to code extensions incl. `.sh` → `wc -l`). Express as
+   anchors-per-KLOC. Bands use half-open
    intervals (`[a, b)`) so every value falls in exactly one band:
    - ❌ if density `< 0.3/KLOC` AND total LOC `> 1000` (the repo is
      big enough that the absence is signal).
@@ -215,7 +252,12 @@ Do NOT invoke for:
    anchor walk (intentional overlap; `/stack-check` provides the
    full actionable detail, this dimension just surfaces the count
    in the completeness report). Parse `AIDEV-(TODO|QUESTION)(by:
-   YYYY-MM-DD)` and compare to today.
+   YYYY-MM-DD)` and compare to today. File scope mirrors the
+   `overdue-todo-nudge` hook: source code only — skip markdown/json
+   and the docs/templates/tests/bench/workflows trees (that's where
+   the convention's own example anchors and fixture literals live),
+   and apply the first-token rule (an AIDEV-NOTE quoting a TODO
+   example doesn't count).
    - ✅ if 0 overdue AND 0 due-soon.
    - ⚠️ if ≥1 due-soon (next 14 days) but 0 overdue.
    - ❌ if ≥1 overdue. Report top 3 with `file:line` and days
@@ -252,14 +294,16 @@ Do NOT invoke for:
     (`print(`, `console\.(log|info|warn|error)\(`, `fmt\.Print`,
     `println!`) vs structured logger imports (`structlog`, `pino`,
     `slog`, `tracing::`, `log/slog`).
-    - ❌ if ≥10 unstructured calls AND no structured-logger import
-      detected.
+    - N/A if no programming language with an app-logging convention
+      is detected, OR the `print(`-style hits are CLI stdout of
+      scripts/generators rather than application logging (shell-heavy
+      meta-repos, build tooling — stdout IS their interface). N/A
+      shrinks the divisor; don't award a ✅ for logging that doesn't
+      exist.
+    - ❌ if ≥10 unstructured app-logging calls AND no
+      structured-logger import detected.
     - ⚠️ if mixed (both kinds present).
-    - ✅ if all logging looks structured OR repo has <5 logging
-      calls total (e.g. a shell-heavy meta-repo like this one —
-      explicitly N/A rather than a failure).
-    - Skip the check entirely if no programming language with a
-      logging convention is detected.
+    - ✅ if all app logging looks structured.
 
 13. **`.gitignore` claude-leverage state** — `grep -E
     '\.last-stack-check|claude-leverage' .gitignore`.
@@ -277,9 +321,13 @@ Do NOT invoke for:
 
 15. **Language manifest present** — `pyproject.toml`, `package.json`,
     `go.mod`, `Cargo.toml`, `Gemfile`, `composer.json`, `pom.xml`,
-    `mix.exs`. (Same list as `bare-repo-nudge.sh`.)
-    - ❌ if none found AND repo has source code files.
-    - ✅ otherwise. Report which manifest(s) found.
+    `mix.exs` (same list as `bare-repo-nudge.sh`), plus
+    `.claude-plugin/plugin.json` for plugin repos — keeping this list
+    consistent with Dim 19's manifest precedence.
+    - ❌ if none found.
+    - ✅ if found. Report which manifest(s) found.
+    - N/A under predicate P (pre-v1.14.0 this returned a free ✅ on
+      code-less repos — that inflated scores and is fixed).
 
 ### Sync (5 checks — code ↔ docs drift detection)
 
@@ -375,6 +423,9 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
     - If `commands/foo.md` exists → resolved.
     - If text within 200 chars of the reference says "external" /
       "from `<plugin>`" / "upstream" → resolved (external skill).
+    - If text within 200 chars says "removed" / "renamed" /
+      "deprecated" / "historical" → resolved (historical mention,
+      e.g. a CHANGELOG-style "vX removed /foo" line).
     - Otherwise → unresolved.
     - ✅ if all resolved.
     - ⚠️ if `1–2` unresolved.
@@ -385,6 +436,87 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
     checks file paths in markdown); this one checks slash-command
     references against installed skills.
 
+### Engineering hygiene — delivery additions (4 checks, v1.14.0)
+
+Numbered after Sync because they shipped later (numbering is
+append-only, same convention as Dims 16–20); they belong to the
+**Hygiene** group and `--scope hygiene`.
+
+21. **CI config present** — glob `.github/workflows/*.{yml,yaml}`,
+    `.gitlab-ci.yml`, `.circleci/config.yml`, `azure-pipelines.yml`,
+    `Jenkinsfile`, `.drone.yml`, `.gitea/workflows/*`.
+    - ✅ if ≥1 config found AND it declares a push/PR trigger
+      (grep `on:`, `trigger:`, `pipelines:` per system).
+    - ⚠️ if a config exists but no push/PR trigger is detectable.
+    - ❌ if none found.
+    - N/A under predicate P.
+
+22. **`.env.example` present** — first detect env-config usage: grep
+    `os\.environ|getenv\(|process\.env|dotenv|ENV\[` across source (same
+    noise-path filter as Dim 8, **excluding test files** — tests set env
+    for fixtures, they don't consume config) and count distinct files
+    with hits.
+    - N/A if no env usage detected.
+    - N/A if there is no dotenv-style loader AND every detected read
+      uses a single project-prefixed override namespace (e.g.
+      `CLAUDE_LEVERAGE_*`) — those are opt-in feature flags, not
+      required configuration an agent must discover.
+    - ✅ if `.env.example` / `.env.sample` / `.env.template` exists with
+      ≥1 `KEY=`-shaped line.
+    - ⚠️ if env usage in 1–4 files and no example file.
+    - ❌ if env usage in ≥5 files and no example file (config surface is
+      clearly load-bearing and entirely undocumented).
+    - `.env`-not-gitignored is Dim 24's job — do not double-penalize here.
+
+23. **Reproducible dev environment** — check for
+    `.devcontainer/devcontainer.json`, `flake.nix`/`shell.nix`,
+    `docker-compose.y*ml` (or Dockerfile paired with compose/devcontainer),
+    `.tool-versions`, `mise.toml`; else for a lockfile
+    (`package-lock.json`, `poetry.lock`, `uv.lock`, `Cargo.lock`,
+    `go.sum`, `Gemfile.lock`).
+    - ✅ if an explicit environment definition is found.
+    - ✅ (with note "lockfile-level reproducibility") if only a lockfile —
+      for most single-language stacks a lockfile IS the reproducibility
+      story; don't punish the common healthy case.
+    - ⚠️ if neither. (A bare production Dockerfile without compose /
+      devcontainer does not count as a dev-environment definition.)
+    - N/A under predicate P.
+
+24. **Secret-hygiene guardrails** — only repo-visible, machine-independent
+    mechanisms count fully: `.pre-commit-config.yaml` mentioning
+    `gitleaks|detect-secrets|trufflehog`, `.gitleaks.toml`, a CI config
+    invoking one of those scanners, or an in-tree `.githooks/` pre-commit
+    running one.
+    - ✅ if ≥1 such mechanism found.
+    - ⚠️ if none, but root `AGENTS.md` carries the `claude-leverage:`
+      marker (stack adopted; hook enforcement is machine-local and not
+      verifiable from the repo — see ADR 0012 on why this caps at ⚠️) OR
+      `.gitignore` covers `.env` (minimal hygiene).
+    - ❌ if none of the above AND `.env` is not gitignored.
+
+## Levels
+
+A communication layer on top of the score (ADR 0012). Levels gate — they
+never average. Per group compute `points` (✅=1.0, ⚠️=0.5, ❌=0) and
+`evaluated` (dims minus N/A). A group **passes** iff
+`evaluated − points ≤ max(0.5, 0.2 × evaluated)` — the 80 % rule for
+groups of ≥3 dims, with a floor so 2-dim groups tolerate one ⚠️ but no
+❌. A required group with zero evaluated dims blocks its gate
+(`not assessable`), never satisfies it.
+
+| Level | Name | Requires (cumulative) |
+|---|---|---|
+| L0 | Ad-hoc | — |
+| L1 | Instructed | Foundation passes |
+| L2 | Maintained | Hygiene passes |
+| L3 | Explained | Why passes AND What passes |
+| L4 | Self-consistent | In-code passes AND Sync passes |
+
+Report the achieved level plus the blocking gate for the next one, e.g.
+`Level: L2 Maintained (L3 blocked by Why: deficit 1.0 > 0.5)`. With
+`--scope` narrowed, skip the levels line entirely — levels are only
+meaningful on a full run.
+
 ## Workflow
 
 1. **Resolve repo root.** `git rev-parse --show-toplevel`. If not in
@@ -392,7 +524,7 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
    walk tracked files".
 
 2. **Optionally narrow by `--scope`.** Run only the dimensions in the
-   requested scope group. Default: all 20.
+   requested scope group. Default: all 24.
 
 3. **Run each dimension's check.** Use the `allowed-tools` listed —
    `Read` for AGENTS.md / CLAUDE.md / README / GLOSSARY.md /
@@ -402,9 +534,28 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
    (bench/archive-*, node_modules, __pycache__, .git, dist, build,
    vendor, target, .next, .pytest_cache).
 
+3b. **Semantic review (only when `--semantic`).** Dispatch the
+    `readiness-reviewer` subagent (read-only; see its file for the S1–S5
+    dimension definitions). Render its JSON as:
+
+    ```markdown
+    ## Semantic review (advisory — not in the score, ADR 0012)
+
+    | Dim | Verdict | Confidence | Evidence | Fix |
+    |---|---|---|---|---|
+    | S1 AGENTS.md actionability | ⚠️ attention | high | AGENTS.md:42 — declares `make test`; no Makefile | replace with real command |
+    ```
+
+    With `--json`, attach the subagent object unmodified under a
+    top-level `"semantic"` key — never merged into `score`, `groups`,
+    or `level`. If the subagent fails, returns malformed JSON, or
+    subagent dispatch is unavailable in this runtime (Codex), report
+    `Semantic review: unavailable (<reason>)` and continue — never fail
+    the deterministic report over the advisory layer.
+
 4. **Compute the score** as simple sum: ✅ = 1.0, ⚠️ = 0.5, ❌ = 0.
    Divide by the number of dimensions actually evaluated — that is,
-   20 minus the count of N/A verdicts (some Sync and Hygiene
+   24 minus the count of N/A verdicts (some Sync and Hygiene
    dimensions return N/A when their target artifact doesn't exist
    or the language has no convention to check). The divisor is
    further narrowed by `--scope`. Multiply by 100. Round.
@@ -422,6 +573,15 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
      "date": "2026-05-26",
      "score": 67,
      "summary": {"pass": 8, "attention": 4, "missing": 3},
+     "groups": {
+       "foundation": {"points": 2.5, "evaluated": 3},
+       "why": {"points": 1.0, "evaluated": 2},
+       "what": {"points": 1.5, "evaluated": 2},
+       "incode": {"points": 1.5, "evaluated": 2},
+       "hygiene": {"points": 2.0, "evaluated": 4},
+       "sync": {"points": 1.5, "evaluated": 2}
+     },
+     "level": {"n": 1, "name": "Instructed", "blocked_by": "hygiene"},
      "dimensions": [
        {"name": "agents-md-root", "status": "pass", "value": "4.2 KiB", "fix": null},
        {"name": "glossary-md", "status": "missing", "value": null, "fix": "/glossary-init"},
@@ -431,23 +591,81 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
    }
    ```
 
+5b. **History + trend (default on; skip with `--no-history`, skip when
+    `--scope` is narrowed).** Resolve
+    `STATE_DIR="${CLAUDE_LEVERAGE_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/claude-leverage}"`,
+    falling back to `$HOME/.claude/claude-leverage` if that dir cannot
+    be created (same chain as `scripts/hooks/stack-freshness.sh`).
+    Canonicalize the repo root before hashing
+    (`ROOT_CANON=$(cd "$ROOT" && pwd -P)`) so worktree/symlink spellings
+    don't fork the history, then:
+    `SLUG="$(basename "$ROOT_CANON")-$(printf '%s' "$ROOT_CANON" | cksum | cut -d' ' -f1)"`.
+    Read the last line of `$STATE_DIR/repo-doctor/$SLUG.jsonl` (via
+    `tail -n 1`, if the file exists) and emit a Trend line in the
+    Summary: `Trend: 61 → 67 (+6) since 2026-07-12 · level L1 → L2`.
+    If the previous record's `v` or `evaluated` differs from this run,
+    annotate instead of celebrating:
+    `Trend: 61 → 67 since 2026-07-12 (dimension set changed 20 → 22 — delta not comparable)`.
+    Then `mkdir -p "$STATE_DIR/repo-doctor"` and append **exactly this
+    shape of command — do NOT retype or rewrite existing file contents;
+    append only**. None of the 5b commands (slug assignment, `mkdir`,
+    `printf` append, trim `mv`) are in `allowed-tools` — write-capable
+    commands with wildcard args would be a prose-gated write primitive,
+    the exact failure mode ADR 0012 (Decision 6) forbids, and compound/
+    assignment commands wouldn't prefix-match anyway. Expect 1–2
+    permission prompts per run; a user who accepts the state-dir write
+    can allowlist the exact commands in their own settings, and
+    `--no-history` avoids the prompts entirely. In a restricted run
+    where the prompt is denied, skip history silently — never fail the
+    report over it:
+
+    ```bash
+    printf '%s\n' '{"date":"<YYYY-MM-DD>","v":"<plugin version>","evaluated":<divisor>,"score":<score>,"groups":{...},"level":<n>}' >> "$STATE_DIR/repo-doctor/$SLUG.jsonl"
+    ```
+
+    The record is the compact one-line JSON (`date`, `v` = plugin
+    version, `evaluated` = score divisor, `score`, `groups` from step 5,
+    `level`), NOT the full report. If the file exceeds ~200 lines, trim
+    it to the last 100 (`tail -n 100` into a temp file in the same dir,
+    then move it back) and say so. Finally refresh the freshness
+    timestamp the Hard rules mention:
+    `date +%s > "$STATE_DIR/.last-repo-doctor"`.
+
 6. **`--quiet`**: suppress ✅ rows; show only ⚠️ + ❌ + the summary +
    recommendations. Default is full report.
+
+6b. **`--fix [N]` (default 3).** After emitting the report, walk the
+    recommended actions top-down. Per item: show the gap + the mapped
+    skill, ask the user (one item at a time), on yes invoke that skill
+    (it carries its own confirmation flow) — or, where skill invocation
+    is unavailable in this runtime, print the exact slash command to
+    run; on no move on. The doctor itself writes nothing in the repo.
+    `--fix` implies the recommendations walk even when `--no-recommend`
+    is passed (`--fix` wins, with a note). After the walk, suggest
+    `/repo-doctor --quiet` to re-score. In non-interactive runs
+    (`--score`, `--json`, CI), ignore `--fix` and print a one-line
+    warning.
 
 7. **Exit code.** `0` always, UNLESS `--fail-on` was passed:
    - `--fail-on missing` → exit 2 if any ❌
    - `--fail-on todo` → exit 1 if any ⚠️ (TODO/draft state)
    - `--fail-on stale` → exit 1 if any "stale" status (overdue
      anchors, old session log)
+   - `--fail-on semantic` (requires `--semantic`) → exit 3 if any
+     semantic `fail` verdict with confidence ≥ medium. This gate is
+     non-deterministic by nature — it belongs in scheduled audits,
+     not per-commit CI.
 
    This is what makes the skill useful in CI as a gate.
 
 ## Hard rules
 
-- **Read-only.** Never modify, create, or delete any file (except
-  the `<state>/.last-repo-doctor` timestamp, which is in
-  `~/.local/state/claude-leverage/` not the repo). The report is
-  text on stdout (or stdout-bound markdown).
+- **Read-only on the repo.** Never modify, create, or delete any file
+  in the repo. The only writable location is the local state dir
+  (the `.last-repo-doctor` timestamp and `repo-doctor/<slug>.jsonl`
+  history — both under `~/.local/state/claude-leverage/` or its
+  fallback, never the repo). The report is text on stdout (or
+  stdout-bound markdown).
 - **Be honest about N/A.** A shell-heavy meta-repo doesn't need a
   "structured logging" verdict; mark it N/A and exclude it from
   the score divisor. Forcing every dimension on every repo
@@ -465,21 +683,35 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
 ## Tunables
 
 - `--score` — print only the integer 0–100 score on stdout, no
-  Markdown. Useful for CI scripts: `score=$(claude /skill
-  repo-doctor --score)`.
+  Markdown (suppresses the Trend line too; the history append itself
+  still happens unless `--no-history`). Useful for CI scripts:
+  `score=$(claude /skill repo-doctor --score)`.
 - `--json` — structured output (see step 5).
-- `--fail-on missing|todo|stale` — exit non-zero per step 7.
-- `--scope foundation|why|what|hygiene|sync|all` — narrow the check
-  set. `sync` runs only Dimensions 16–20 (drift detection); useful
-  for "did my last commit invalidate any docs?" runs.
+- `--fail-on missing|todo|stale|semantic` — exit non-zero per step 7
+  (`semantic` requires `--semantic`).
+- `--scope foundation|why|what|incode|hygiene|sync|all` — narrow the
+  check set. `sync` runs only Dimensions 16–20 (drift detection);
+  useful for "did my last commit invalidate any docs?" runs.
+  `hygiene` includes the v1.14.0 delivery additions (Dims 21–24).
 - `--quiet` — suppress passing rows.
 - `--no-recommend` — skip the "Recommended next 3 actions" section.
+- `--no-history` — skip workflow step 5b (no state write, no Trend
+  line).
+- `--fix [N]` — after the report, offer the top-N recommended actions
+  one at a time and invoke the mapped skill on yes (workflow step 6b).
+  Interactive only.
+- `--semantic` — additionally dispatch the `readiness-reviewer`
+  subagent (workflow step 3b; token cost: one Sonnet subagent run;
+  non-deterministic by nature). Deliberately NOT a `--scope` value:
+  `--scope all` stays "all deterministic dimensions" (ADR 0012).
 
 ## What this skill does NOT do
 
 - **Bootstrap missing artifacts.** That's `/init-repo` (for AGENTS.md
   + .gitignore + logging template) and the per-skill bootstraps
   (`/glossary-init`, `/arch-map`, `/adr-new`, `/session-log`).
+  (`--fix` only *invokes* those skills interactively; it never writes
+  files itself.)
 - **Check version freshness.** That's `/stack-check`.
 - **Audit code for security issues.** That's `/security-review`.
 - **Run tests / linters.** Out of scope — those are project-local
@@ -495,7 +727,12 @@ relevant earlier dimension (e.g. Dim 7 for `architecture.yml`).
 ## Codex parity
 
 Same SKILL.md ships in Codex via `scripts/install-codex.sh`. All
-checks use plain Bash + Read + Grep — no Claude-Code-specific tools.
+deterministic checks use plain Bash + Read + Grep — no
+Claude-Code-specific tools. History (step 5b) uses plain shell
+redirection and works identically in both tools. **Exception:**
+`--semantic` requires Claude Code subagent dispatch; in Codex it
+degrades to `Semantic review: unavailable (no subagent dispatch)` and
+the deterministic scopes are unaffected.
 
 ## Future / not in scope here
 
@@ -507,4 +744,5 @@ checks use plain Bash + Read + Grep — no Claude-Code-specific tools.
   iterate `--json` outputs.
 - **Per-language quality gates** (lint config presence, type-check
   presence). Tempting but veers into language-coupling — out of
-  scope for v1.
+  scope for v1. (CI *presence* is Dim 21 since v1.14.0;
+  lint/type-check configs remain out of scope.)

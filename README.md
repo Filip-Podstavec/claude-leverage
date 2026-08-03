@@ -13,10 +13,10 @@
 
 [![CI](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml/badge.svg)](https://github.com/Filip-Podstavec/claude-leverage/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.11.0-success)
-![Skills](https://img.shields.io/badge/skills-15-8b5cf6)
+![Version](https://img.shields.io/badge/version-1.16.0-success)
+![Skills](https://img.shields.io/badge/skills-16-8b5cf6)
 ![Hooks](https://img.shields.io/badge/hooks-9-orange)
-![Subagents](https://img.shields.io/badge/subagents-2-1f6feb)
+![Subagents](https://img.shields.io/badge/subagents-3-1f6feb)
 
 </div>
 
@@ -101,9 +101,10 @@ Three properties guide every decision in this repo:
 
 Then make the repo AI-ready, top-down:
 
-1. **`/repo-doctor`** - read-only AI-readiness audit. Scores ~20 dimensions
-   (Foundation / Why / What / In-code / Hygiene / Sync) and names the gaps that
-   matter most.
+1. **`/repo-doctor`** - read-only AI-readiness audit. Scores ~24 dimensions
+   (Foundation / Why / What / In-code / Hygiene / Sync), reports a readiness
+   level (L0–L4) with a local score trend, and names the gaps that matter
+   most (`--fix` walks you through them).
 2. **Fix the top gaps it reports** - usually `/init-repo` (drop in a root
    `AGENTS.md`), then `/arch-map` and `/glossary-init` for machine-readable
    module metadata and domain terms.
@@ -125,7 +126,7 @@ Full install (including Codex CLI) is below.
 ```
 
 That's it. **Restart Claude Code** (or run `/skill list` and `/agents` in a
-current session) to pick up all 15 skills and 2 subagents.
+current session) to pick up all 16 skills and 3 subagents.
 
 ### Codex CLI
 
@@ -171,7 +172,7 @@ pwsh scripts/install-codex.ps1        # Windows PowerShell
 2. Appends `@<repo-path>/AGENTS.md` to `~/.codex/AGENTS.md` so the canonical
    guidance loads on every Codex session.
 3. Copies `.codex/agents/*.toml` to `~/.codex/agents/`.
-4. Copies all 15 skills to `~/.agents/skills/claude-leverage/` so they work
+4. Copies all 16 skills to `~/.agents/skills/claude-leverage/` so they work
    in Codex sessions exactly as in Claude Code.
 
 **Idempotent**: re-running detects existing install via marker comments and
@@ -306,17 +307,27 @@ Restart Claude Code. To opt out later: delete the `statusLine` block from
 - `/arch-map` - bootstrap/refresh `architecture.yml` at repo root -
   machine-readable module metadata (role/stability/public_surface/...);
   hand-curated, `--validate` mode for CI
-- `/repo-doctor` - read-only AI-readiness audit. Scores ~20 dimensions
+- `/repo-doctor` - read-only AI-readiness audit. Scores ~24 dimensions
   across **Foundation** (AGENTS.md, CLAUDE.md, per-dir AGENTS.md),
   **Why** (ADRs, session logs), **What** (GLOSSARY.md,
   architecture.yml), **In-code** (AIDEV anchor density, overdue),
   **Hygiene** (tests + test/source LOC ratio, structured logging,
-  .gitignore, README quickstart, language manifest), and **Sync**
+  .gitignore, README quickstart, language manifest, CI config,
+  .env.example, reproducible env, secret guardrails), and **Sync**
   (code↔docs drift: arch-map vs disk, glossary vs code, per-dir
   AGENTS.md staleness, CHANGELOG vs version, README slash-refs).
-  Each gap → concrete fix action. `--score` / `--json` /
-  `--fail-on missing|todo|stale` / `--scope foundation|why|what|hygiene|sync|all`
-  for CI gating
+  Reports a readiness level L0–L4 (gated, not averaged — ADR 0012)
+  plus a local score trend; `--fix` walks the top gaps. Each gap →
+  concrete fix action. `--score` / `--json` /
+  `--fail-on missing|todo|stale|semantic` /
+  `--scope foundation|why|what|incode|hygiene|sync|all` for CI gating;
+  `--semantic` adds an advisory truthfulness review (subagent,
+  never in the score)
+- `/dynamic-check` - the only skill that executes repo-declared commands:
+  validates that the build/test/lint commands documented in AGENTS.md /
+  README quickstart actually run. Preview + explicit confirmation +
+  denylist tripwire + platform permission prompts (ADR 0013); fail-closed
+  when non-interactive; advisory — never feeds `/repo-doctor`'s score
 - `/refresh-context-map` - rebuild `.claude-leverage-context-map.json`,
   the manifest powering the `context-surface` PreToolUse hook. Run after
   anchor / per-dir `AGENTS.md` / ADR changes, or after a `git merge`
@@ -693,7 +704,7 @@ echo 'aws_key = "AKIAIOSFODNN7EXAMPLE"' > /tmp/test.txt && git add /tmp/test.txt
 ```bash
 # Linux / macOS / WSL2
 rm -rf ~/.agents/skills/claude-leverage
-rm    ~/.codex/agents/security-reviewer.toml ~/.codex/agents/flaky-test-isolator.toml
+rm    ~/.codex/agents/security-reviewer.toml ~/.codex/agents/flaky-test-isolator.toml ~/.codex/agents/readiness-reviewer.toml
 # restore original ~/.codex/hooks.json (the installer leaves a .bak)
 mv ~/.codex/hooks.json.pre-claude-leverage.bak ~/.codex/hooks.json 2>/dev/null \
    || rm ~/.codex/hooks.json
@@ -705,7 +716,7 @@ PowerShell variant:
 
 ```powershell
 Remove-Item -Recurse -Force $env:USERPROFILE\.agents\skills\claude-leverage
-Remove-Item -Force $env:USERPROFILE\.codex\agents\security-reviewer.toml,$env:USERPROFILE\.codex\agents\flaky-test-isolator.toml
+Remove-Item -Force $env:USERPROFILE\.codex\agents\security-reviewer.toml,$env:USERPROFILE\.codex\agents\flaky-test-isolator.toml,$env:USERPROFILE\.codex\agents\readiness-reviewer.toml
 $bak = "$env:USERPROFILE\.codex\hooks.json.pre-claude-leverage.bak"
 if (Test-Path $bak) { Move-Item -Force $bak "$env:USERPROFILE\.codex\hooks.json" }
 else { Remove-Item -Force "$env:USERPROFILE\.codex\hooks.json" }

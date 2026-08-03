@@ -58,9 +58,21 @@ fi
 # silently mis-parse when the delimiter character appears literally in
 # REPO_DIR (e.g. '#' in '~/projects/my#project/...'), producing a broken
 # JSON file with no error. Python's str.replace is delimiter-free.
-PY_BIN=$(command -v python3 || command -v python || true)
+#
+# AIDEV-NOTE: probe EXECUTION, not presence — on Windows `python3` is often
+# the MS Store stub: on PATH, but exits with "Python was not found". Same
+# class of failure scripts/hooks/json_parse.sh cl_python_bin() guards
+# against; a bare `command -v python3` here broke smoke-plugin step 7.
+PY_BIN=""
+for _py_candidate in python3 python; do
+  if command -v "$_py_candidate" >/dev/null 2>&1 \
+     && "$_py_candidate" -c 'pass' >/dev/null 2>&1; then
+    PY_BIN="$_py_candidate"
+    break
+  fi
+done
 if [ -z "$PY_BIN" ]; then
-  die "python3 or python is required for install-codex (path substitution); install one and re-run"
+  die "a working python3 or python is required for install-codex (path substitution); install one and re-run"
 fi
 "$PY_BIN" -c '
 import sys
@@ -185,6 +197,6 @@ say "next: start a Codex session and verify with: codex --version"
 say ""
 say "to uninstall, run:"
 say "  rm -rf $SKILLS_DEST"
-say "  rm -f $CODEX_HOME/agents/security-reviewer.toml $CODEX_HOME/agents/flaky-test-isolator.toml"
+say "  rm -f $CODEX_HOME/agents/security-reviewer.toml $CODEX_HOME/agents/flaky-test-isolator.toml $CODEX_HOME/agents/readiness-reviewer.toml"
 say "  rm -f $target_hooks  # (or restore $target_hooks.pre-claude-leverage.bak if present)"
 say "  # then edit $target_agents and remove the block between the two '# claude-leverage:' markers"
